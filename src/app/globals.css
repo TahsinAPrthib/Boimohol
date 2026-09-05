@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-paper text-ink font-body;
+    background-image: radial-gradient(
+      circle at 1px 1px,
+      rgba(42, 36, 32, 0.05) 1px,
+      transparent 0
+    );
+    background-size: 22px 22px;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display;
+  }
+
+  ::selection {
+    @apply bg-turmeric text-ink;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-book bg-cloth px-5 py-2.5
+      font-body font-semibold text-paper shadow-shelf transition-colors hover:bg-cloth-light
+      focus:outline-none focus-visible:ring-2 focus-visible:ring-turmeric focus-visible:ring-offset-2
+      focus-visible:ring-offset-paper;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-book border-2 border-ink/20 bg-transparent
+      px-5 py-2.5 font-body font-semibold text-ink transition-colors hover:border-ink/40
+      focus:outline-none focus-visible:ring-2 focus-visible:ring-turmeric focus-visible:ring-offset-2
+      focus-visible:ring-offset-paper;
+  }
+
+  .field-label {
+    @apply mb-1 block font-body text-sm font-semibold text-ink/80;
+  }
+
+  .field-input {
+    @apply w-full rounded-book border-2 border-ink/15 bg-paper px-3 py-2 font-body text-ink
+      placeholder:text-ink/40 focus:border-cloth focus:outline-none;
+  }
+
+  .field-error {
+    @apply mt-1 font-body text-sm text-oxblood;
+  }
+}

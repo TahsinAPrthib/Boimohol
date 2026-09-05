@@ -1,0 +1,196 @@
+// Boi Mohol (বই মহল) — MVP schema
+// v2 tables (Listing, BookRequest, Conversation, Message, Wishlist) are
+// intentionally left out of the MVP; see README for the phased roadmap.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  READER
+  ADMIN
+}
+
+enum FileType {
+  FREE
+  PAID
+}
+
+enum ShelfStatus {
+  WANT
+  READING
+  FINISHED
+}
+
+enum ListingCondition {
+  NEW
+  LIKE_NEW
+  GOOD
+  FAIR
+  WORN
+}
+
+enum ListingType {
+  SELL
+  EXCHANGE
+  DONATE
+}
+
+enum ListingStatus {
+  AVAILABLE
+  RESERVED
+  COMPLETED
+  REMOVED
+}
+
+model User {
+  id              String            @id @default(cuid())
+  name            String
+  username        String            @unique
+  email           String            @unique
+  passwordHash    String
+  bio             String?
+  location        String?
+  role            Role              @default(READER)
+  yearlyGoal      Int? // books-per-year goal; no goal set is a valid state
+  createdAt       DateTime          @default(now())
+  reviews         Review[]
+  shelfItems      ShelfItem[]
+  readingActivity ReadingActivity[]
+  listings        Listing[]
+}
+
+model Category {
+  id           String        @id @default(cuid())
+  slug         String        @unique
+  name         String // English name (for URLs/admin)
+  nameBangla   String // Displayed name
+  description  String?
+  colorKey     String        @default("cloth") // maps to a palette key for generated covers/badges
+  books        Book[]
+  starterPicks StarterPick[]
+  listings     Listing[]
+}
+
+model Book {
+  id             String        @id @default(cuid())
+  title          String
+  titleBangla    String?
+  author         String
+  categoryId     String
+  category       Category      @relation(fields: [categoryId], references: [id])
+  description    String
+  language       String        @default("bn")
+  isPublicDomain Boolean       @default(false)
+  publishYear    Int?
+  createdAt      DateTime      @default(now())
+  reviews        Review[]
+  shelfItems     ShelfItem[]
+  starterPicks   StarterPick[]
+  files          BookFile[]
+
+  @@index([categoryId])
+}
+
+// Represents an uploaded readable file for a book (feature #4).
+// rightsVerified must be true before a PAID file can be listed for sale,
+// and should only be true for FREE files that are genuinely public domain
+// or explicitly licensed — see README's copyright section.
+model BookFile {
+  id             String   @id @default(cuid())
+  bookId         String
+  book           Book     @relation(fields: [bookId], references: [id])
+  type           FileType @default(FREE)
+  price          Float?
+  fileUrl        String
+  rightsVerified Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  @@index([bookId])
+}
+
+model Review {
+  id            String   @id @default(cuid())
+  bookId        String
+  book          Book     @relation(fields: [bookId], references: [id])
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  rating        Int // 1-5, required overall rating
+  plotRating    Int? // 1-5, optional aspect rating
+  writingRating Int? // 1-5, optional aspect rating
+  pacingRating  Int? // 1-5, optional aspect rating
+  text          String?
+  createdAt     DateTime @default(now())
+
+  @@unique([bookId, userId]) // one review per user per book
+  @@index([bookId])
+}
+
+// The "AI suggestion" starting point for the MVP: editorial picks of
+// "read this first" per category. A real ranking model can replace/augment
+// this once there's usage data — see README's recommendation roadmap.
+model StarterPick {
+  id         String   @id @default(cuid())
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+  bookId     String
+  book       Book     @relation(fields: [bookId], references: [id])
+  note       String // why this is a good first book in the category
+  rank       Int      @default(1)
+
+  @@unique([categoryId, bookId])
+}
+
+model ShelfItem {
+  id         String      @id @default(cuid())
+  userId     String
+  user       User        @relation(fields: [userId], references: [id])
+  bookId     String
+  book       Book        @relation(fields: [bookId], references: [id])
+  status     ShelfStatus @default(WANT)
+  finishedAt DateTime? // last time this was marked FINISHED; not cleared if status later changes
+  updatedAt  DateTime    @updatedAt
+
+  @@unique([userId, bookId])
+}
+
+// One row per user per calendar day they logged reading activity —
+// backs the reading-streak calculation in src/lib/streak.ts.
+model ReadingActivity {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  date      DateTime @db.Date
+  createdAt DateTime @default(now())
+
+  @@unique([userId, date])
+}
+
+// Freeform secondhand-book listings — separate from the curated Book
+// catalog above, so a listing doesn't need a matching Book/Category row.
+model Listing {
+  id          String           @id @default(cuid())
+  sellerId    String
+  seller      User             @relation(fields: [sellerId], references: [id])
+  title       String
+  author      String
+  categoryId  String?
+  category    Category?        @relation(fields: [categoryId], references: [id])
+  description String?
+  condition   ListingCondition
+  listingType ListingType
+  price       Float? // only meaningful when listingType is SELL
+  location    String
+  status      ListingStatus    @default(AVAILABLE)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([sellerId])
+  @@index([status])
+}
