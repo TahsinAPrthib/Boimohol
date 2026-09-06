@@ -27,9 +27,15 @@ Stack: Next.js 14 (App Router, TypeScript) + PostgreSQL + Prisma + NextAuth + Ta
 - `src/components/CoverPlaceholder.tsx` — the generated cover/spine logic, shared by `BookCover` (catalog books) and the new `ListingCover` (freeform listings, which may have no category)
 - `src/components/ListingCard.tsx`, `src/components/ListingForm.tsx`, `src/components/ListingStatusControls.tsx`, `src/components/SafetyNotice.tsx`
 - `src/app/marketplace/page.tsx` (browse + category filter), `.../new/page.tsx`, `.../[id]/page.tsx`, `.../[id]/edit/page.tsx`, `.../mine/page.tsx`
+- `Conversation`/`Message` models + `src/actions/messages.ts` — buyer↔seller chat about a listing, one thread per (listing, buyer), with participant-only authorization on every action
+- `src/components/MessageThread.tsx` (4s polling, optimistic send, read receipts), `src/components/UnreadBadge.tsx` (20s polling), `src/components/ContactSellerButton.tsx`
+- `src/app/messages/page.tsx` (inbox, newest activity first) and `src/app/messages/[conversationId]/page.tsx` (thread; 404s for non-participants rather than revealing the thread exists)
 
 ## Not built yet (next phase)
-Explicitly out of scope for the MVP entirely: in-app chat, reporting/blocking, photo uploads on listings, wishlist, book requests, paid-PDF payments, social sharing, ads, ML recommendations.
+Explicitly out of scope for now: reporting/blocking, photo uploads on listings, wishlist, book requests, paid-PDF payments, social sharing, ads, ML recommendations.
+
+### Chat implementation note
+Messaging polls rather than using websockets — `MessageThread` every 4s while open, `UnreadBadge` every 20s. That's deliberate for this phase (no extra infrastructure); revisit if thread volume makes the polling load meaningful.
 
 ## Local setup
 ```bash

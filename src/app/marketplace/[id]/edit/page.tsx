@@ -2,12 +2,15 @@ import { redirect, notFound } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { withCallbackUrl } from "@/lib/safe-redirect";
 import { updateListing } from "@/actions/listings";
 import ListingForm from "@/components/ListingForm";
 
 export default async function EditListingPage({ params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id) redirect("/login");
+  if (!session?.user?.id) {
+    redirect(withCallbackUrl("/login", `/marketplace/${params.id}/edit`));
+  }
 
   const listing = await prisma.listing.findUnique({ where: { id: params.id } });
   if (!listing) notFound();

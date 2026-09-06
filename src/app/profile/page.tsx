@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { withCallbackUrl } from "@/lib/safe-redirect";
 import { getCurrentStreak } from "@/lib/streak";
 import BookCover from "@/components/BookCover";
 import YearlyGoalForm from "@/components/YearlyGoalForm";
@@ -17,7 +18,7 @@ const SECTIONS: { status: Status; label: string }[] = [
 
 export default async function ProfilePage() {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id) redirect("/login");
+  if (!session?.user?.id) redirect(withCallbackUrl("/login", "/profile"));
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
@@ -29,7 +30,7 @@ export default async function ProfilePage() {
     },
   });
 
-  if (!user) redirect("/login");
+  if (!user) redirect(withCallbackUrl("/login", "/profile"));
 
   const streak = await getCurrentStreak(user.id);
 

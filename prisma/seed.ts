@@ -262,6 +262,16 @@ async function main() {
     },
   });
 
+  // --- Promoting yourself to admin (for testing the /admin/reports queue) ---
+  // Uncomment, swap in your own email, and re-run `npm run seed`. Log out and
+  // back in afterwards: role is baked into the session token at login, so an
+  // existing session won't show the অ্যাডমিন nav link until you sign in again.
+  //
+  // await prisma.user.update({
+  //   where: { email: "you@example.com" },
+  //   data: { role: "ADMIN" },
+  // });
+
   console.log("Seed complete. Demo login: demo@boimohol.test / demo1234");
 }
 

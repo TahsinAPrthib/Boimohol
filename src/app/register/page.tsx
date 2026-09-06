@@ -2,9 +2,10 @@
 
 import { useFormState, useFormStatus } from "react-dom";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect } from "react";
 import { registerUser, type RegisterState } from "@/actions/auth";
+import { safeCallbackUrl, withCallbackUrl } from "@/lib/safe-redirect";
 
 const initialState: RegisterState = { success: false };
 
@@ -17,16 +18,23 @@ function SubmitButton() {
   );
 }
 
-export default function RegisterPage() {
+function RegisterForm() {
   const [state, formAction] = useFormState(registerUser, initialState);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const rawCallback = searchParams.get("callbackUrl");
+  const callbackUrl = safeCallbackUrl(rawCallback);
+
+  // Registration doesn't sign the user in, so it hands the destination on to
+  // the login page rather than navigating there itself.
+  const loginHref = rawCallback ? withCallbackUrl("/login", callbackUrl) : "/login";
 
   useEffect(() => {
     if (state.success) {
-      const timeout = setTimeout(() => router.push("/login"), 1200);
+      const timeout = setTimeout(() => router.push(loginHref), 1200);
       return () => clearTimeout(timeout);
     }
-  }, [state.success, router]);
+  }, [state.success, router, loginHref]);
 
   return (
     <div className="mx-auto flex min-h-[80vh] max-w-md flex-col justify-center px-4 py-10">
@@ -103,10 +111,25 @@ export default function RegisterPage() {
 
       <p className="mt-6 text-center font-body text-sm text-ink/60">
         আগে থেকেই অ্যাকাউন্ট আছে?{" "}
-        <Link href="/login" className="font-semibold text-cloth hover:underline">
+        <Link href={loginHref} className="font-semibold text-cloth hover:underline">
           লগইন করুন
         </Link>
       </p>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    // useSearchParams needs a Suspense boundary for this page to prerender.
+    <Suspense
+      fallback={
+        <div className="mx-auto flex min-h-[80vh] max-w-md flex-col justify-center px-4 py-10">
+          <h1 className="mb-1 font-display text-3xl text-ink">নতুন অ্যাকাউন্ট</h1>
+        </div>
+      }
+    >
+      <RegisterForm />
+    </Suspense>
   );
 }

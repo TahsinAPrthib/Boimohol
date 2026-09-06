@@ -3,9 +3,12 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { withCallbackUrl } from "@/lib/safe-redirect";
 import ListingCover from "@/components/ListingCover";
 import SafetyNotice from "@/components/SafetyNotice";
 import ListingStatusControls from "@/components/ListingStatusControls";
+import ContactSellerButton from "@/components/ContactSellerButton";
+import ReportButton from "@/components/ReportButton";
 
 const CONDITION_LABEL: Record<string, string> = {
   NEW: "নতুন",
@@ -114,8 +117,21 @@ export default async function ListingPage({ params }: { params: { id: string } }
               </Link>
             </div>
           ) : (
-            <div className="mt-6">
+            <div className="mt-6 flex flex-col gap-6">
+              {session?.user?.id ? (
+                <ContactSellerButton listingId={listing.id} />
+              ) : (
+                <Link
+                  href={withCallbackUrl("/login", `/marketplace/${listing.id}`)}
+                  className="btn-primary self-start"
+                >
+                  লগইন করে বার্তা পাঠান
+                </Link>
+              )}
               <SafetyNotice />
+              {session?.user?.id && (
+                <ReportButton targetType="LISTING" targetId={listing.id} label="এই তালিকাটি রিপোর্ট করুন" />
+              )}
             </div>
           )}
         </div>

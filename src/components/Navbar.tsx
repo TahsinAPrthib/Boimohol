@@ -2,18 +2,23 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
+import UnreadBadge from "@/components/UnreadBadge";
 
 export default function Navbar() {
   const { data: session, status } = useSession();
 
   return (
     <header className="border-b-2 border-ink/10 bg-paper-dark">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-        <Link href="/" className="font-display text-2xl text-cloth">
+      {/* Wraps at phone width: the wordmark is pinned (shrink-0 +
+          whitespace-nowrap) so the nav links drop to a second line instead of
+          the wordmark breaking mid-name. Above sm everything sits on one line
+          with the original gap-5 spacing. */}
+      <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3">
+        <Link href="/" className="shrink-0 whitespace-nowrap font-display text-2xl text-cloth">
           বই মহল
         </Link>
 
-        <nav className="flex items-center gap-5 font-body text-sm font-semibold text-ink">
+        <nav className="flex w-full flex-wrap items-center justify-start gap-x-3 gap-y-2 whitespace-nowrap font-body text-sm font-semibold text-ink sm:w-auto sm:justify-end sm:gap-x-5">
           <Link href="/" className="hover:text-cloth">
             হোম
           </Link>
@@ -26,9 +31,18 @@ export default function Navbar() {
 
           {status === "authenticated" && session?.user ? (
             <>
+              <Link href="/messages" className="flex items-center hover:text-cloth">
+                বার্তা
+                <UnreadBadge />
+              </Link>
               <Link href="/profile" className="hover:text-cloth">
                 প্রোফাইল
               </Link>
+              {session.user.role === "ADMIN" && (
+                <Link href="/admin/reports" className="hover:text-cloth">
+                  অ্যাডমিন
+                </Link>
+              )}
               <button
                 onClick={() => signOut({ callbackUrl: "/" })}
                 className="rounded-book border-2 border-ink/20 px-3 py-1.5 hover:border-ink/40"

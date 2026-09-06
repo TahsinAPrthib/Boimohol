@@ -1,12 +1,19 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { Suspense, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { safeCallbackUrl, withCallbackUrl } from "@/lib/safe-redirect";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const rawCallback = searchParams.get("callbackUrl");
+  const callbackUrl = safeCallbackUrl(rawCallback);
+  // Carry the destination through the sign-up detour, but forward the
+  // sanitised value rather than whatever was in the query string.
+  const registerHref = rawCallback ? withCallbackUrl("/register", callbackUrl) : "/register";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -30,7 +37,7 @@ export default function LoginPage() {
       return;
     }
 
-    router.push("/");
+    router.push(callbackUrl);
     router.refresh();
   }
 
@@ -83,7 +90,7 @@ export default function LoginPage() {
 
       <p className="mt-6 text-center font-body text-sm text-ink/60">
         অ্যাকাউন্ট নেই?{" "}
-        <Link href="/register" className="font-semibold text-cloth hover:underline">
+        <Link href={registerHref} className="font-semibold text-cloth hover:underline">
           সাইন আপ করুন
         </Link>
       </p>
@@ -92,5 +99,20 @@ export default function LoginPage() {
         ডেমো লগইন: demo@boimohol.test / demo1234
       </p>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    // useSearchParams needs a Suspense boundary for this page to prerender.
+    <Suspense
+      fallback={
+        <div className="mx-auto flex min-h-[80vh] max-w-md flex-col justify-center px-4 py-10">
+          <h1 className="mb-1 font-display text-3xl text-ink">লগইন</h1>
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }

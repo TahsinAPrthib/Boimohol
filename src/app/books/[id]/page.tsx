@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { withCallbackUrl } from "@/lib/safe-redirect";
 import BookCover from "@/components/BookCover";
 import StarRating from "@/components/StarRating";
 import ReviewForm from "@/components/ReviewForm";
@@ -98,7 +99,10 @@ export default async function BookPage({ params }: { params: { id: string } }) {
         ) : (
           <div className="rounded-book border-2 border-dashed border-ink/15 px-4 py-5 text-center font-body text-ink/60">
             পর্যালোচনা লিখতে হলে{" "}
-            <Link href="/login" className="font-semibold text-cloth hover:underline">
+            <Link
+              href={withCallbackUrl("/login", `/books/${book.id}`)}
+              className="font-semibold text-cloth hover:underline"
+            >
               লগইন
             </Link>{" "}
             করুন।

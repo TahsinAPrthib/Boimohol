@@ -2,13 +2,14 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { withCallbackUrl } from "@/lib/safe-redirect";
 import { createListing } from "@/actions/listings";
 import ListingForm from "@/components/ListingForm";
 import SafetyNotice from "@/components/SafetyNotice";
 
 export default async function NewListingPage() {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id) redirect("/login");
+  if (!session?.user?.id) redirect(withCallbackUrl("/login", "/marketplace/new"));
 
   const categories = await prisma.category.findMany({ orderBy: { name: "asc" } });
 

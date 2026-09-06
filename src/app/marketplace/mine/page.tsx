@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { withCallbackUrl } from "@/lib/safe-redirect";
 import ListingCover from "@/components/ListingCover";
 import ListingStatusControls from "@/components/ListingStatusControls";
 
@@ -21,7 +22,7 @@ const STATUS_LABEL: Record<string, string> = {
 
 export default async function MyListingsPage() {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id) redirect("/login");
+  if (!session?.user?.id) redirect(withCallbackUrl("/login", "/marketplace/mine"));
 
   const listings = await prisma.listing.findMany({
     where: { sellerId: session.user.id },

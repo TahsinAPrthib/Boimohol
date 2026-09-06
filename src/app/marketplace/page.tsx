@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { getSessionUserId } from "@/lib/authz";
+import { blockedIdsFor } from "@/lib/blocks";
 import ListingCard from "@/components/ListingCard";
 
 export default async function MarketplacePage({
@@ -10,10 +12,16 @@ export default async function MarketplacePage({
   const categories = await prisma.category.findMany({ orderBy: { name: "asc" } });
   const selectedSlug = searchParams.category;
 
+  // Anonymous viewers see everything; a signed-in viewer doesn't see
+  // listings from sellers they've blocked.
+  const viewerId = await getSessionUserId();
+  const blockedSellerIds = viewerId ? await blockedIdsFor(viewerId) : [];
+
   const listings = await prisma.listing.findMany({
     where: {
       status: "AVAILABLE",
       ...(selectedSlug ? { category: { slug: selectedSlug } } : {}),
+      ...(blockedSellerIds.length > 0 ? { sellerId: { notIn: blockedSellerIds } } : {}),
     },
     include: { category: true },
     orderBy: { createdAt: "desc" },
