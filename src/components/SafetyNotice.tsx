@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function SafetyNotice() {
   return (
     <div className="rounded-book border-2 border-turmeric/40 bg-turmeric/10 p-5">
@@ -8,6 +10,13 @@ export default function SafetyNotice() {
         <li>সম্ভব হলে সঙ্গে একজন বন্ধু নিয়ে যান, অথবা কাউকে জানিয়ে যান কোথায় যাচ্ছেন।</li>
         <li>কোনো কিছু ঠিক মনে না হলে নিজের অনুভূতিকে বিশ্বাস করুন এবং পিছিয়ে আসতে দ্বিধা করবেন না।</li>
       </ul>
+      <p className="mt-3 font-body text-sm text-ink/70">
+        বিস্তারিত পড়ুন{" "}
+        <Link href="/guidelines" className="font-semibold text-cloth hover:underline">
+          নীতিমালার নিরাপত্তা অংশে
+        </Link>
+        । জরুরি অবস্থায় আগে পুলিশে ফোন করুন — ৯৯৯।
+      </p>
     </div>
   );
 }

@@ -28,6 +28,9 @@ export default function Navbar() {
           <Link href="/marketplace" className="hover:text-cloth">
             বিনিময়
           </Link>
+          <Link href="/requests" className="hover:text-cloth">
+            অনুরোধ
+          </Link>
 
           {status === "authenticated" && session?.user ? (
             <>

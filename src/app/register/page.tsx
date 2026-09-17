@@ -105,6 +105,18 @@ function RegisterForm() {
             {state.fieldErrors?.password && <p className="field-error">{state.fieldErrors.password}</p>}
           </div>
 
+          <p className="font-body text-xs leading-relaxed text-ink/60">
+            সাইন আপ করলে আপনি আমাদের{" "}
+            <Link href="/terms" className="font-semibold text-cloth hover:underline">
+              ব্যবহারের শর্তাবলী
+            </Link>{" "}
+            ও{" "}
+            <Link href="/privacy" className="font-semibold text-cloth hover:underline">
+              গোপনীয়তা নীতিতে
+            </Link>{" "}
+            সম্মতি দিচ্ছেন।
+          </p>
+
           <SubmitButton />
         </form>
       )}

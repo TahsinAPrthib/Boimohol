@@ -79,11 +79,19 @@ export default async function ProfilePage() {
         )}
       </div>
 
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
         <h2 className="font-display text-2xl text-ink">আমার বইতাক</h2>
-        <Link href="/marketplace/mine" className="font-body text-sm font-semibold text-cloth hover:underline">
-          আমার বিনিময় তালিকা
-        </Link>
+        <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 font-body text-sm font-semibold text-cloth">
+          <Link href="/wishlist" className="hover:underline">
+            আমার উইশলিস্ট
+          </Link>
+          <Link href="/requests/mine" className="hover:underline">
+            আমার অনুরোধ
+          </Link>
+          <Link href="/marketplace/mine" className="hover:underline">
+            আমার বিনিময় তালিকা
+          </Link>
+        </nav>
       </div>
 
       <div className="flex flex-col gap-10">

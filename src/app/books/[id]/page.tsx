@@ -8,6 +8,7 @@ import BookCover from "@/components/BookCover";
 import StarRating from "@/components/StarRating";
 import ReviewForm from "@/components/ReviewForm";
 import ShelfButtons from "@/components/ShelfButtons";
+import WishlistButton from "@/components/WishlistButton";
 
 export default async function BookPage({ params }: { params: { id: string } }) {
   const book = await prisma.book.findUnique({
@@ -33,11 +34,19 @@ export default async function BookPage({ params }: { params: { id: string } }) {
   const myReview = userId ? book.reviews.find((r) => r.userId === userId) ?? null : null;
 
   let shelfStatus: "WANT" | "READING" | "FINISHED" | null = null;
+  let wishlisted = false;
   if (userId) {
-    const shelfItem = await prisma.shelfItem.findUnique({
-      where: { userId_bookId: { userId, bookId: book.id } },
-    });
+    const [shelfItem, wishlistItem] = await Promise.all([
+      prisma.shelfItem.findUnique({
+        where: { userId_bookId: { userId, bookId: book.id } },
+      }),
+      prisma.wishlistItem.findUnique({
+        where: { userId_bookId: { userId, bookId: book.id } },
+        select: { id: true },
+      }),
+    ]);
     shelfStatus = shelfItem?.status ?? null;
+    wishlisted = wishlistItem !== null;
   }
 
   return (
@@ -72,11 +81,14 @@ export default async function BookPage({ params }: { params: { id: string } }) {
 
           <p className="mt-4 max-w-prose font-body text-ink/80">{book.description}</p>
 
-          {userId && (
-            <div className="mt-5">
-              <ShelfButtons bookId={book.id} initialStatus={shelfStatus} />
-            </div>
-          )}
+          <div className="mt-5 flex flex-col items-start gap-3">
+            {userId && <ShelfButtons bookId={book.id} initialStatus={shelfStatus} />}
+            <WishlistButton
+              bookId={book.id}
+              initialWishlisted={wishlisted}
+              isLoggedIn={Boolean(userId)}
+            />
+          </div>
         </div>
       </div>
 

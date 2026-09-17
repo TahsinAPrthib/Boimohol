@@ -71,6 +71,12 @@ enum ReportStatus {
   DISMISSED
 }
 
+enum RequestStatus {
+  OPEN
+  FULFILLED
+  CLOSED
+}
+
 model User {
   id                   String            @id @default(cuid())
   name                 String
@@ -91,6 +97,9 @@ model User {
   reportsFiled         Report[]
   blocksMade           Block[]           @relation("BlocksMade")
   blocksReceived       Block[]           @relation("BlocksReceived")
+  wishlistItems        WishlistItem[]
+  bookRequests         BookRequest[]
+  requestResponses     RequestResponse[]
 }
 
 model Category {
@@ -103,24 +112,26 @@ model Category {
   books        Book[]
   starterPicks StarterPick[]
   listings     Listing[]
+  bookRequests BookRequest[]
 }
 
 model Book {
-  id             String        @id @default(cuid())
+  id             String         @id @default(cuid())
   title          String
   titleBangla    String?
   author         String
   categoryId     String
-  category       Category      @relation(fields: [categoryId], references: [id])
+  category       Category       @relation(fields: [categoryId], references: [id])
   description    String
-  language       String        @default("bn")
-  isPublicDomain Boolean       @default(false)
+  language       String         @default("bn")
+  isPublicDomain Boolean        @default(false)
   publishYear    Int?
-  createdAt      DateTime      @default(now())
+  createdAt      DateTime       @default(now())
   reviews        Review[]
   shelfItems     ShelfItem[]
   starterPicks   StarterPick[]
   files          BookFile[]
+  wishlistItems  WishlistItem[]
 
   @@index([categoryId])
 }
@@ -280,4 +291,51 @@ model Block {
   createdAt DateTime @default(now())
 
   @@unique([blockerId, blockedId])
+}
+
+// "I want to read this" — points at a catalog Book, unlike BookRequest
+// below which is freeform.
+model WishlistItem {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  bookId    String
+  book      Book     @relation(fields: [bookId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, bookId])
+}
+
+// "Does anyone have this?" — title/author are freeform because people
+// often want books that aren't in the catalog at all.
+model BookRequest {
+  id          String            @id @default(cuid())
+  requesterId String
+  requester   User              @relation(fields: [requesterId], references: [id])
+  title       String
+  author      String
+  categoryId  String?
+  category    Category?         @relation(fields: [categoryId], references: [id])
+  note        String? // edition, condition preferences, etc.
+  location    String? // where they could collect from
+  status      RequestStatus     @default(OPEN)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  responses   RequestResponse[]
+
+  @@index([requesterId])
+  @@index([status])
+}
+
+model RequestResponse {
+  id          String      @id @default(cuid())
+  requestId   String
+  request     BookRequest @relation(fields: [requestId], references: [id])
+  responderId String
+  responder   User        @relation(fields: [responderId], references: [id])
+  message     String
+  createdAt   DateTime    @default(now())
+
+  @@unique([requestId, responderId]) // one response per person; editable, not spammable
+  @@index([requestId])
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { submitReport } from "@/actions/moderation";
 
 type TargetType = "LISTING" | "MESSAGE" | "USER";
@@ -97,7 +98,14 @@ export default function ReportButton({
     // w-full so that in a flex-wrap row (message bubbles) the open form drops
     // to its own line instead of being squeezed beside the bubble.
     <div className={`w-full rounded-book border-2 border-ink/15 bg-paper p-3 ${className}`}>
-      <p className="mb-2 font-body text-sm font-semibold text-ink">কী কারণে রিপোর্ট করছেন?</p>
+      <p className="mb-1 font-body text-sm font-semibold text-ink">কী কারণে রিপোর্ট করছেন?</p>
+      <p className="mb-2 font-body text-xs text-ink/50">
+        কী কী রিপোর্ট করা যায় দেখুন{" "}
+        <Link href="/guidelines" className="font-semibold text-cloth hover:underline">
+          নীতিমালায়
+        </Link>
+        ।
+      </p>
 
       <select
         value={reason}
