@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getAdminUserId } from "@/lib/authz";
+import { cloudinaryUrl } from "@/lib/cloudinary-url";
 import ReportStatusControls from "@/components/ReportStatusControls";
 
 type Status = "OPEN" | "REVIEWING" | "RESOLVED" | "DISMISSED";
@@ -65,7 +66,14 @@ export default async function AdminReportsPage({
   const [listings, messages, users] = await Promise.all([
     prisma.listing.findMany({
       where: { id: { in: idsByType("LISTING") } },
-      select: { id: true, title: true, author: true },
+      select: {
+        id: true,
+        title: true,
+        author: true,
+        // Reports are often about the image itself, so the reviewer needs to
+        // see it without leaving the queue.
+        photos: { orderBy: { order: "asc" }, select: { id: true, publicId: true } },
+      },
     }),
     prisma.message.findMany({
       where: { id: { in: idsByType("MESSAGE") } },
@@ -159,6 +167,20 @@ export default async function AdminReportsPage({
                           {listing.title}
                         </Link>
                         <p className="font-body text-xs text-ink/50">{listing.author}</p>
+                        {listing.photos.length > 0 && (
+                          <ul className="mt-2 flex flex-wrap gap-2">
+                            {listing.photos.map((photo) => (
+                              <li key={photo.id}>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                  src={cloudinaryUrl(photo.publicId, { width: 200, square: true })}
+                                  alt={`${listing.title} — রিপোর্ট করা ছবি`}
+                                  className="h-20 w-20 rounded-book border-2 border-ink/10 object-cover"
+                                />
+                              </li>
+                            ))}
+                          </ul>
+                        )}
                       </>
                     ) : (
                       <p className="font-body text-sm text-ink/40">তালিকাটি আর নেই (মুছে ফেলা হয়েছে)।</p>

@@ -12,7 +12,10 @@ export default async function EditListingPage({ params }: { params: { id: string
     redirect(withCallbackUrl("/login", `/marketplace/${params.id}/edit`));
   }
 
-  const listing = await prisma.listing.findUnique({ where: { id: params.id } });
+  const listing = await prisma.listing.findUnique({
+    where: { id: params.id },
+    include: { photos: { orderBy: { order: "asc" }, select: { id: true, publicId: true } } },
+  });
   if (!listing) notFound();
   if (listing.sellerId !== session.user.id) redirect("/marketplace/mine");
 
@@ -39,6 +42,7 @@ export default async function EditListingPage({ params }: { params: { id: string
         submitLabel="পরিবর্তন সংরক্ষণ করুন"
         pendingLabel="সংরক্ষণ হচ্ছে..."
         redirectTo="mine"
+        existingPhotos={listing.photos}
       />
     </div>
   );

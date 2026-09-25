@@ -230,9 +230,23 @@ model Listing {
   updatedAt   DateTime         @updatedAt
 
   conversations Conversation[]
+  photos        ListingPhoto[]
 
   @@index([sellerId])
   @@index([status])
+}
+
+// Cloudinary public_id rather than a full URL, so transforms (f_auto, q_auto,
+// width) can be applied per context at render time — see src/lib/cloudinary.ts.
+model ListingPhoto {
+  id        String   @id @default(cuid())
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  publicId  String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([listingId])
 }
 
 // One thread per (listing, interested buyer). The other participant is

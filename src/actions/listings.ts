@@ -5,6 +5,22 @@ import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { attachPhotosToListing } from "@/actions/photos";
+
+// Photos are uploaded to Cloudinary by the browser before submit, so the form
+// carries only their public_ids. Attaching reuses attachPhotosToListing, which
+// re-checks ownership, the 5-photo cap, and the real format/size of each asset.
+function readPhotoPublicIds(formData: FormData): string[] {
+  const raw = formData.get("photoPublicIds");
+  if (typeof raw !== "string" || raw.trim() === "") return [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((v): v is string => typeof v === "string" && v.trim().length > 0);
+  } catch {
+    return [];
+  }
+}
 
 const conditionEnum = z.enum(["NEW", "LIKE_NEW", "GOOD", "FAIR", "WORN"]);
 const listingTypeEnum = z.enum(["SELL", "EXCHANGE", "DONATE"]);
@@ -109,10 +125,23 @@ export async function createListing(
     },
   });
 
+  const publicIds = readPhotoPublicIds(formData);
+  let photoNote = "";
+  if (publicIds.length > 0) {
+    const attached = await attachPhotosToListing(listing.id, publicIds);
+    // The listing itself is already created, so a photo problem downgrades to
+    // a note rather than failing the whole submission.
+    if (!attached.success) photoNote = ` তবে ছবি যোগ করা যায়নি: ${attached.message ?? ""}`;
+  }
+
   revalidatePath("/marketplace");
   revalidatePath("/marketplace/mine");
 
-  return { success: true, message: "আপনার তালিকাটি প্রকাশিত হয়েছে।", listingId: listing.id };
+  return {
+    success: true,
+    message: `আপনার তালিকাটি প্রকাশিত হয়েছে।${photoNote}`,
+    listingId: listing.id,
+  };
 }
 
 export async function updateListing(
@@ -154,11 +183,18 @@ export async function updateListing(
     },
   });
 
+  const publicIds = readPhotoPublicIds(formData);
+  let photoNote = "";
+  if (publicIds.length > 0) {
+    const attached = await attachPhotosToListing(listingId, publicIds);
+    if (!attached.success) photoNote = ` তবে নতুন ছবি যোগ করা যায়নি: ${attached.message ?? ""}`;
+  }
+
   revalidatePath("/marketplace");
   revalidatePath(`/marketplace/${listingId}`);
   revalidatePath("/marketplace/mine");
 
-  return { success: true, message: "তালিকাটি আপডেট করা হয়েছে।" };
+  return { success: true, message: `তালিকাটি আপডেট করা হয়েছে।${photoNote}` };
 }
 
 export async function updateListingStatus(

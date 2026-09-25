@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { withCallbackUrl } from "@/lib/safe-redirect";
 import ListingCover from "@/components/ListingCover";
+import ListingPhotoGallery from "@/components/ListingPhotoGallery";
 import SafetyNotice from "@/components/SafetyNotice";
 import ListingStatusControls from "@/components/ListingStatusControls";
 import ContactSellerButton from "@/components/ContactSellerButton";
@@ -34,7 +35,11 @@ const STATUS_LABEL: Record<string, string> = {
 export default async function ListingPage({ params }: { params: { id: string } }) {
   const listing = await prisma.listing.findUnique({
     where: { id: params.id },
-    include: { category: true, seller: true },
+    include: {
+      category: true,
+      seller: true,
+      photos: { orderBy: { order: "asc" }, select: { id: true, publicId: true } },
+    },
   });
 
   if (!listing) notFound();
@@ -61,12 +66,16 @@ export default async function ListingPage({ params }: { params: { id: string } }
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
       <div className="grid grid-cols-1 gap-8 sm:grid-cols-[200px_1fr]">
-        <ListingCover
-          title={listing.title}
-          author={listing.author}
-          colorKey={listing.category?.colorKey}
-          className="max-w-[200px]"
-        />
+        {listing.photos.length > 0 ? (
+          <ListingPhotoGallery photos={listing.photos} title={listing.title} />
+        ) : (
+          <ListingCover
+            title={listing.title}
+            author={listing.author}
+            colorKey={listing.category?.colorKey}
+            className="max-w-[200px]"
+          />
+        )}
 
         <div>
           {listing.category && (

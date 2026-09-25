@@ -1,9 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useFormState, useFormStatus } from "react-dom";
 import type { ListingFormState } from "@/actions/listings";
+import { deletePhoto } from "@/actions/photos";
+import { cloudinaryUrl } from "@/lib/cloudinary-url";
+import PhotoUploader, { type PendingPhoto } from "@/components/PhotoUploader";
 
 const CONDITIONS = [
   { value: "NEW", label: "নতুন" },
@@ -50,12 +53,15 @@ export default function ListingForm({
   submitLabel = "প্রকাশ করুন",
   pendingLabel = "প্রকাশ হচ্ছে...",
   redirectTo,
+  existingPhotos = [],
 }: {
   action: (prevState: ListingFormState, formData: FormData) => Promise<ListingFormState>;
   categories: Category[];
   initialValues?: InitialValues;
   submitLabel?: string;
   pendingLabel?: string;
+  // Photos already saved on the listing (edit mode only).
+  existingPhotos?: { id: string; publicId: string }[];
   // Where to navigate after a successful submit — kept as a plain string
   // mode (not a callback) since a Server Component parent can't hand this
   // Client Component an arbitrary closure across the boundary.
@@ -64,6 +70,23 @@ export default function ListingForm({
   const router = useRouter();
   const [state, formAction] = useFormState(action, initialState);
   const [listingType, setListingType] = useState(initialValues?.listingType ?? "SELL");
+  const [pendingPhotos, setPendingPhotos] = useState<PendingPhoto[]>([]);
+  const [savedPhotos, setSavedPhotos] = useState(existingPhotos);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  const [deleting, startDelete] = useTransition();
+
+  function removeSaved(photoId: string) {
+    setPhotoError(null);
+    startDelete(async () => {
+      const result = await deletePhoto(photoId);
+      if (!result.success) {
+        setPhotoError(result.message ?? "ছবিটি মুছে ফেলা যায়নি।");
+        return;
+      }
+      setSavedPhotos((prev) => prev.filter((p) => p.id !== photoId));
+      router.refresh();
+    });
+  }
 
   useEffect(() => {
     if (!state.success || !redirectTo) return;
@@ -226,6 +249,51 @@ export default function ListingForm({
           <p className="field-error">{state.fieldErrors.description}</p>
         )}
       </div>
+
+      {/* Already-saved photos (edit mode). Deleting one hits Cloudinary and
+          the DB immediately — it isn't deferred to form submit. */}
+      {savedPhotos.length > 0 && (
+        <div>
+          <p className="field-label">এখনকার ছবি</p>
+          <ul className="flex flex-wrap gap-3">
+            {savedPhotos.map((photo) => (
+              <li key={photo.id} className="w-24">
+                <div className="overflow-hidden rounded-book border-2 border-ink/10">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={cloudinaryUrl(photo.publicId, { width: 200, square: true })}
+                    alt="তালিকার ছবি"
+                    className="aspect-square w-full object-cover"
+                  />
+                </div>
+                <button
+                  type="button"
+                  disabled={deleting}
+                  onClick={() => removeSaved(photo.id)}
+                  className="mt-1 h-9 w-full rounded-book border-2 border-ink/20 font-body text-xs font-semibold text-ink hover:border-oxblood hover:text-oxblood disabled:opacity-60"
+                >
+                  মুছুন
+                </button>
+              </li>
+            ))}
+          </ul>
+          {photoError && <p className="field-error">{photoError}</p>}
+        </div>
+      )}
+
+      <PhotoUploader
+        photos={pendingPhotos}
+        onChange={setPendingPhotos}
+        alreadyAttached={savedPhotos.length}
+      />
+
+      {/* Photos are uploaded to Cloudinary before submit; only their
+          public_ids travel with the form. */}
+      <input
+        type="hidden"
+        name="photoPublicIds"
+        value={JSON.stringify(pendingPhotos.map((p) => p.publicId))}
+      />
 
       <div>
         <SubmitButton label={submitLabel} pendingLabel={pendingLabel} />

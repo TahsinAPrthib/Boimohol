@@ -23,7 +23,11 @@ export default async function MarketplacePage({
       ...(selectedSlug ? { category: { slug: selectedSlug } } : {}),
       ...(blockedSellerIds.length > 0 ? { sellerId: { notIn: blockedSellerIds } } : {}),
     },
-    include: { category: true },
+    include: {
+      category: true,
+      // Only the first photo is needed for the card.
+      photos: { orderBy: { order: "asc" }, take: 1, select: { publicId: true } },
+    },
     orderBy: { createdAt: "desc" },
   });
 
@@ -83,6 +87,7 @@ export default async function MarketplacePage({
               listingType={listing.listingType}
               price={listing.price}
               location={listing.location}
+              photoPublicId={listing.photos[0]?.publicId}
             />
           ))}
         </div>

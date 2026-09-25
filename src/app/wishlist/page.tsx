@@ -67,6 +67,7 @@ export default async function WishlistPage() {
                   listingType={match.listingType}
                   price={match.price}
                   location={match.location}
+                  photoPublicId={match.photoPublicId}
                 />
                 <p className="mt-1 font-body text-xs text-ink/40">
                   মিলেছে: {match.matchedBookTitle}

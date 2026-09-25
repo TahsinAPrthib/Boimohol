@@ -53,6 +53,7 @@ export type WishlistMatch = {
   matchedBookTitle: string;
   // "title-and-author" matches are the confident ones and sort first.
   strength: MatchStrength;
+  photoPublicId: string | null;
 };
 
 // The matching heuristic itself lives in src/lib/wishlist-match.ts so it can
@@ -74,7 +75,10 @@ export async function getWishlistMatches(): Promise<WishlistMatch[]> {
       status: "AVAILABLE",
       sellerId: { not: userId, ...(blockedIds.length > 0 ? { notIn: blockedIds } : {}) },
     },
-    include: { category: { select: { colorKey: true } } },
+    include: {
+      category: { select: { colorKey: true } },
+      photos: { orderBy: { order: "asc" }, take: 1, select: { publicId: true } },
+    },
     orderBy: { createdAt: "desc" },
   });
   if (listings.length === 0) return [];
@@ -102,6 +106,7 @@ export async function getWishlistMatches(): Promise<WishlistMatch[]> {
         matchedBookId: item.book.id,
         matchedBookTitle: item.book.titleBangla || item.book.title,
         strength: result.strength,
+        photoPublicId: listing.photos[0]?.publicId ?? null,
       });
     }
   }
