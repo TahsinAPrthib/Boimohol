@@ -1,4 +1,5 @@
 // Pure, dependency-free: safe to import from client components.
+import { bn, bnFixed } from "@/lib/bangla";
 // The Cloudinary Node SDK must NOT be imported here — it pulls in `fs` and
 // breaks the client bundle. Server-only helpers live in cloudinary-server.ts.
 
@@ -24,4 +25,25 @@ export function cloudinaryUrl(
   ].join(",");
 
   return `https://res.cloudinary.com/${cloudName}/image/upload/${transforms}/${publicId}`;
+}
+
+// ---------------------------------------------------------------- library PDFs
+
+export const MAX_PDF_BYTES = 50 * 1024 * 1024; // 50MB
+export const PDF_FOLDER = "books";
+export const PDF_FORMAT = "pdf";
+
+// PDFs are stored as Cloudinary "raw" resources, so they are delivered from
+// /raw/upload/ and NOT from /image/upload/. No transforms apply: a raw asset is
+// served back byte-for-byte. The public_id already carries the .pdf extension.
+export function pdfUrl(publicId: string) {
+  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+  return `https://res.cloudinary.com/${cloudName}/raw/upload/${publicId}`;
+}
+
+// Bangla numerals, to match the hand-written numbers elsewhere in the UI.
+export function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bn(bytes)} বাইট`;
+  if (bytes < 1024 * 1024) return `${bn(Math.round(bytes / 1024))} কিলোবাইট`;
+  return `${bnFixed(bytes / (1024 * 1024))} মেগাবাইট`;
 }

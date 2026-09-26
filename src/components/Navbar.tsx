@@ -31,6 +31,9 @@ export default function Navbar() {
           <Link href="/requests" className="hover:text-cloth">
             অনুরোধ
           </Link>
+          <Link href="/library" className="hover:text-cloth">
+            লাইব্রেরি
+          </Link>
 
           {status === "authenticated" && session?.user ? (
             <>
@@ -42,9 +45,14 @@ export default function Navbar() {
                 প্রোফাইল
               </Link>
               {session.user.role === "ADMIN" && (
-                <Link href="/admin/reports" className="hover:text-cloth">
-                  অ্যাডমিন
-                </Link>
+                <>
+                  <Link href="/admin/reports" className="hover:text-cloth">
+                    রিপোর্ট
+                  </Link>
+                  <Link href="/admin/books" className="hover:text-cloth">
+                    ফাইল
+                  </Link>
+                </>
               )}
               <button
                 onClick={() => signOut({ callbackUrl: "/" })}

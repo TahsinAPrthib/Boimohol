@@ -231,21 +231,6 @@ async function main() {
         });
       }
 
-      // Public-domain books get a placeholder free file entry.
-      // Replace fileUrl with a real hosted file before going live.
-      if (b.isPublicDomain) {
-        const existing = await prisma.bookFile.findFirst({ where: { bookId: book.id } });
-        if (!existing) {
-          await prisma.bookFile.create({
-            data: {
-              bookId: book.id,
-              type: "FREE",
-              fileUrl: `https://example.com/files/${book.id}.pdf`,
-              rightsVerified: true,
-            },
-          });
-        }
-      }
     }
   }
 

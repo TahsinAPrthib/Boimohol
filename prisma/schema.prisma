@@ -100,6 +100,7 @@ model User {
   wishlistItems        WishlistItem[]
   bookRequests         BookRequest[]
   requestResponses     RequestResponse[]
+  bookFilesUploaded    BookFile[]
 }
 
 model Category {
@@ -143,14 +144,31 @@ model Book {
 model BookFile {
   id             String   @id @default(cuid())
   bookId         String
-  book           Book     @relation(fields: [bookId], references: [id])
+  book           Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
   type           FileType @default(FREE)
   price          Float?
-  fileUrl        String
+  // Superseded by publicId. Kept so historical rows are not lost, but nullable
+  // because new records do not set it.
+  fileUrl        String?
+  // Cloudinary public_id. For raw uploads this INCLUDES the .pdf extension,
+  // unlike image public_ids -- verified against the account.
+  publicId       String
+  fileSizeBytes  Int
+  // Why this file is legally distributable, e.g. author died 60+ years ago.
+  // Required for every new upload; the gate lives in src/actions/library.ts.
+  rightsBasis    String
+  sourceUrl      String?
+  // Nullable with SetNull rather than a required FK: the privacy policy
+  // promises account deletion, and a Restrict relation here would block it.
+  // Provenance is kept for as long as the uploader has an account.
+  uploadedById   String?
+  uploadedBy     User?    @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+  downloadCount  Int      @default(0)
   rightsVerified Boolean  @default(false)
   createdAt      DateTime @default(now())
 
   @@index([bookId])
+  @@index([uploadedById])
 }
 
 model Review {

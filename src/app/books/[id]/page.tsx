@@ -10,12 +10,19 @@ import StarRating from "@/components/StarRating";
 import ReviewForm from "@/components/ReviewForm";
 import ShelfButtons from "@/components/ShelfButtons";
 import WishlistButton from "@/components/WishlistButton";
+import BookDownloadButton from "@/components/BookDownloadButton";
 
 export default async function BookPage({ params }: { params: { id: string } }) {
   const book = await prisma.book.findUnique({
     where: { id: params.id },
     include: {
       category: true,
+      // Only a verified free file is ever surfaced to readers.
+      files: {
+        where: { type: "FREE", rightsVerified: true },
+        select: { id: true, publicId: true, fileSizeBytes: true, rightsBasis: true },
+        take: 1,
+      },
       reviews: {
         include: { user: { select: { id: true, name: true, username: true } } },
         orderBy: { createdAt: "desc" },
@@ -33,6 +40,7 @@ export default async function BookPage({ params }: { params: { id: string } }) {
     reviewCount > 0 ? book.reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount : 0;
 
   const myReview = userId ? book.reviews.find((r) => r.userId === userId) ?? null : null;
+  const freeFile = book.files[0] ?? null;
 
   let shelfStatus: "WANT" | "READING" | "FINISHED" | null = null;
   let wishlisted = false;
@@ -81,6 +89,22 @@ export default async function BookPage({ params }: { params: { id: string } }) {
           </div>
 
           <p className="mt-4 max-w-prose font-body text-ink/80">{book.description}</p>
+
+          {freeFile && freeFile.publicId && (
+            <div className="mt-5 rounded-book border-2 border-sage/50 bg-sage/10 p-4">
+              <BookDownloadButton
+                fileId={freeFile.id}
+                publicId={freeFile.publicId}
+                fileSizeBytes={freeFile.fileSizeBytes}
+              />
+              {/* Being open about WHY a file is legally free is worth showing.
+                  Understated, but present rather than buried. */}
+              <p className="mt-3 max-w-prose font-body text-xs text-ink/60">
+                <span className="font-semibold text-ink/70">কেন বিনামূল্যে:</span>{" "}
+                {freeFile.rightsBasis}
+              </p>
+            </div>
+          )}
 
           <div className="mt-5 flex flex-col items-start gap-3">
             {userId && <ShelfButtons bookId={book.id} initialStatus={shelfStatus} />}
