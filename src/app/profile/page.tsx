@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { bn } from "@/lib/bangla";
 import { withCallbackUrl } from "@/lib/safe-redirect";
 import { getCurrentStreak } from "@/lib/streak";
 import BookCover from "@/components/BookCover";
@@ -60,7 +61,7 @@ export default async function ProfilePage() {
         <div className="rounded-book border-2 border-ink/10 bg-paper-dark p-5">
           <h3 className="mb-1 font-display text-lg text-ink">পড়ার ধারাবাহিকতা</h3>
           <p className="font-body text-ink/70">
-            {streak > 0 ? `${streak} দিন ধরে পড়ছেন` : "আজই পড়া শুরু করুন"}
+            {streak > 0 ? `${bn(streak)} দিন ধরে পড়ছেন` : "আজই পড়া শুরু করুন"}
           </p>
         </div>
 
@@ -68,7 +69,7 @@ export default async function ProfilePage() {
           <div className="rounded-book border-2 border-ink/10 bg-paper-dark p-5">
             <h3 className="mb-1 font-display text-lg text-ink">এই বছরের লক্ষ্য</h3>
             <p className="mb-3 font-body text-ink/70">
-              {finishedThisYear} / {user.yearlyGoal} টি বই পড়া হয়েছে
+              {bn(finishedThisYear)} / {bn(user.yearlyGoal)} টি বই পড়া হয়েছে
             </p>
             <div className="h-3 w-full overflow-hidden rounded-book bg-paper">
               <div className="h-full bg-cloth" style={{ width: `${progressPercent}%` }} />
@@ -100,7 +101,7 @@ export default async function ProfilePage() {
           return (
             <div key={section.status}>
               <h3 className="mb-3 font-display text-lg text-cloth">
-                {section.label} <span className="font-body text-sm text-ink/40">({items.length})</span>
+                {section.label} <span className="font-body text-sm text-ink/40">({bn(items.length)})</span>
               </h3>
               {items.length === 0 ? (
                 <p className="font-body text-sm text-ink/50">এখনো কোনো বই নেই।</p>

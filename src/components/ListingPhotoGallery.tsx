@@ -1,4 +1,5 @@
 "use client";
+import { bn } from "@/lib/bangla";
 
 import { useState } from "react";
 import { cloudinaryUrl } from "@/lib/cloudinary-url";
@@ -21,7 +22,7 @@ export default function ListingPhotoGallery({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={cloudinaryUrl(active.publicId, { width: 800 })}
-          alt={`${title} — ছবি ${activeIndex + 1}`}
+          alt={`${title} — ছবি ${bn(activeIndex + 1)}`}
           className="w-full object-contain"
         />
       </div>
@@ -35,7 +36,7 @@ export default function ListingPhotoGallery({
                 <button
                   type="button"
                   onClick={() => setActiveIndex(i)}
-                  aria-label={`ছবি ${i + 1} দেখুন`}
+                  aria-label={`ছবি ${bn(i + 1)} দেখুন`}
                   aria-pressed={isActive}
                   className={`overflow-hidden rounded-book border-2 transition-colors ${
                     isActive ? "border-cloth" : "border-ink/15 hover:border-ink/40"

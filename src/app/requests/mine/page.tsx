@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { bn } from "@/lib/bangla";
 import { getSessionUserId } from "@/lib/authz";
 import { withCallbackUrl } from "@/lib/safe-redirect";
 import RequestStatusControls from "@/components/RequestStatusControls";
@@ -76,7 +77,7 @@ export default async function MyRequestsPage() {
 
               <p className="mt-2 font-body text-sm text-ink/60">
                 {request._count.responses > 0
-                  ? `${request._count.responses} জন সাড়া দিয়েছেন`
+                  ? `${bn(request._count.responses)} জন সাড়া দিয়েছেন`
                   : "এখনো কেউ সাড়া দেননি"}
               </p>
 

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { bn } from "@/lib/bangla";
 
 const STATUS_LABEL: Record<string, string> = {
   OPEN: "খোলা",
@@ -59,7 +60,7 @@ export default function RequestCard({
         {location && <span>{location}</span>}
         <span>@{requesterUsername}</span>
         <span>
-          {responseCount > 0 ? `${responseCount} জন সাড়া দিয়েছেন` : "এখনো কেউ সাড়া দেননি"}
+          {responseCount > 0 ? `${bn(responseCount)} জন সাড়া দিয়েছেন` : "এখনো কেউ সাড়া দেননি"}
         </span>
       </div>
     </Link>

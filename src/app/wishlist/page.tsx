@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { bn } from "@/lib/bangla";
 import { getSessionUserId } from "@/lib/authz";
 import { withCallbackUrl } from "@/lib/safe-redirect";
 import { getWishlistMatches } from "@/actions/wishlist";
@@ -80,7 +81,7 @@ export default async function WishlistPage() {
 
       <section>
         <h2 className="mb-4 font-display text-2xl text-ink">
-          আমার উইশলিস্ট{items.length > 0 ? ` (${items.length})` : ""}
+          আমার উইশলিস্ট{items.length > 0 ? ` (${bn(items.length)})` : ""}
         </h2>
 
         {items.length === 0 ? (

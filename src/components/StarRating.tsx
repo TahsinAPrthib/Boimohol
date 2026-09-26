@@ -1,4 +1,5 @@
 "use client";
+import { bn, bnFixed } from "@/lib/bangla";
 
 import { useId, useState } from "react";
 
@@ -31,7 +32,7 @@ export default function StarRating({
     <div
       className="inline-flex items-center gap-0.5"
       onMouseLeave={() => interactive && setHoverValue(null)}
-      aria-label={interactive ? "রেটিং নির্বাচন করুন" : `রেটিং ${value.toFixed(1)} / ৫`}
+      aria-label={interactive ? "রেটিং নির্বাচন করুন" : `রেটিং ${bnFixed(value)} / ৫`}
     >
       {[1, 2, 3, 4, 5].map((star) => {
         const fillPercent = Math.max(0, Math.min(1, displayValue - (star - 1))) * 100;
@@ -65,7 +66,7 @@ export default function StarRating({
             onFocus={() => setHoverValue(star)}
             onClick={() => onChange?.(star)}
             className="rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-turmeric"
-            aria-label={`${star} তারা`}
+            aria-label={`${bn(star)} তারা`}
           >
             {starEl}
           </button>

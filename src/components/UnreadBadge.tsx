@@ -1,4 +1,5 @@
 "use client";
+import { bn } from "@/lib/bangla";
 
 import { useEffect, useState } from "react";
 import { getUnreadCount } from "@/actions/messages";
@@ -28,7 +29,7 @@ export default function UnreadBadge() {
 
   return (
     <span className="ml-1 rounded-book bg-oxblood px-1.5 py-0.5 font-body text-xs font-semibold text-paper">
-      {count}
+      {bn(count)}
     </span>
   );
 }

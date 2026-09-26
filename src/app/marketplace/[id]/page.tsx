@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { bnTaka } from "@/lib/bangla";
 import { withCallbackUrl } from "@/lib/safe-redirect";
 import ListingCover from "@/components/ListingCover";
 import ListingPhotoGallery from "@/components/ListingPhotoGallery";
@@ -97,7 +98,7 @@ export default async function ListingPage({ params }: { params: { id: string } }
               {CONDITION_LABEL[listing.condition]}
             </span>
             {listing.listingType === "SELL" && listing.price != null && (
-              <span className="font-semibold text-ink">৳{listing.price}</span>
+              <span className="font-semibold text-ink">{bnTaka(listing.price)}</span>
             )}
           </div>
 

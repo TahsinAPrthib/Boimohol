@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { bn, bnFixed } from "@/lib/bangla";
 import { withCallbackUrl } from "@/lib/safe-redirect";
 import BookCover from "@/components/BookCover";
 import StarRating from "@/components/StarRating";
@@ -74,7 +75,7 @@ export default async function BookPage({ params }: { params: { id: string } }) {
             <StarRating value={averageRating} readOnly />
             <span className="font-body text-sm text-ink/60">
               {reviewCount > 0
-                ? `${averageRating.toFixed(1)} (${reviewCount}টি পর্যালোচনা)`
+                ? `${bnFixed(averageRating)} (${bn(reviewCount)}টি পর্যালোচনা)`
                 : "এখনো কোনো পর্যালোচনা নেই"}
             </span>
           </div>
@@ -130,9 +131,9 @@ export default async function BookPage({ params }: { params: { id: string } }) {
           <ul className="flex flex-col gap-4">
             {book.reviews.map((review) => {
               const aspects = [
-                review.plotRating != null ? `কাহিনি: ${review.plotRating}/৫` : null,
-                review.writingRating != null ? `লেখনশৈলী: ${review.writingRating}/৫` : null,
-                review.pacingRating != null ? `গতি: ${review.pacingRating}/৫` : null,
+                review.plotRating != null ? `কাহিনি: ${bn(review.plotRating)}/৫` : null,
+                review.writingRating != null ? `লেখনশৈলী: ${bn(review.writingRating)}/৫` : null,
+                review.pacingRating != null ? `গতি: ${bn(review.pacingRating)}/৫` : null,
               ].filter((a): a is string => a !== null);
 
               return (

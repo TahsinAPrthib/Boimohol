@@ -2,14 +2,11 @@
 
 import { useRef, useState } from "react";
 import { getUploadSignature } from "@/actions/photos";
+import { bn } from "@/lib/bangla";
 
 const MAX_PHOTOS = 5;
 const MAX_BYTES = 5 * 1024 * 1024;
 const ALLOWED_MIME = ["image/jpeg", "image/png", "image/webp"];
-
-// Interpolated counts need Bangla digits, otherwise they sit next to the
-// hand-written Bangla numerals as "সর্বোচ্চ 5টি ... ৫ মেগাবাইট".
-const bn = (n: number) => n.toLocaleString("bn-BD");
 
 export type PendingPhoto = {
   publicId: string;

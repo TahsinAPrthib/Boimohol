@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { bnTaka } from "@/lib/bangla";
 import ListingCover from "@/components/ListingCover";
 import { cloudinaryUrl } from "@/lib/cloudinary-url";
 
@@ -54,7 +55,7 @@ export default function ListingCard({
           className={`absolute right-2 top-2 rounded-book px-2 py-0.5 font-body text-xs font-semibold shadow-shelf ${TYPE_BADGE_CLASS[listingType]}`}
         >
           {TYPE_LABEL[listingType]}
-          {listingType === "SELL" && price != null ? ` · ৳${price}` : ""}
+          {listingType === "SELL" && price != null ? ` · ${bnTaka(price)}` : ""}
         </span>
       </div>
       <p className="mt-2 font-display text-base leading-snug text-ink group-hover:text-cloth">{title}</p>

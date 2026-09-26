@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { bn } from "@/lib/bangla";
 import { getSessionUserId } from "@/lib/authz";
 import { blockedIdsFor } from "@/lib/blocks";
 import { withCallbackUrl } from "@/lib/safe-redirect";
@@ -135,7 +136,7 @@ export default async function RequestDetailPage({ params }: { params: { id: stri
 
       <div className="mt-10">
         <h2 className="mb-4 font-display text-xl text-ink">
-          সাড়া{visibleResponses.length > 0 ? ` (${visibleResponses.length})` : ""}
+          সাড়া{visibleResponses.length > 0 ? ` (${bn(visibleResponses.length)})` : ""}
         </h2>
 
         {visibleResponses.length === 0 ? (

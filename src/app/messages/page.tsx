@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { bn } from "@/lib/bangla";
 import { withCallbackUrl } from "@/lib/safe-redirect";
 
 export default async function MessagesPage() {
@@ -72,7 +73,7 @@ export default async function MessagesPage() {
                   </div>
                   {unread > 0 && (
                     <span className="shrink-0 rounded-book bg-oxblood px-2 py-0.5 font-body text-xs font-semibold text-paper">
-                      {unread}
+                      {bn(unread)}
                     </span>
                   )}
                 </Link>

@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { bn } from "@/lib/bangla";
 import { getSessionUserId } from "@/lib/authz";
 import { serverCloudinary } from "@/lib/cloudinary-server";
 import {
@@ -76,7 +77,7 @@ export async function getUploadSignature(): Promise<UploadSignature> {
 const publicIdSchema = z
   .array(z.string().trim().min(1).max(300))
   .min(1, "কোনো ছবি পাওয়া যায়নি।")
-  .max(MAX_PHOTOS_PER_LISTING, `সর্বোচ্চ ${MAX_PHOTOS_PER_LISTING}টি ছবি দেওয়া যাবে।`);
+  .max(MAX_PHOTOS_PER_LISTING, `সর্বোচ্চ ${bn(MAX_PHOTOS_PER_LISTING)}টি ছবি দেওয়া যাবে।`);
 
 // Verifies each uploaded asset against the Cloudinary Admin API before it is
 // attached: the client could have uploaded anything with a valid signature,
@@ -141,8 +142,8 @@ export async function attachPhotosToListing(
       success: false,
       message:
         room === 0
-          ? `একটি তালিকায় সর্বোচ্চ ${MAX_PHOTOS_PER_LISTING}টি ছবি রাখা যায়। নতুন ছবি যোগ করতে হলে আগে কিছু ছবি মুছে ফেলুন।`
-          : `একটি তালিকায় সর্বোচ্চ ${MAX_PHOTOS_PER_LISTING}টি ছবি রাখা যায়। আপনি আর ${room}টি ছবি যোগ করতে পারবেন।`,
+          ? `একটি তালিকায় সর্বোচ্চ ${bn(MAX_PHOTOS_PER_LISTING)}টি ছবি রাখা যায়। নতুন ছবি যোগ করতে হলে আগে কিছু ছবি মুছে ফেলুন।`
+          : `একটি তালিকায় সর্বোচ্চ ${bn(MAX_PHOTOS_PER_LISTING)}টি ছবি রাখা যায়। আপনি আর ${bn(room)}টি ছবি যোগ করতে পারবেন।`,
     };
   }
 
@@ -164,8 +165,8 @@ export async function attachPhotosToListing(
     attached: ok.length,
     message:
       rejected.length > 0
-        ? `${ok.length}টি ছবি যোগ হয়েছে, ${rejected.length}টি বাদ পড়েছে (ফরম্যাট বা আকার ঠিক নেই)।`
-        : `${ok.length}টি ছবি যোগ হয়েছে।`,
+        ? `${bn(ok.length)}টি ছবি যোগ হয়েছে, ${bn(rejected.length)}টি বাদ পড়েছে (ফরম্যাট বা আকার ঠিক নেই)।`
+        : `${bn(ok.length)}টি ছবি যোগ হয়েছে।`,
   };
 }
 

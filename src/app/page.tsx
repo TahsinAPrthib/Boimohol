@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { bn } from "@/lib/bangla";
 
 export default async function HomePage() {
   const categories = await prisma.category.findMany({
@@ -53,7 +54,7 @@ export default async function HomePage() {
                   )}
                 </div>
                 <p className="mt-4 font-body text-xs font-semibold text-ink/50">
-                  {category._count.books} টি বই
+                  {bn(category._count.books)} টি বই
                 </p>
               </Link>
             ))}
