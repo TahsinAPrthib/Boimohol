@@ -235,17 +235,24 @@ async function main() {
   }
 
   // A demo reader account so you can log in immediately after seeding.
-  const demoPasswordHash = await bcrypt.hash("demo1234", 10);
-  await prisma.user.upsert({
-    where: { email: "demo@boimohol.test" },
-    update: {},
-    create: {
-      name: "নতুন পাঠক",
-      username: "demo_reader",
-      email: "demo@boimohol.test",
-      passwordHash: demoPasswordHash,
-    },
-  });
+  // A published email and password is an open door on a live site, so the demo
+  // account is development-only. Categories and books above seed unconditionally.
+  const isProduction = process.env.NODE_ENV === "production";
+  if (isProduction) {
+    console.log("NODE_ENV=production — skipping the demo account.");
+  } else {
+    const demoPasswordHash = await bcrypt.hash("demo1234", 10);
+    await prisma.user.upsert({
+      where: { email: "demo@boimohol.test" },
+      update: {},
+      create: {
+        name: "নতুন পাঠক",
+        username: "demo_reader",
+        email: "demo@boimohol.test",
+        passwordHash: demoPasswordHash,
+      },
+    });
+  }
 
   // --- Promoting yourself to admin (for testing the /admin/reports queue) ---
   // Uncomment, swap in your own email, and re-run `npm run seed`. Log out and
@@ -257,7 +264,11 @@ async function main() {
   //   data: { role: "ADMIN" },
   // });
 
-  console.log("Seed complete. Demo login: demo@boimohol.test / demo1234");
+  console.log(
+    isProduction
+      ? "Seed complete."
+      : "Seed complete. Demo login: demo@boimohol.test / demo1234"
+  );
 }
 
 main()

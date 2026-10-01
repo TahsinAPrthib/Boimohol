@@ -69,3 +69,70 @@ a `prisma migrate`/`db execute` command reports `P1001`.
   than ~60 years ago.
 - Book covers are never hotlinked from real cover art. `BookCover.tsx` always
   renders a generated placeholder.
+
+## Deployment (Vercel)
+
+### Build configuration
+
+`npm run build` runs `prisma migrate deploy && next build`, so schema changes
+apply automatically on each deploy. `postinstall` runs `prisma generate`,
+which matters because Vercel caches `node_modules` — without it the generated
+client goes stale and drifts from the schema on rebuilds.
+
+`npm run build:noMigrate` builds without touching the database, for CI
+type-checks or a local build against a database you do not want migrated.
+
+### Environment variables to set on the host
+
+All of these must exist in the Vercel project settings before the first
+deploy. Set them for Production, and for Preview if you use preview
+deployments (point Preview at a **separate database** — migrations run on
+every build).
+
+| Variable | What it is for |
+|---|---|
+| `DATABASE_URL` | Pooled Postgres connection the app uses at runtime. On Neon this is the `-pooler` hostname. |
+| `DIRECT_URL` | **Unpooled** Postgres connection. Required — `prisma migrate deploy` runs during the build and a pooled connection (PgBouncer) cannot run migrations. On Neon, the same host without `-pooler`. |
+| `NEXTAUTH_SECRET` | Signs session JWTs. Generate with `openssl rand -base64 32`. |
+| `NEXTAUTH_URL` | The full production origin, e.g. `https://boimohol.vercel.app`. |
+| `CLOUDINARY_CLOUD_NAME` | Cloudinary account name, used server-side when signing uploads. |
+| `CLOUDINARY_API_KEY` | Cloudinary API key, used server-side when signing uploads. |
+| `CLOUDINARY_API_SECRET` | Signs upload requests. |
+| `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | Same value as `CLOUDINARY_CLOUD_NAME`, read in the browser to build delivery URLs. |
+
+### Which variables must NOT be public
+
+Anything prefixed `NEXT_PUBLIC_` is **inlined into the JavaScript bundle and
+readable by anyone**. Only one variable here is safe to expose:
+
+- `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` — safe. A cloud name already appears in
+  every image URL the site serves.
+- **Never** add the `NEXT_PUBLIC_` prefix to `CLOUDINARY_API_SECRET`,
+  `CLOUDINARY_API_KEY`, `NEXTAUTH_SECRET`, `DATABASE_URL` or `DIRECT_URL`.
+  Prefixing the API secret would publish the ability to sign uploads against
+  your account to every visitor.
+
+### Two values that must differ from development
+
+- `NEXTAUTH_URL` must be the production domain. Left as `http://localhost:3000`
+  (or a LAN address), login redirects break.
+- `NEXTAUTH_SECRET` must be a **different value** from the one used locally. A
+  secret that has been in a developer's `.env`, shell history or backups should
+  not be the one signing production sessions; anyone holding it can forge a
+  session token for any account.
+
+### Seeding
+
+`npm run seed` creates categories, books and starter picks. The demo account
+(`demo@boimohol.test`) is **skipped when `NODE_ENV=production`** — a published
+email and password would be an open door on a live site. Promote your own
+account to admin instead, using the commented block at the end of
+`prisma/seed.ts`.
+
+### Before going live
+
+- The policy pages (`/terms`, `/privacy`, `/guidelines`) are drafts that have
+  not been reviewed by a lawyer, and `/terms` still carries a TODO for the
+  governing-law clause.
+- `/privacy` names Neon and Cloudinary as the only third parties. Adding
+  analytics, ads or payments means updating that page in the same change.
