@@ -10,11 +10,10 @@ import MessageThread from "@/components/MessageThread";
 import ReportButton from "@/components/ReportButton";
 import BlockButton from "@/components/BlockButton";
 
-export default async function ConversationPage({
-  params,
-}: {
-  params: { conversationId: string };
+export default async function ConversationPage(props: {
+  params: Promise<{ conversationId: string }>;
 }) {
+  const params = await props.params;
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     redirect(withCallbackUrl("/login", `/messages/${params.conversationId}`));

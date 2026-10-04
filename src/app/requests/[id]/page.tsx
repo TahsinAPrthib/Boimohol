@@ -21,7 +21,8 @@ const STATUS_CLASS: Record<string, string> = {
   CLOSED: "bg-ink/20 text-ink/70",
 };
 
-export default async function RequestDetailPage({ params }: { params: { id: string } }) {
+export default async function RequestDetailPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const request = await prisma.bookRequest.findUnique({
     where: { id: params.id },
     include: {

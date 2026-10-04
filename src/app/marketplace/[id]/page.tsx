@@ -33,7 +33,8 @@ const STATUS_LABEL: Record<string, string> = {
   REMOVED: "সরিয়ে ফেলা হয়েছে",
 };
 
-export default async function ListingPage({ params }: { params: { id: string } }) {
+export default async function ListingPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const listing = await prisma.listing.findUnique({
     where: { id: params.id },
     include: {

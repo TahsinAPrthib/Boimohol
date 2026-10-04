@@ -4,11 +4,10 @@ import { getSessionUserId } from "@/lib/authz";
 import { blockedIdsFor } from "@/lib/blocks";
 import ListingCard from "@/components/ListingCard";
 
-export default async function MarketplacePage({
-  searchParams,
-}: {
-  searchParams: { category?: string };
+export default async function MarketplacePage(props: {
+  searchParams: Promise<{ category?: string }>;
 }) {
+  const searchParams = await props.searchParams;
   const categories = await prisma.category.findMany({ orderBy: { name: "asc" } });
   const selectedSlug = searchParams.category;
 

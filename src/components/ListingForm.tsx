@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useActionState, useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { useFormState, useFormStatus } from "react-dom";
+import { useFormStatus } from "react-dom";
 import type { ListingFormState } from "@/actions/listings";
 import { deletePhoto } from "@/actions/photos";
 import { cloudinaryUrl } from "@/lib/cloudinary-url";
+import { submitKeepingValues } from "@/lib/form-submit";
 import PhotoUploader, { type PendingPhoto } from "@/components/PhotoUploader";
 
 const CONDITIONS = [
@@ -68,7 +69,7 @@ export default function ListingForm({
   redirectTo?: "listing" | "mine";
 }) {
   const router = useRouter();
-  const [state, formAction] = useFormState(action, initialState);
+  const [state, formAction] = useActionState(action, initialState);
   const [listingType, setListingType] = useState(initialValues?.listingType ?? "SELL");
   const [pendingPhotos, setPendingPhotos] = useState<PendingPhoto[]>([]);
   const [savedPhotos, setSavedPhotos] = useState(existingPhotos);
@@ -99,7 +100,7 @@ export default function ListingForm({
   }, [state.success]);
 
   return (
-    <form action={formAction} className="flex flex-col gap-4">
+    <form action={formAction} onSubmit={submitKeepingValues(formAction)} className="flex flex-col gap-4">
       {state.message && (
         <div
           className={`rounded-book border-2 px-3 py-2 font-body text-sm ${

@@ -1,11 +1,12 @@
 "use client";
 
-import { useFormState, useFormStatus } from "react-dom";
+import { useFormStatus } from "react-dom";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect } from "react";
+import { Suspense, useActionState, useEffect } from "react";
 import { registerUser, type RegisterState } from "@/actions/auth";
 import { safeCallbackUrl, withCallbackUrl } from "@/lib/safe-redirect";
+import { submitKeepingValues } from "@/lib/form-submit";
 
 const initialState: RegisterState = { success: false };
 
@@ -19,7 +20,7 @@ function SubmitButton() {
 }
 
 function RegisterForm() {
-  const [state, formAction] = useFormState(registerUser, initialState);
+  const [state, formAction] = useActionState(registerUser, initialState);
   const router = useRouter();
   const searchParams = useSearchParams();
   const rawCallback = searchParams.get("callbackUrl");
@@ -48,7 +49,7 @@ function RegisterForm() {
           {state.message} লগইন পাতায় নিয়ে যাওয়া হচ্ছে...
         </div>
       ) : (
-        <form action={formAction} className="flex flex-col gap-4">
+        <form action={formAction} onSubmit={submitKeepingValues(formAction)} className="flex flex-col gap-4">
           {state.message && !state.success && (
             <div className="rounded-book border-2 border-oxblood bg-oxblood/10 px-4 py-3 font-body text-sm text-oxblood">
               {state.message}

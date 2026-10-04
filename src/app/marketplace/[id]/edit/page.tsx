@@ -6,7 +6,8 @@ import { withCallbackUrl } from "@/lib/safe-redirect";
 import { updateListing } from "@/actions/listings";
 import ListingForm from "@/components/ListingForm";
 
-export default async function EditListingPage({ params }: { params: { id: string } }) {
+export default async function EditListingPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     redirect(withCallbackUrl("/login", `/marketplace/${params.id}/edit`));

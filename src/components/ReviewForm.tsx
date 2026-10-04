@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { useFormState, useFormStatus } from "react-dom";
+import { useActionState, useState } from "react";
+import { useFormStatus } from "react-dom";
 import { submitReview, type ReviewState } from "@/actions/reviews";
+import { submitKeepingValues } from "@/lib/form-submit";
 import StarRating from "@/components/StarRating";
 
 const initialState: ReviewState = { success: false };
@@ -31,7 +32,7 @@ export default function ReviewForm({
   bookId: string;
   existingReview?: ExistingReview | null;
 }) {
-  const [state, formAction] = useFormState(submitReview, initialState);
+  const [state, formAction] = useActionState(submitReview, initialState);
   const [rating, setRating] = useState(existingReview?.rating ?? 0);
   const [plotRating, setPlotRating] = useState(existingReview?.plotRating ?? 0);
   const [writingRating, setWritingRating] = useState(existingReview?.writingRating ?? 0);
@@ -40,6 +41,7 @@ export default function ReviewForm({
   return (
     <form
       action={formAction}
+      onSubmit={submitKeepingValues(formAction)}
       className="flex flex-col gap-3 rounded-book border-2 border-ink/10 bg-paper-dark p-5"
     >
       <h3 className="font-display text-lg text-ink">

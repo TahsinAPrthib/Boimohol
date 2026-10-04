@@ -10,11 +10,10 @@ function averageOf(reviews: { rating: number }[]) {
   return reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
 }
 
-export default async function CategoryPage({
-  params,
-}: {
-  params: { slug: string };
+export default async function CategoryPage(props: {
+  params: Promise<{ slug: string }>;
 }) {
+  const params = await props.params;
   const category = await prisma.category.findUnique({
     where: { slug: params.slug },
     include: {

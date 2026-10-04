@@ -3,11 +3,10 @@ import { prisma } from "@/lib/prisma";
 import { bn } from "@/lib/bangla";
 import BookCard from "@/components/BookCard";
 
-export default async function LibraryPage({
-  searchParams,
-}: {
-  searchParams: { category?: string };
+export default async function LibraryPage(props: {
+  searchParams: Promise<{ category?: string }>;
 }) {
+  const searchParams = await props.searchParams;
   const categories = await prisma.category.findMany({ orderBy: { name: "asc" } });
   const selectedSlug = searchParams.category;
 

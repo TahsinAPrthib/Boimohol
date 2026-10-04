@@ -41,11 +41,10 @@ function isStatus(value: string | undefined): value is Status {
   return value === "OPEN" || value === "REVIEWING" || value === "RESOLVED" || value === "DISMISSED";
 }
 
-export default async function AdminReportsPage({
-  searchParams,
-}: {
-  searchParams: { status?: string };
+export default async function AdminReportsPage(props: {
+  searchParams: Promise<{ status?: string }>;
 }) {
+  const searchParams = await props.searchParams;
   // 404 rather than 403: a non-admin shouldn't learn this route exists.
   const adminId = await getAdminUserId();
   if (!adminId) notFound();

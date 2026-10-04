@@ -12,7 +12,8 @@ import ShelfButtons from "@/components/ShelfButtons";
 import WishlistButton from "@/components/WishlistButton";
 import BookDownloadButton from "@/components/BookDownloadButton";
 
-export default async function BookPage({ params }: { params: { id: string } }) {
+export default async function BookPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const book = await prisma.book.findUnique({
     where: { id: params.id },
     include: {

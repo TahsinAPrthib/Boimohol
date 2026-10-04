@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useActionState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useFormState, useFormStatus } from "react-dom";
+import { useFormStatus } from "react-dom";
 import { createRequest, type RequestFormState } from "@/actions/requests";
+import { submitKeepingValues } from "@/lib/form-submit";
 
 type Category = { id: string; nameBangla: string };
 
@@ -20,7 +21,7 @@ function SubmitButton() {
 
 export default function RequestForm({ categories }: { categories: Category[] }) {
   const router = useRouter();
-  const [state, formAction] = useFormState(createRequest, initialState);
+  const [state, formAction] = useActionState(createRequest, initialState);
 
   useEffect(() => {
     if (state.success && state.requestId) {
@@ -30,7 +31,7 @@ export default function RequestForm({ categories }: { categories: Category[] }) 
   }, [state.success]);
 
   return (
-    <form action={formAction} className="flex flex-col gap-4">
+    <form action={formAction} onSubmit={submitKeepingValues(formAction)} className="flex flex-col gap-4">
       {state.message && (
         <div
           className={`rounded-book border-2 px-3 py-2 font-body text-sm ${
