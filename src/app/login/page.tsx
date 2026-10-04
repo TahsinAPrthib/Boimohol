@@ -33,7 +33,14 @@ function LoginForm() {
     setPending(false);
 
     if (result?.error) {
-      setError("ইমেইল অথবা পাসওয়ার্ড সঠিক নয়।");
+      // Only CredentialsSignin means the email or password was rejected.
+      // Anything else -- most often the database not answering -- is a server
+      // problem, and telling the user their password is wrong would be false.
+      setError(
+        result.error === "CredentialsSignin"
+          ? "ইমেইল অথবা পাসওয়ার্ড সঠিক নয়।"
+          : "সার্ভারে সাময়িক সমস্যা হয়েছে, তাই এখন লগইন করা যাচ্ছে না। কিছুক্ষণ পর আবার চেষ্টা করুন।"
+      );
       return;
     }
 
@@ -95,9 +102,16 @@ function LoginForm() {
         </Link>
       </p>
 
-      <p className="mt-4 rounded-book border-2 border-dashed border-ink/15 px-4 py-3 text-center font-body text-xs text-ink/50">
-        ডেমো লগইন: demo@boimohol.test / demo1234
-      </p>
+      {/* Development only. The demo account is never created in production
+          (see prisma/seed.ts), and a published password on a live site is an
+          open door if it were ever recreated. NODE_ENV is inlined at build
+          time, so this branch -- and the password string -- is removed from
+          the production bundle entirely, not just hidden. */}
+      {process.env.NODE_ENV !== "production" && (
+        <p className="mt-4 rounded-book border-2 border-dashed border-ink/15 px-4 py-3 text-center font-body text-xs text-ink/50">
+          ডেমো লগইন: demo@boimohol.test / demo1234
+        </p>
+      )}
     </div>
   );
 }
