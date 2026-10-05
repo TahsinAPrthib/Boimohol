@@ -1,6 +1,6 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
-import { bn, bnFixed, bnTaka } from "./bangla";
+import { bn, bnFixed, bnTaka, bnYear } from "./bangla";
 
 // Digits 0-9 must never appear in output that sits next to Bangla text.
 const LATIN_DIGIT = /[0-9]/;
@@ -31,6 +31,19 @@ describe("bn — integers", () => {
   test("survives non-finite input instead of rendering NaN", () => {
     assert.equal(bn(Number.NaN), "০");
     assert.equal(bn(Number.POSITIVE_INFINITY), "০");
+  });
+});
+
+describe("bnYear — calendar years", () => {
+  test("no thousands separator", () => {
+    assert.equal(bnYear(2026), "২০২৬");
+    assert.equal(bnYear(1941), "১৯৪১");
+  });
+
+  test("never emits a Latin digit", () => {
+    for (let y = 1900; y <= 2100; y++) {
+      assert.ok(!LATIN_DIGIT.test(bnYear(y)), `bnYear(${y}) leaked a Latin digit`);
+    }
   });
 });
 

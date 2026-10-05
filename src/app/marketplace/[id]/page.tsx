@@ -3,7 +3,7 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { bnTaka } from "@/lib/bangla";
+import { bnTaka, bnYear } from "@/lib/bangla";
 import { withCallbackUrl } from "@/lib/safe-redirect";
 import ListingCover from "@/components/ListingCover";
 import ListingPhotoGallery from "@/components/ListingPhotoGallery";
@@ -111,7 +111,7 @@ export default async function ListingPage(props: { params: Promise<{ id: string 
 
           <p className="mt-4 font-body text-sm text-ink/60">
             বিক্রেতা: <span className="font-semibold text-ink">@{listing.seller.username}</span>
-            {" · "}সদস্য হয়েছেন {memberSinceYear} থেকে
+            {" · "}সদস্য হয়েছেন {bnYear(memberSinceYear)} থেকে
           </p>
 
           {isSeller ? (
