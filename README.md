@@ -91,7 +91,7 @@ every build).
 
 | Variable | What it is for |
 |---|---|
-| `DATABASE_URL` | Pooled Postgres connection the app uses at runtime. On Neon this is the `-pooler` hostname. **Append `&connect_timeout=15`** — Neon sleeps when idle and takes ~5 s to wake, which is exactly Prisma's default timeout, so without it the first login after a quiet spell can fail. |
+| `DATABASE_URL` | Pooled Postgres connection the app uses at runtime. On Neon this is the `-pooler` hostname. **Append `&connect_timeout=15&pool_timeout=20`** — Neon sleeps when idle and takes ~5 s (sometimes over 10 s) to wake. Prisma's defaults give up at 5 s to connect and 10 s waiting for a pool connection, so without both the first request after a quiet spell can fail. |
 | `DIRECT_URL` | **Unpooled** Postgres connection. Required — `prisma migrate deploy` runs during the build and a pooled connection (PgBouncer) cannot run migrations. On Neon, the same host without `-pooler`. Append `&connect_timeout=15` here too. |
 | `NEXTAUTH_SECRET` | Signs session JWTs. Generate with `openssl rand -base64 32`. |
 | `NEXTAUTH_URL` | The full production origin, e.g. `https://boimohol.vercel.app`. |
