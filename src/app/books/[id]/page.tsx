@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { loadBook } from "@/lib/loaders";
 import { bn, bnFixed } from "@/lib/bangla";
 import { withCallbackUrl } from "@/lib/safe-redirect";
 import BookCover from "@/components/BookCover";
@@ -14,22 +15,7 @@ import BookDownloadButton from "@/components/BookDownloadButton";
 
 export default async function BookPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
-  const book = await prisma.book.findUnique({
-    where: { id: params.id },
-    include: {
-      category: true,
-      // Only a verified free file is ever surfaced to readers.
-      files: {
-        where: { type: "FREE", rightsVerified: true },
-        select: { id: true, publicId: true, fileSizeBytes: true, rightsBasis: true },
-        take: 1,
-      },
-      reviews: {
-        include: { user: { select: { id: true, name: true, username: true } } },
-        orderBy: { createdAt: "desc" },
-      },
-    },
-  });
+  const book = await loadBook(params.id);
 
   if (!book) notFound();
 

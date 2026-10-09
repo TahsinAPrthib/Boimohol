@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
+import { loadRequest } from "@/lib/loaders";
 import { bn } from "@/lib/bangla";
 import { getSessionUserId } from "@/lib/authz";
 import { blockedIdsFor } from "@/lib/blocks";
@@ -23,17 +23,7 @@ const STATUS_CLASS: Record<string, string> = {
 
 export default async function RequestDetailPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
-  const request = await prisma.bookRequest.findUnique({
-    where: { id: params.id },
-    include: {
-      category: { select: { nameBangla: true, slug: true } },
-      requester: { select: { id: true, username: true } },
-      responses: {
-        include: { responder: { select: { id: true, username: true } } },
-        orderBy: { createdAt: "asc" },
-      },
-    },
-  });
+  const request = await loadRequest(params.id);
 
   if (!request) notFound();
 

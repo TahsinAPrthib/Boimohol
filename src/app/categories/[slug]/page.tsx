@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
+import { loadCategory } from "@/lib/loaders";
 import { averageOf } from "@/lib/ratings";
 import BookCover from "@/components/BookCover";
 import BookCard from "@/components/BookCard";
@@ -10,20 +10,7 @@ export default async function CategoryPage(props: {
   params: Promise<{ slug: string }>;
 }) {
   const params = await props.params;
-  const category = await prisma.category.findUnique({
-    where: { slug: params.slug },
-    include: {
-      books: {
-        include: { reviews: { select: { rating: true } } },
-        orderBy: { title: "asc" },
-      },
-      starterPicks: {
-        include: { book: { include: { reviews: { select: { rating: true } } } } },
-        orderBy: { rank: "asc" },
-        take: 1,
-      },
-    },
-  });
+  const category = await loadCategory(params.slug);
 
   if (!category) notFound();
 

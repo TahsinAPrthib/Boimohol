@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { loadListing } from "@/lib/loaders";
 import { bnTaka, bnYear } from "@/lib/bangla";
 import { withCallbackUrl } from "@/lib/safe-redirect";
 import ListingCover from "@/components/ListingCover";
@@ -35,14 +35,7 @@ const STATUS_LABEL: Record<string, string> = {
 
 export default async function ListingPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
-  const listing = await prisma.listing.findUnique({
-    where: { id: params.id },
-    include: {
-      category: true,
-      seller: true,
-      photos: { orderBy: { order: "asc" }, select: { id: true, publicId: true } },
-    },
-  });
+  const listing = await loadListing(params.id);
 
   if (!listing) notFound();
 

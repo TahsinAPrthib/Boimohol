@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { loadConversation } from "@/lib/loaders";
 import { withCallbackUrl } from "@/lib/safe-redirect";
 import { isBlockedEitherWay } from "@/lib/blocks";
 import ListingCover from "@/components/ListingCover";
@@ -21,14 +22,7 @@ export default async function ConversationPage(props: {
 
   const userId = session.user.id;
 
-  const conversation = await prisma.conversation.findUnique({
-    where: { id: params.conversationId },
-    include: {
-      buyer: { select: { id: true, username: true } },
-      listing: { include: { category: true, seller: { select: { id: true, username: true } } } },
-      messages: { orderBy: { createdAt: "asc" } },
-    },
-  });
+  const conversation = await loadConversation(params.conversationId);
 
   // 404 rather than a "forbidden" page, so a non-participant can't tell
   // whether this conversation exists at all.

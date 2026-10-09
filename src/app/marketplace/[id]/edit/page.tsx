@@ -2,6 +2,7 @@ import { redirect, notFound } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { loadListing } from "@/lib/loaders";
 import { withCallbackUrl } from "@/lib/safe-redirect";
 import { updateListing } from "@/actions/listings";
 import ListingForm from "@/components/ListingForm";
@@ -13,10 +14,7 @@ export default async function EditListingPage(props: { params: Promise<{ id: str
     redirect(withCallbackUrl("/login", `/marketplace/${params.id}/edit`));
   }
 
-  const listing = await prisma.listing.findUnique({
-    where: { id: params.id },
-    include: { photos: { orderBy: { order: "asc" }, select: { id: true, publicId: true } } },
-  });
+  const listing = await loadListing(params.id);
   if (!listing) notFound();
   if (listing.sellerId !== session.user.id) redirect("/marketplace/mine");
 

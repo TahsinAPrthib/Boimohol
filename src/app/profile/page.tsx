@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { loadProfileUser } from "@/lib/loaders";
 import { bn } from "@/lib/bangla";
 import { withCallbackUrl } from "@/lib/safe-redirect";
 import { getCurrentStreak } from "@/lib/streak";
@@ -21,15 +22,7 @@ export default async function ProfilePage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect(withCallbackUrl("/login", "/profile"));
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    include: {
-      shelfItems: {
-        include: { book: { include: { category: true } } },
-        orderBy: { updatedAt: "desc" },
-      },
-    },
-  });
+  const user = await loadProfileUser(session.user.id);
 
   if (!user) redirect(withCallbackUrl("/login", "/profile"));
 
