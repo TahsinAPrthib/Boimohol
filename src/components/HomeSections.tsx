@@ -2,11 +2,11 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { prisma } from "@/lib/prisma";
 import { blockedIdsFor } from "@/lib/blocks";
-import { bn } from "@/lib/bangla";
 import { describeDbError } from "@/lib/db-errors";
 import { averageOf } from "@/lib/ratings";
 import { snippet } from "@/lib/snippet";
 import BookCard from "@/components/BookCard";
+import CategoryGrid from "@/components/CategoryGrid";
 import ListingCard from "@/components/ListingCard";
 import Reveal from "@/components/Reveal";
 import StarRating from "@/components/StarRating";
@@ -67,7 +67,7 @@ export default async function HomeSections({ viewerId }: { viewerId: string | nu
       }),
       prisma.category.findMany({
         orderBy: { name: "asc" },
-        include: { _count: { select: { books: true } } },
+        select: { id: true, slug: true, nameBangla: true, description: true },
       }),
     ]);
   } catch (err) {
@@ -167,23 +167,7 @@ export default async function HomeSections({ viewerId }: { viewerId: string | nu
       {categories.length > 0 && (
         <Reveal>
           <SectionHeading title="বিভাগসমূহ" />
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-            {categories.map((category) => (
-              <Link
-                key={category.id}
-                href={`/categories/${category.slug}`}
-                className="group flex flex-col justify-between rounded-book border-2 border-ink/10 bg-paper-dark p-5 shadow-shelf transition-colors hover:border-cloth"
-              >
-                <div>
-                  <h3 className="font-display text-xl text-ink group-hover:text-cloth">{category.nameBangla}</h3>
-                  {category.description && (
-                    <p className="mt-2 font-body text-sm text-ink/60">{category.description}</p>
-                  )}
-                </div>
-                <p className="mt-4 font-body text-xs font-semibold text-ink/50">{bn(category._count.books)} টি বই</p>
-              </Link>
-            ))}
-          </div>
+          <CategoryGrid categories={categories} headingLevel="h3" />
         </Reveal>
       )}
     </div>
