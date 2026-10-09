@@ -30,6 +30,30 @@ const config: Config = {
       maxWidth: {
         prose: "68ch",
       },
+      // Small, slow feedback -- a reading room, not an arcade. Apply these
+      // with the motion-safe: variant so reduced-motion users never get them.
+      keyframes: {
+        settle: {
+          "0%": { transform: "scale(0.95)" },
+          "60%": { transform: "scale(1.03)" },
+          "100%": { transform: "scale(1)" },
+        },
+        "star-pop": {
+          "0%": { transform: "scale(1)" },
+          "45%": { transform: "scale(1.25)" },
+          "100%": { transform: "scale(1)" },
+        },
+        "bookmark-drop": {
+          "0%": { transform: "translateY(-4px)", opacity: "0.5" },
+          "70%": { transform: "translateY(1px)", opacity: "1" },
+          "100%": { transform: "translateY(0)" },
+        },
+      },
+      animation: {
+        settle: "settle 420ms cubic-bezier(0.2, 0.7, 0.2, 1)",
+        "star-pop": "star-pop 380ms cubic-bezier(0.2, 0.7, 0.2, 1) both",
+        "bookmark-drop": "bookmark-drop 480ms cubic-bezier(0.2, 0.7, 0.2, 1)",
+      },
     },
   },
   plugins: [],

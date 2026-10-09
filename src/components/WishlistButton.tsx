@@ -17,6 +17,8 @@ export default function WishlistButton({
   const [wishlisted, setWishlisted] = useState(initialWishlisted);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  // Bumped on each press; keys the icon so its drop animation replays.
+  const [presses, setPresses] = useState(0);
 
   // Logged-out visitors get a link to sign in rather than a button that
   // would just fail on click.
@@ -36,6 +38,7 @@ export default function WishlistButton({
     setError(null);
     const previous = wishlisted;
     setWishlisted(!previous);
+    setPresses((n) => n + 1);
     startTransition(async () => {
       const result = await toggleWishlist(bookId);
       if (!result.success) {
@@ -54,13 +57,15 @@ export default function WishlistButton({
         onClick={handleClick}
         disabled={pending}
         aria-pressed={wishlisted}
-        className={
+        className={`transition-colors duration-300 ${
           wishlisted
             ? "inline-flex items-center gap-2 rounded-book bg-turmeric px-4 py-2 font-body text-sm font-semibold text-ink shadow-shelf disabled:opacity-60"
             : "inline-flex items-center gap-2 rounded-book border-2 border-ink/20 px-4 py-2 font-body text-sm font-semibold text-ink hover:border-ink/40 disabled:opacity-60"
-        }
+        }`}
       >
-        <BookmarkIcon filled={wishlisted} />
+        <span key={presses} className={`inline-flex ${presses > 0 ? "motion-safe:animate-bookmark-drop" : ""}`}>
+          <BookmarkIcon filled={wishlisted} />
+        </span>
         {wishlisted ? "উইশলিস্টে আছে" : "উইশলিস্টে রাখুন"}
       </button>
       {error && <p className="field-error">{error}</p>}

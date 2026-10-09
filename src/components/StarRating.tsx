@@ -24,6 +24,10 @@ export default function StarRating({
 }) {
   const baseId = useId().replace(/:/g, "");
   const [hoverValue, setHoverValue] = useState<number | null>(null);
+  // After a pick, stars up to the chosen one pop in sequence. `picks` keys
+  // the star glyphs (not the buttons, so focus stays put) to replay it.
+  const [picks, setPicks] = useState(0);
+  const [pickedUpTo, setPickedUpTo] = useState(0);
   const interactive = !readOnly && typeof onChange === "function";
   const displayValue = interactive && hoverValue !== null ? hoverValue : value;
   const px = SIZE_MAP[size];
@@ -38,8 +42,13 @@ export default function StarRating({
         const fillPercent = Math.max(0, Math.min(1, displayValue - (star - 1))) * 100;
         const clipId = `${baseId}-star-${star}`;
 
+        const popping = interactive && picks > 0 && star <= pickedUpTo;
         const starEl = (
-          <span className="relative inline-block" style={{ width: px, height: px }}>
+          <span
+            key={popping ? `${star}-${picks}` : star}
+            className={`relative inline-block ${popping ? "motion-safe:animate-star-pop" : ""}`}
+            style={{ width: px, height: px, animationDelay: popping ? `${(star - 1) * 45}ms` : undefined }}
+          >
             <svg viewBox="0 0 24 24" width={px} height={px} className="absolute inset-0">
               <path d={STAR_PATH} fill="none" stroke="#2A2420" strokeOpacity="0.25" strokeWidth="1.5" />
             </svg>
@@ -64,7 +73,11 @@ export default function StarRating({
             type="button"
             onMouseEnter={() => setHoverValue(star)}
             onFocus={() => setHoverValue(star)}
-            onClick={() => onChange?.(star)}
+            onClick={() => {
+              setPicks((n) => n + 1);
+              setPickedUpTo(star);
+              onChange?.(star);
+            }}
             className="rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-turmeric"
             aria-label={`${bn(star)} তারা`}
           >

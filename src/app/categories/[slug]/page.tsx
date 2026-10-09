@@ -1,14 +1,10 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { averageOf } from "@/lib/ratings";
 import BookCover from "@/components/BookCover";
 import BookCard from "@/components/BookCard";
 import StarRating from "@/components/StarRating";
-
-function averageOf(reviews: { rating: number }[]) {
-  if (reviews.length === 0) return 0;
-  return reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
-}
 
 export default async function CategoryPage(props: {
   params: Promise<{ slug: string }>;

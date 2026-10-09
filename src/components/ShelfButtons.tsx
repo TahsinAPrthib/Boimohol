@@ -21,11 +21,15 @@ export default function ShelfButtons({
   const [status, setStatus] = useState<Status | null>(initialStatus);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  // The button the reader just pressed settles into place; one already
+  // active on page load doesn't animate.
+  const [justChosen, setJustChosen] = useState<Status | null>(null);
 
   function handleClick(next: Status) {
     setError(null);
     const previous = status;
     setStatus(next);
+    setJustChosen(next);
     startTransition(async () => {
       const result = await updateShelfStatus(bookId, next);
       if (!result.success) {
@@ -44,11 +48,11 @@ export default function ShelfButtons({
             type="button"
             disabled={pending}
             onClick={() => handleClick(s.key)}
-            className={
+            className={`transition-colors duration-300 ${
               status === s.key
                 ? "rounded-book bg-cloth px-4 py-2 font-body text-sm font-semibold text-paper shadow-shelf disabled:opacity-60"
                 : "rounded-book border-2 border-ink/20 px-4 py-2 font-body text-sm font-semibold text-ink hover:border-ink/40 disabled:opacity-60"
-            }
+            }${status === s.key && justChosen === s.key ? " motion-safe:animate-settle" : ""}`}
           >
             {s.label}
           </button>

@@ -38,13 +38,17 @@ export default function ListingCard({
 }) {
   return (
     <Link href={`/marketplace/${id}`} className="group flex flex-col">
-      <div className="relative">
+      <div className="book-lift relative rounded-book">
         {photoPublicId ? (
           <div className="overflow-hidden rounded-book shadow-shelf">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={cloudinaryUrl(photoPublicId, { width: 400, square: true })}
               alt={title}
+              width={400}
+              height={400}
+              loading="lazy"
+              decoding="async"
               className="aspect-square w-full object-cover"
             />
           </div>

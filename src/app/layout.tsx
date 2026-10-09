@@ -12,9 +12,12 @@ const tiroBangla = Tiro_Bangla({
   display: "swap",
 });
 
+// Only the weights in use: 400 body, 600 font-semibold, 700 for <strong>.
+// Each extra weight is another ~40 KB file preloaded on every page, ahead of
+// the hero image.
 const hindSiliguri = Hind_Siliguri({
   subsets: ["bengali"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "600", "700"],
   variable: "--font-hind",
   display: "swap",
 });

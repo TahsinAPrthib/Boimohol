@@ -20,6 +20,17 @@ const nextConfig = {
       },
     ],
   },
+  // Files under /public are otherwise revalidated on every visit. The hero
+  // poster/video and the cursor carry a version in their names (-v1), so they
+  // can be cached for a year: to change one, add a new -v2 file and point the
+  // code at it, never overwrite the old name.
+  async headers() {
+    const immutable = [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }];
+    return [
+      { source: "/media/:path*", headers: immutable },
+      { source: "/cursors/:path*", headers: immutable },
+    ];
+  },
 };
 
 module.exports = nextConfig;
