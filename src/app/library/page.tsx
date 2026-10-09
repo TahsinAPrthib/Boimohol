@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { bn } from "@/lib/bangla";
 import BookCard from "@/components/BookCard";
 
 export default async function LibraryPage(props: {
@@ -70,8 +69,9 @@ export default async function LibraryPage(props: {
         </p>
       ) : (
         <>
+          {/* No count here: with a small library, a low number makes it look empty. */}
           <p className="mb-4 font-body text-sm text-ink/50">
-            {bn(books.length)}টি বই পড়ার জন্য প্রস্তুত।
+            পছন্দের বইটি খুলে বিনামূল্যে পড়ুন, অথবা পিডিএফ নামিয়ে রাখুন।
           </p>
           <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4">
             {books.map((book) => (
