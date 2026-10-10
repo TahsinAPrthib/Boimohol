@@ -37,7 +37,7 @@ export default function CoverPlaceholder({
 
   return (
     <div
-      className={`relative flex aspect-[2/3] w-full flex-col justify-between overflow-hidden rounded-book shadow-shelf ${className}`}
+      className={`cover relative flex aspect-[2/3] w-full flex-col justify-between overflow-hidden rounded-book shadow-shelf ${className}`}
       style={{
         backgroundColor: colors.bg,
         backgroundImage: `linear-gradient(160deg, ${colors.bgLight} 0%, ${colors.bg} 55%)`,
@@ -45,31 +45,31 @@ export default function CoverPlaceholder({
       aria-hidden="true"
     >
       {/* spine edge */}
-      <div className="absolute inset-y-0 left-0 w-2 shadow-spine" style={{ backgroundColor: colors.bgLight }} />
+      <div className="cover-spine absolute inset-y-0 left-0 shadow-spine" style={{ backgroundColor: colors.bgLight }} />
 
       {/* decorative frame, like a cloth-bound cover's blind-stamped border */}
       <div
-        className="pointer-events-none absolute inset-3 rounded-[2px] border"
+        className="cover-frame pointer-events-none absolute rounded-[2px] border"
         style={{ borderColor: `${colors.text}33` }}
       />
 
-      <div className="relative flex flex-1 flex-col justify-between p-4 pl-6">
+      <div className="cover-body relative flex min-h-0 flex-1 flex-col justify-between">
         <span
-          className="font-display text-3xl leading-none opacity-40"
+          className="cover-glyph font-display opacity-40"
           style={{ color: colors.text }}
         >
           {initialGlyph(title)}
         </span>
 
-        <div>
+        <div className="cover-text">
           <p
-            className="font-display text-lg leading-snug"
+            className="cover-title font-display"
             style={{ color: colors.text }}
           >
             {title}
           </p>
           <p
-            className="mt-1 font-body text-xs"
+            className="cover-author font-body"
             style={{ color: `${colors.text}CC` }}
           >
             {author}

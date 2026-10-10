@@ -104,6 +104,77 @@
     transform-origin: 50% 100%;
   }
 
+  /* CoverPlaceholder. Everything is sized from the cover's own width (cqw)
+     and capped at the original fixed sizes, so a cover 171px or wider looks
+     exactly as before and a smaller one is the same design scaled down,
+     instead of text spilling past the frame. Titles and authors stop at
+     whole lines with an ellipsis; a word too long for the line breaks. */
+  .cover {
+    container-type: inline-size;
+  }
+
+  .cover-spine {
+    width: min(0.5rem, 4.7cqw);
+  }
+
+  .cover-frame {
+    inset: min(0.75rem, 7cqw);
+  }
+
+  .cover-body {
+    padding: min(1rem, 9.4cqw) min(1rem, 9.4cqw) min(1rem, 9.4cqw) min(1.5rem, 14cqw);
+  }
+
+  .cover-glyph {
+    font-size: min(1.875rem, 17.5cqw);
+    line-height: 1;
+  }
+
+  .cover-title,
+  .cover-author {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+  }
+
+  .cover-title {
+    font-size: min(1.125rem, 10.5cqw);
+    line-height: 1.375;
+    -webkit-line-clamp: 5;
+  }
+
+  .cover-author {
+    margin-top: min(0.25rem, 2.3cqw);
+    font-size: clamp(0.5625rem, 7cqw, 0.75rem);
+    line-height: 1.333;
+    -webkit-line-clamp: 2;
+  }
+
+  /* Thumbnails: the title is always printed beside these, so the cover gives
+     up the author first and, at chat-header size, everything but the
+     initial, rather than shrinking text past legibility. */
+  @container (max-width: 119.9px) {
+    .cover-author {
+      display: none;
+    }
+  }
+
+  @container (max-width: 87.9px) {
+    .cover-text {
+      display: none;
+    }
+
+    .cover-body {
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cover-glyph {
+      font-size: 40cqw;
+    }
+  }
+
   /* Book-shaped loading placeholder with a slow sweep of light. The sweep
      moves a pseudo-element with transform, so it stays on the compositor
      instead of repainting a gradient every frame. */
