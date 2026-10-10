@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { canBePublicDomain } from "../src/lib/public-domain";
 
 const prisma = new PrismaClient();
 
@@ -51,8 +52,11 @@ const categories = [
 
 // Real, well-known books. Descriptions below are original one-line summaries
 // written for this catalog, not copied jacket/blurb text.
-// isPublicDomain reflects each work's actual public-domain status — see
-// README for why this flag gates the free/paid PDF feature.
+// isPublicDomain follows the Bangladeshi rule in src/lib/public-domain.ts:
+// protected until 60 years after the end of the year the author died, so in
+// 2026 only authors who died in 1965 or earlier qualify. authorDeathYear is
+// required here (null = living) so no book is added without checking it, and
+// main() refuses to seed a flag the rule doesn't allow.
 const booksByCategory: Record<
   string,
   Array<{
@@ -61,6 +65,7 @@ const booksByCategory: Record<
     author: string;
     description: string;
     publishYear?: number;
+    authorDeathYear: number | null;
     isPublicDomain?: boolean;
   }>
 > = {
@@ -72,6 +77,7 @@ const booksByCategory: Record<
       description:
         "গ্রামবাংলার প্রকৃতি এবং অপু-দুর্গার শৈশবকে ঘিরে বাংলা সাহিত্যের অন্যতম আলোচিত ধ্রুপদী উপন্যাস।",
       publishYear: 1929,
+      authorDeathYear: 1950,
       isPublicDomain: true,
     },
     {
@@ -80,6 +86,7 @@ const booksByCategory: Record<
       author: "রবীন্দ্রনাথ ঠাকুর",
       description: "প্রেম ও যুক্তির দ্বন্দ্ব নিয়ে রবীন্দ্রনাথের ভিন্নধর্মী এক উপন্যাস।",
       publishYear: 1929,
+      authorDeathYear: 1941,
       isPublicDomain: true,
     },
     {
@@ -88,6 +95,7 @@ const booksByCategory: Record<
       author: "শরৎচন্দ্র চট্টোপাধ্যায়",
       description: "না-পাওয়া প্রেমের এক করুণ আখ্যান, বাংলা উপন্যাসের অন্যতম পরিচিত নাম।",
       publishYear: 1917,
+      authorDeathYear: 1938,
       isPublicDomain: true,
     },
   ],
@@ -98,6 +106,7 @@ const booksByCategory: Record<
       author: "রবীন্দ্রনাথ ঠাকুর",
       description: "রবীন্দ্রনাথের অন্যতম বিখ্যাত কাব্যগ্রন্থ, শিরোনাম-কবিতাটির জন্য বিশেষভাবে পরিচিত।",
       publishYear: 1894,
+      authorDeathYear: 1941,
       isPublicDomain: true,
     },
     {
@@ -106,7 +115,8 @@ const booksByCategory: Record<
       author: "কাজী নজরুল ইসলাম",
       description: "নজরুলের প্রথম কাব্যগ্রন্থ, বিদ্রোহ ও প্রতিবাদের সুরে বাঁধা।",
       publishYear: 1922,
-      isPublicDomain: true,
+      authorDeathYear: 1976,
+      isPublicDomain: false,
     },
   ],
   "thriller-rohosso": [
@@ -116,6 +126,7 @@ const booksByCategory: Record<
       author: "সত্যজিৎ রায়",
       description: "গোয়েন্দা ফেলুদা ও তোপসের প্রথম দিকের অভিযানগুলোর সংকলন।",
       publishYear: 1965,
+      authorDeathYear: 1992,
       isPublicDomain: false,
     },
     {
@@ -123,6 +134,7 @@ const booksByCategory: Record<
       author: "Arthur Conan Doyle",
       description: "শার্লক হোমসের প্রথম ছোটগল্প সংকলন, গোয়েন্দা কাহিনির একটি ভিত্তি-গ্রন্থ।",
       publishYear: 1892,
+      authorDeathYear: 1930,
       isPublicDomain: true,
     },
   ],
@@ -133,6 +145,7 @@ const booksByCategory: Record<
       author: "মুহম্মদ জাফর ইকবাল",
       description: "রোবট আর মানুষের সম্পর্ক নিয়ে বাংলা বিজ্ঞান কল্পকাহিনীর একটি পরিচিত নাম।",
       publishYear: 1985,
+      authorDeathYear: null, // living
       isPublicDomain: false,
     },
     {
@@ -140,6 +153,7 @@ const booksByCategory: Record<
       author: "H. G. Wells",
       description: "ভিনগ্রহী আক্রমণ নিয়ে লেখা বিজ্ঞান কল্পকাহিনীর একটি ভিত্তিপ্রস্তর উপন্যাস।",
       publishYear: 1898,
+      authorDeathYear: 1946,
       isPublicDomain: true,
     },
   ],
@@ -149,13 +163,15 @@ const booksByCategory: Record<
       author: "Napoleon Hill",
       description: "সাফল্যের মানসিকতা নিয়ে লেখা আত্ম-উন্নয়নমূলক বইয়ের জগতের একটি আলোচিত নাম।",
       publishYear: 1937,
-      isPublicDomain: true,
+      authorDeathYear: 1970,
+      isPublicDomain: false,
     },
     {
       title: "How to Win Friends and Influence People",
       author: "Dale Carnegie",
       description: "মানুষের সাথে সম্পর্ক তৈরি ও যোগাযোগের দক্ষতা নিয়ে লেখা আত্ম-উন্নয়নমূলক বইয়ের একটি ক্লাসিক নাম।",
       publishYear: 1936,
+      authorDeathYear: 1955,
       isPublicDomain: false,
     },
   ],
@@ -166,6 +182,7 @@ const booksByCategory: Record<
       author: "শেখ মুজিবুর রহমান",
       description: "বঙ্গবন্ধু শেখ মুজিবুর রহমানের নিজের হাতে লেখা আত্মজীবনী।",
       publishYear: 2012,
+      authorDeathYear: 1975,
       isPublicDomain: false,
     },
     {
@@ -174,6 +191,7 @@ const booksByCategory: Record<
       author: "শেখ মুজিবুর রহমান",
       description: "কারাবন্দি অবস্থায় লেখা বঙ্গবন্ধুর ব্যক্তিগত রোজনামচা, পরবর্তীতে গ্রন্থাকারে প্রকাশিত।",
       publishYear: 2017,
+      authorDeathYear: 1975,
       isPublicDomain: false,
     },
   ],
@@ -206,6 +224,9 @@ async function main() {
 
     const books = booksByCategory[cat.slug] ?? [];
     for (const b of books) {
+      if (b.isPublicDomain && !canBePublicDomain(b.authorDeathYear)) {
+        throw new Error(`seed: "${b.title}" is marked public domain but its author died in ${b.authorDeathYear ?? "an unknown year"}`);
+      }
       const book = await prisma.book.upsert({
         where: { id: `${cat.slug}-${b.title}`.replace(/\s+/g, "-").toLowerCase() },
         update: {},
@@ -216,6 +237,7 @@ async function main() {
           author: b.author,
           description: b.description,
           publishYear: b.publishYear,
+          authorDeathYear: b.authorDeathYear,
           isPublicDomain: b.isPublicDomain ?? false,
           categoryId: category.id,
         },

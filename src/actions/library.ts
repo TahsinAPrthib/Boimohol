@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { canBePublicDomain } from "@/lib/public-domain";
 import { getAdminUserId } from "@/lib/authz";
 import { serverCloudinary } from "@/lib/cloudinary-server";
 import { MAX_PDF_BYTES, PDF_FOLDER, PDF_FORMAT } from "@/lib/cloudinary-url";
@@ -99,15 +100,16 @@ export async function createBookFile(
 
   const book = await prisma.book.findUnique({
     where: { id: parsed.data.bookId },
-    select: { id: true, title: true, titleBangla: true, isPublicDomain: true },
+    select: { id: true, title: true, titleBangla: true, isPublicDomain: true, authorDeathYear: true },
   });
   if (!book) {
     await destroy();
     return { success: false, message: "বইটি খুঁজে পাওয়া যায়নি।" };
   }
 
-  // The central rule of this feature: only genuinely public-domain works.
-  if (!book.isPublicDomain) {
+  // The central rule of this feature: only genuinely public-domain works --
+  // the flag alone isn't enough, the author's death year has to back it up.
+  if (!book.isPublicDomain || !canBePublicDomain(book.authorDeathYear)) {
     await destroy();
     return {
       success: false,

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { canBePublicDomain } from "@/lib/public-domain";
 import { loadBook } from "@/lib/loaders";
 import { bn, bnFixed } from "@/lib/bangla";
 import { withCallbackUrl } from "@/lib/safe-redirect";
@@ -27,7 +28,9 @@ export default async function BookPage(props: { params: Promise<{ id: string }> 
     reviewCount > 0 ? book.reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount : 0;
 
   const myReview = userId ? book.reviews.find((r) => r.userId === userId) ?? null : null;
-  const freeFile = book.files[0] ?? null;
+  // As in the library: no download offered unless the book passes the
+  // public-domain rule today, whatever its stored flag says.
+  const freeFile = book.isPublicDomain && canBePublicDomain(book.authorDeathYear) ? book.files[0] ?? null : null;
 
   let shelfStatus: "WANT" | "READING" | "FINISHED" | null = null;
   let wishlisted = false;

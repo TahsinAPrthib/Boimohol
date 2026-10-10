@@ -117,22 +117,26 @@ model Category {
 }
 
 model Book {
-  id             String         @id @default(cuid())
-  title          String
-  titleBangla    String?
-  author         String
-  categoryId     String
-  category       Category       @relation(fields: [categoryId], references: [id])
-  description    String
-  language       String         @default("bn")
-  isPublicDomain Boolean        @default(false)
-  publishYear    Int?
-  createdAt      DateTime       @default(now())
-  reviews        Review[]
-  shelfItems     ShelfItem[]
-  starterPicks   StarterPick[]
-  files          BookFile[]
-  wishlistItems  WishlistItem[]
+  id              String         @id @default(cuid())
+  title           String
+  titleBangla     String?
+  author          String
+  categoryId      String
+  category        Category       @relation(fields: [categoryId], references: [id])
+  description     String
+  language        String         @default("bn")
+  isPublicDomain  Boolean        @default(false)
+  publishYear     Int?
+  // Null when the author is living or the year isn't known. Under Bangladeshi
+  // law a book can only be public domain once this is set and old enough --
+  // see src/lib/public-domain.ts.
+  authorDeathYear Int?
+  createdAt       DateTime       @default(now())
+  reviews         Review[]
+  shelfItems      ShelfItem[]
+  starterPicks    StarterPick[]
+  files           BookFile[]
+  wishlistItems   WishlistItem[]
 
   @@index([categoryId])
 }

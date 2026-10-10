@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { publicDomainCutoffYear } from "@/lib/public-domain";
 import BookCard from "@/components/BookCard";
 
 export default async function LibraryPage(props: {
@@ -12,11 +13,15 @@ export default async function LibraryPage(props: {
   // Only books that actually carry a free file. rightsVerified is part of the
   // filter as well as the type: a row is only ever written with it true after
   // the public-domain gate passes, so this keeps the public list honest even if
-  // a row were ever created some other way.
+  // a row were ever created some other way. The book itself must also pass
+  // the public-domain rule today, so a PDF left on a book that was wrongly
+  // flagged is no longer offered while it waits to be removed.
   const books = await prisma.book.findMany({
     where: {
       ...(selectedSlug ? { category: { slug: selectedSlug } } : {}),
       files: { some: { type: "FREE", rightsVerified: true } },
+      isPublicDomain: true,
+      authorDeathYear: { lte: publicDomainCutoffYear() },
     },
     include: {
       category: { select: { colorKey: true } },
