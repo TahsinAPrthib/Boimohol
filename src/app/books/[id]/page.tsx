@@ -53,6 +53,7 @@ export default async function BookPage(props: { params: Promise<{ id: string }> 
       <div className="grid grid-cols-1 gap-8 sm:grid-cols-[200px_1fr]">
         <BookCover
           title={book.title}
+          titleBangla={book.titleBangla}
           author={book.author}
           colorKey={book.category.colorKey}
           className="max-w-[200px]"

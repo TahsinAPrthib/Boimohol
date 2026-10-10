@@ -104,6 +104,7 @@ export default async function ProfilePage() {
                     <Link key={item.id} href={`/books/${item.book.id}`} className="group">
                       <BookCover
                         title={item.book.title}
+                        titleBangla={item.book.titleBangla}
                         author={item.book.author}
                         colorKey={item.book.category.colorKey}
                       />

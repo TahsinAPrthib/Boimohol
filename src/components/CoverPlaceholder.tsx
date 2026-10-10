@@ -7,9 +7,15 @@ const PALETTE: Record<string, { bg: string; bgLight: string; text: string }> = {
   ink: { bg: "#2A2420", bgLight: "#463C34", text: "#EAE3D3" },
 };
 
+const graphemes = typeof Intl.Segmenter === "function" ? new Intl.Segmenter("bn", { granularity: "grapheme" }) : null;
+
+// The first whole letter as a reader sees it: for "গোরা" that is "গো", not a
+// bare "গ" cut off from its vowel sign.
 function initialGlyph(title: string) {
   const trimmed = title.trim();
-  return trimmed.length > 0 ? trimmed[0] : "বই";
+  if (trimmed.length === 0) return "বই";
+  const first = graphemes?.segment(trimmed)[Symbol.iterator]().next();
+  return first && !first.done ? first.value.segment : Array.from(trimmed)[0];
 }
 
 // Shared cover/spine placeholder — colored by category (or a caller-chosen

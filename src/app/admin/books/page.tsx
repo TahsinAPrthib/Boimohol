@@ -11,6 +11,7 @@ import AdminBookImport from "@/components/AdminBookImport";
 import AdminBookDeleteButton from "@/components/AdminBookDeleteButton";
 import BookFileUploader from "@/components/BookFileUploader";
 import BookFileDeleteButton from "@/components/BookFileDeleteButton";
+import BookFileRightsEditor from "@/components/BookFileRightsEditor";
 
 export default async function AdminBooksPage() {
   // 404 rather than 403: a non-admin should not learn this route exists.
@@ -181,9 +182,7 @@ export default async function AdminBooksPage() {
                           </>
                         )}
                       </p>
-                      <p className="max-w-prose font-body text-sm text-ink/70">
-                        <span className="font-semibold text-ink">ভিত্তি:</span> {file.rightsBasis}
-                      </p>
+                      <BookFileRightsEditor fileId={file.id} rightsBasis={file.rightsBasis} />
                       {file.sourceUrl && (
                         <p className="break-words font-body text-xs text-ink/50">
                           উৎস: {file.sourceUrl}

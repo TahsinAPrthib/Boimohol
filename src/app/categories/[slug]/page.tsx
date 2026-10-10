@@ -37,6 +37,7 @@ export default async function CategoryPage(props: {
             <Link href={`/books/${starterPick.book.id}`} className="mx-auto w-full max-w-[160px] sm:mx-0">
               <BookCover
                 title={starterPick.book.title}
+                titleBangla={starterPick.book.titleBangla}
                 author={starterPick.book.author}
                 colorKey={category.colorKey}
               />

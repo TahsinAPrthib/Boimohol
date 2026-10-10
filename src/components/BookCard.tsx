@@ -22,7 +22,7 @@ export default function BookCard({
 }) {
   return (
     <Link href={`/books/${id}`} className="group flex flex-col">
-      <BookCover title={title} author={author} colorKey={colorKey} className="book-lift" />
+      <BookCover title={title} titleBangla={titleBangla} author={author} colorKey={colorKey} className="book-lift" />
       <p className="mt-2 font-display text-base leading-snug text-ink group-hover:text-cloth">
         {titleBangla || title}
       </p>

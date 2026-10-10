@@ -67,14 +67,18 @@ export async function getPdfUploadSignature(): Promise<PdfUploadSignature> {
   };
 }
 
+// Shared by upload and the later edit, so a note can never be saved by one
+// path that the other would have refused.
+const rightsBasisSchema = z
+  .string({ required_error: "কোন ভিত্তিতে ফাইলটি বিনামূল্যে দেওয়া যাচ্ছে তা লিখতে হবে।" })
+  .trim()
+  .min(1, "কোন ভিত্তিতে ফাইলটি বিনামূল্যে দেওয়া যাচ্ছে তা লিখতে হবে।")
+  .max(1000, "ব্যাখ্যাটি অনেক বড় হয়ে গেছে।");
+
 const createSchema = z.object({
   bookId: z.string().trim().min(1, "বই নির্বাচন করা হয়নি।"),
   publicId: z.string().trim().min(1, "ফাইলটি আপলোড হয়নি।").max(300),
-  rightsBasis: z
-    .string()
-    .trim()
-    .min(1, "কোন ভিত্তিতে ফাইলটি বিনামূল্যে দেওয়া যাচ্ছে তা লিখতে হবে।")
-    .max(1000, "ব্যাখ্যাটি অনেক বড় হয়ে গেছে।"),
+  rightsBasis: rightsBasisSchema,
   sourceUrl: z.string().trim().max(500).optional(),
 });
 
@@ -213,6 +217,43 @@ export async function deleteBookFile(fileId: string): Promise<LibraryActionResul
   revalidatePath(`/books/${file.bookId}`);
 
   return { success: true, message: "ফাইলটি মুছে ফেলা হয়েছে।" };
+}
+
+// Corrects the "why is this free" note without touching the file itself. The
+// note is shown publicly on the book page, so it gets the upload's rules.
+export async function updateBookFileRightsBasis(fileId: string, rightsBasis: string): Promise<LibraryActionResult> {
+  const adminId = await getAdminUserId();
+  if (!adminId) {
+    return { success: false, message: "শুধু অ্যাডমিন ফাইলের তথ্য বদলাতে পারবেন।" };
+  }
+
+  const parsed = z.object({ fileId: z.string().trim().min(1), rightsBasis: rightsBasisSchema }).safeParse({ fileId, rightsBasis });
+  if (!parsed.success) {
+    return { success: false, message: parsed.error.issues[0]?.message ?? "অনুরোধটি সঠিক নয়।" };
+  }
+
+  const file = await prisma.bookFile.findUnique({
+    where: { id: parsed.data.fileId },
+    select: { id: true, bookId: true },
+  });
+  if (!file) {
+    return { success: false, message: "ফাইলটি খুঁজে পাওয়া যায়নি।" };
+  }
+
+  // updateMany so a file deleted in another tab meanwhile is a plain "not
+  // found" rather than a thrown error.
+  const { count } = await prisma.bookFile.updateMany({
+    where: { id: file.id },
+    data: { rightsBasis: parsed.data.rightsBasis },
+  });
+  if (count === 0) {
+    return { success: false, message: "ফাইলটি খুঁজে পাওয়া যায়নি।" };
+  }
+
+  revalidatePath("/admin/books");
+  revalidatePath(`/books/${file.bookId}`);
+
+  return { success: true, fileId: file.id, message: "ভিত্তি হালনাগাদ করা হয়েছে।" };
 }
 
 // Public domain files are freely readable, so this is deliberately NOT gated
