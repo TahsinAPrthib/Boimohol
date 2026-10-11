@@ -2,13 +2,18 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { publicDomainCutoffYear } from "@/lib/public-domain";
 import BookCard from "@/components/BookCard";
+import SearchBox from "@/components/SearchBox";
+import NoResults from "@/components/NoResults";
+import { hrefWith, readQuery, searchFilter } from "@/lib/search";
 
 export default async function LibraryPage(props: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; q?: string | string[] }>;
 }) {
   const searchParams = await props.searchParams;
   const categories = await prisma.category.findMany({ orderBy: { name: "asc" } });
   const selectedSlug = searchParams.category;
+  const q = readQuery(searchParams.q);
+  const search = searchFilter(q);
 
   // Only books that actually carry a free file. rightsVerified is part of the
   // filter as well as the type: a row is only ever written with it true after
@@ -22,6 +27,7 @@ export default async function LibraryPage(props: {
       files: { some: { type: "FREE", rightsVerified: true } },
       isPublicDomain: true,
       authorDeathYear: { lte: publicDomainCutoffYear() },
+      ...search,
     },
     include: {
       category: { select: { colorKey: true } },
@@ -40,9 +46,11 @@ export default async function LibraryPage(props: {
         </p>
       </div>
 
+      <SearchBox label="লাইব্রেরিতে খুঁজুন" placeholder="বইয়ের নাম বা লেখক" className="mb-4" />
+
       <div className="mb-6 flex flex-wrap gap-2 border-b-2 border-ink/10 pb-6">
         <Link
-          href="/library"
+          href={hrefWith("/library", { q })}
           className={`rounded-book border-2 px-3 py-1.5 font-body text-sm font-semibold ${
             !selectedSlug
               ? "border-cloth bg-cloth text-paper"
@@ -54,7 +62,7 @@ export default async function LibraryPage(props: {
         {categories.map((cat) => (
           <Link
             key={cat.id}
-            href={`/library?category=${cat.slug}`}
+            href={hrefWith("/library", { category: cat.slug, q })}
             className={`rounded-book border-2 px-3 py-1.5 font-body text-sm font-semibold ${
               selectedSlug === cat.slug
                 ? "border-cloth bg-cloth text-paper"
@@ -66,7 +74,9 @@ export default async function LibraryPage(props: {
         ))}
       </div>
 
-      {books.length === 0 ? (
+      {books.length === 0 && search ? (
+        <NoResults query={q} where={selectedSlug ? "এই বিভাগে" : "লাইব্রেরিতে"} />
+      ) : books.length === 0 ? (
         <p className="rounded-book border-2 border-dashed border-ink/15 px-4 py-6 text-center font-body text-ink/60">
           {selectedSlug
             ? "এই বিভাগে এখনো কোনো বিনামূল্যের বই নেই।"

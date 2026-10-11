@@ -3,13 +3,18 @@ import { prisma } from "@/lib/prisma";
 import { getSessionUserId } from "@/lib/authz";
 import { blockedIdsFor } from "@/lib/blocks";
 import RequestCard from "@/components/RequestCard";
+import SearchBox from "@/components/SearchBox";
+import NoResults from "@/components/NoResults";
+import { hrefWith, readQuery, searchFilter } from "@/lib/search";
 
 export default async function RequestsPage(props: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; q?: string | string[] }>;
 }) {
   const searchParams = await props.searchParams;
   const categories = await prisma.category.findMany({ orderBy: { name: "asc" } });
   const selectedSlug = searchParams.category;
+  const q = readQuery(searchParams.q);
+  const search = searchFilter(q);
 
   // Same rule as the marketplace grid: anonymous viewers see everything, a
   // signed-in viewer doesn't see requests from people they've blocked.
@@ -21,6 +26,7 @@ export default async function RequestsPage(props: {
       status: "OPEN",
       ...(selectedSlug ? { category: { slug: selectedSlug } } : {}),
       ...(blockedIds.length > 0 ? { requesterId: { notIn: blockedIds } } : {}),
+      ...search,
     },
     include: {
       category: { select: { nameBangla: true } },
@@ -44,9 +50,11 @@ export default async function RequestsPage(props: {
         </Link>
       </div>
 
+      <SearchBox label="অনুরোধ খুঁজুন" placeholder="বইয়ের নাম বা লেখক" className="mb-4" />
+
       <div className="mb-6 flex flex-wrap gap-2">
         <Link
-          href="/requests"
+          href={hrefWith("/requests", { q })}
           className={`rounded-book border-2 px-3 py-1.5 font-body text-sm font-semibold ${
             !selectedSlug
               ? "border-cloth bg-cloth text-paper"
@@ -58,7 +66,7 @@ export default async function RequestsPage(props: {
         {categories.map((cat) => (
           <Link
             key={cat.id}
-            href={`/requests?category=${cat.slug}`}
+            href={hrefWith("/requests", { category: cat.slug, q })}
             className={`rounded-book border-2 px-3 py-1.5 font-body text-sm font-semibold ${
               selectedSlug === cat.slug
                 ? "border-cloth bg-cloth text-paper"
@@ -70,7 +78,9 @@ export default async function RequestsPage(props: {
         ))}
       </div>
 
-      {requests.length === 0 ? (
+      {requests.length === 0 && search ? (
+        <NoResults query={q} where={selectedSlug ? "এই বিভাগে" : undefined} />
+      ) : requests.length === 0 ? (
         <p className="font-body text-ink/50">
           {selectedSlug
             ? "এই বিভাগে এখন কোনো খোলা অনুরোধ নেই।"

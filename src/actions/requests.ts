@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getSessionUserId } from "@/lib/authz";
 import { isBlockedEitherWay } from "@/lib/blocks";
+import { requestSearchText } from "@/lib/search";
 
 const requestSchema = z.object({
   title: z.string().trim().min(1, "বইয়ের নাম আবশ্যক।").max(200, "নামটি অনেক বড়।"),
@@ -71,6 +72,7 @@ export async function createRequest(
       categoryId: parsed.data.categoryId ?? null,
       note: parsed.data.note ?? null,
       location: parsed.data.location ?? null,
+      searchText: requestSearchText(parsed.data),
     },
   });
 

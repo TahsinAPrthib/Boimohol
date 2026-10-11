@@ -12,8 +12,17 @@ import AdminBookDeleteButton from "@/components/AdminBookDeleteButton";
 import BookFileUploader from "@/components/BookFileUploader";
 import BookFileDeleteButton from "@/components/BookFileDeleteButton";
 import BookFileRightsEditor from "@/components/BookFileRightsEditor";
+import SearchBox from "@/components/SearchBox";
+import NoResults from "@/components/NoResults";
+import { hrefWith, readQuery, searchFilter } from "@/lib/search";
 
-export default async function AdminBooksPage() {
+// ?filter=needs-pdf: books that may carry a library PDF but don't yet --
+// marked public domain, passing the death-year rule, and with no file.
+const NEEDS_PDF = "needs-pdf";
+
+export default async function AdminBooksPage(props: {
+  searchParams: Promise<{ q?: string | string[]; filter?: string }>;
+}) {
   // 404 rather than 403: a non-admin should not learn this route exists.
   const adminId = await getAdminUserId();
   if (!adminId) notFound();
@@ -38,6 +47,22 @@ export default async function AdminBooksPage() {
     }),
     prisma.category.findMany({ orderBy: { name: "asc" }, select: { id: true, slug: true, nameBangla: true } }),
   ]);
+
+  // Search and the filter narrow the list below; the totals and the
+  // rule-breaker warning above it stay about the whole catalog.
+  const searchParams = await props.searchParams;
+  const q = readQuery(searchParams.q);
+  const search = searchFilter(q);
+  const needsPdf = searchParams.filter === NEEDS_PDF;
+  const matching = search
+    ? new Set((await prisma.book.findMany({ where: search, select: { id: true } })).map((b) => b.id))
+    : null;
+  const shown = books.filter(
+    (b) =>
+      (!matching || matching.has(b.id)) &&
+      (!needsPdf || (b.isPublicDomain && canBePublicDomain(b.authorDeathYear) && b.files.length === 0))
+  );
+  const narrowed = Boolean(search) || needsPdf;
 
   const cutoff = publicDomainCutoffYear();
   const eligible = books.filter((b) => b.isPublicDomain);
@@ -102,11 +127,38 @@ export default async function AdminBooksPage() {
         </div>
       </details>
 
-      {books.length === 0 ? (
-        <p className="font-body text-ink/50">কোনো বই নেই।</p>
+      <div className="mb-6 flex flex-col gap-3 border-t-2 border-ink/10 pt-6">
+        <SearchBox label="ক্যাটালগে বই খুঁজুন" placeholder="বইয়ের নাম বা লেখক" />
+        <div className="flex flex-wrap items-center gap-2">
+          {[
+            { label: "সব বই", filter: undefined },
+            { label: "পাবলিক ডোমেইন, পিডিএফ নেই", filter: NEEDS_PDF },
+          ].map((chip) => {
+            const active = (chip.filter === NEEDS_PDF) === needsPdf;
+            return (
+              <Link
+                key={chip.label}
+                href={hrefWith("/admin/books", { q, filter: chip.filter })}
+                aria-current={active ? "true" : undefined}
+                className={`rounded-book border-2 px-3 py-1.5 font-body text-sm font-semibold ${
+                  active ? "border-cloth bg-cloth text-paper" : "border-ink/20 text-ink hover:border-ink/40"
+                }`}
+              >
+                {chip.label}
+              </Link>
+            );
+          })}
+          {narrowed && <span className="font-body text-sm text-ink/60">{bn(shown.length)}টি বই দেখানো হচ্ছে</span>}
+        </div>
+      </div>
+
+      {shown.length === 0 && search ? (
+        <NoResults query={q} where={needsPdf ? "পিডিএফ ছাড়া পাবলিক ডোমেইনের বইয়ে" : undefined} />
+      ) : shown.length === 0 ? (
+        <p className="font-body text-ink/50">{needsPdf ? "পাবলিক ডোমেইনের সব বইয়েই পিডিএফ আছে।" : "কোনো বই নেই।"}</p>
       ) : (
         <ul className="flex flex-col gap-4">
-          {books.map((book) => {
+          {shown.map((book) => {
             const file = book.files[0];
             const breaksRule = breaksPublicDomainRule(book);
             return (

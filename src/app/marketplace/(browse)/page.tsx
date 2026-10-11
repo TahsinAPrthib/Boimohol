@@ -3,13 +3,18 @@ import { prisma } from "@/lib/prisma";
 import { getSessionUserId } from "@/lib/authz";
 import { blockedIdsFor } from "@/lib/blocks";
 import ListingCard from "@/components/ListingCard";
+import SearchBox from "@/components/SearchBox";
+import NoResults from "@/components/NoResults";
+import { hrefWith, readQuery, searchFilter } from "@/lib/search";
 
 export default async function MarketplacePage(props: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; q?: string | string[] }>;
 }) {
   const searchParams = await props.searchParams;
   const categories = await prisma.category.findMany({ orderBy: { name: "asc" } });
   const selectedSlug = searchParams.category;
+  const q = readQuery(searchParams.q);
+  const search = searchFilter(q);
 
   // Anonymous viewers see everything; a signed-in viewer doesn't see
   // listings from sellers they've blocked.
@@ -21,6 +26,7 @@ export default async function MarketplacePage(props: {
       status: "AVAILABLE",
       ...(selectedSlug ? { category: { slug: selectedSlug } } : {}),
       ...(blockedSellerIds.length > 0 ? { sellerId: { notIn: blockedSellerIds } } : {}),
+      ...search,
     },
     include: {
       category: true,
@@ -44,9 +50,11 @@ export default async function MarketplacePage(props: {
         </Link>
       </div>
 
+      <SearchBox label="বিনিময়ের বই খুঁজুন" placeholder="বইয়ের নাম, লেখক বা এলাকা" className="mb-4" />
+
       <div className="mb-6 flex flex-wrap gap-2">
         <Link
-          href="/marketplace"
+          href={hrefWith("/marketplace", { q })}
           className={`rounded-book border-2 px-3 py-1.5 font-body text-sm font-semibold ${
             !selectedSlug
               ? "border-cloth bg-cloth text-paper"
@@ -58,7 +66,7 @@ export default async function MarketplacePage(props: {
         {categories.map((cat) => (
           <Link
             key={cat.id}
-            href={`/marketplace?category=${cat.slug}`}
+            href={hrefWith("/marketplace", { category: cat.slug, q })}
             className={`rounded-book border-2 px-3 py-1.5 font-body text-sm font-semibold ${
               selectedSlug === cat.slug
                 ? "border-cloth bg-cloth text-paper"
@@ -70,7 +78,9 @@ export default async function MarketplacePage(props: {
         ))}
       </div>
 
-      {listings.length === 0 ? (
+      {listings.length === 0 && search ? (
+        <NoResults query={q} where={selectedSlug ? "এই বিভাগে" : undefined} />
+      ) : listings.length === 0 ? (
         <p className="font-body text-ink/50">
           {selectedSlug ? "এই বিভাগে এখন কোনো তালিকা নেই।" : "এখনো কোনো তালিকা যোগ করা হয়নি।"}
         </p>

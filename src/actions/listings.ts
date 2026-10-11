@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { attachPhotosToListing } from "@/actions/photos";
+import { listingSearchText } from "@/lib/search";
 
 // Photos are uploaded to Cloudinary by the browser before submit, so the form
 // carries only their public_ids. Attaching reuses attachPhotosToListing, which
@@ -122,6 +123,7 @@ export async function createListing(
       listingType,
       price: listingType === "SELL" ? price ?? null : null,
       location,
+      searchText: listingSearchText({ title, author, location }),
     },
   });
 
@@ -180,6 +182,7 @@ export async function updateListing(
       listingType,
       price: listingType === "SELL" ? price ?? null : null,
       location,
+      searchText: listingSearchText({ title, author, location }),
     },
   });
 

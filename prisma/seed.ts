@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { canBePublicDomain } from "../src/lib/public-domain";
+import { bookSearchText } from "../src/lib/search";
 
 const prisma = new PrismaClient();
 
@@ -240,6 +241,7 @@ async function main() {
           authorDeathYear: b.authorDeathYear,
           isPublicDomain: b.isPublicDomain ?? false,
           categoryId: category.id,
+          searchText: bookSearchText(b),
         },
       });
 

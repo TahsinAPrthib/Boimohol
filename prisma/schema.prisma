@@ -131,6 +131,9 @@ model Book {
   // law a book can only be public domain once this is set and old enough --
   // see src/lib/public-domain.ts.
   authorDeathYear Int?
+  // Normalized title + Bangla title + author for site search; always written
+  // through bookSearchText() in src/lib/search.ts.
+  searchText      String         @default("")
   createdAt       DateTime       @default(now())
   reviews         Review[]
   shelfItems      ShelfItem[]
@@ -248,6 +251,8 @@ model Listing {
   price       Float? // only meaningful when listingType is SELL
   location    String
   status      ListingStatus    @default(AVAILABLE)
+  // Normalized title + author + location; written via listingSearchText().
+  searchText  String           @default("")
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 
@@ -355,6 +360,8 @@ model BookRequest {
   note        String? // edition, condition preferences, etc.
   location    String? // where they could collect from
   status      RequestStatus     @default(OPEN)
+  // Normalized title + author; written via requestSearchText().
+  searchText  String            @default("")
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
   responses   RequestResponse[]

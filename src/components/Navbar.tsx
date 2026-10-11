@@ -1,8 +1,33 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import UnreadBadge from "@/components/UnreadBadge";
+import SearchBox, { SearchIcon } from "@/components/SearchBox";
+
+// Site search in the navbar. From lg up, a compact box that takes the reader
+// to /search; below that, only an icon, so the links never get squeezed.
+function NavSearch() {
+  return (
+    <>
+      <Link
+        href="/search"
+        aria-label="খুঁজুন"
+        className="ml-auto flex h-9 w-9 items-center justify-center rounded-book text-ink hover:bg-ink/5 hover:text-cloth lg:hidden"
+      >
+        <SearchIcon className="h-5 w-5" />
+      </Link>
+      <div className="ml-auto hidden w-48 lg:block">
+        {/* useSearchParams needs a Suspense boundary on statically rendered
+            pages; the fallback keeps the navbar from shifting. */}
+        <Suspense fallback={<div className="h-9 rounded-book border-2 border-ink/15 bg-paper" />}>
+          <SearchBox path="/search" size="sm" minLengthToLeave={2} label="সাইটে খুঁজুন" placeholder="খুঁজুন…" />
+        </Suspense>
+      </div>
+    </>
+  );
+}
 
 export default function Navbar() {
   const { data: session, status } = useSession();
@@ -17,6 +42,8 @@ export default function Navbar() {
         <Link href="/" className="shrink-0 whitespace-nowrap font-display text-2xl text-cloth">
           বই মহল
         </Link>
+
+        <NavSearch />
 
         <nav className="flex w-full flex-wrap items-center justify-start gap-x-3 gap-y-2 whitespace-nowrap font-body text-sm font-semibold text-ink sm:w-auto sm:justify-end sm:gap-x-5">
           <Link href="/" className="hover:text-cloth">

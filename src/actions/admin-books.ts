@@ -8,6 +8,7 @@ import { bn } from "@/lib/bangla";
 import { describeDbError } from "@/lib/db-errors";
 import { bookIdFor, bookKeys, clashesWith, keySetOf } from "@/lib/book-catalog";
 import { bookFormSchema, bookImportRowSchema, fieldErrorsOf, type BookFieldErrors } from "@/lib/book-schema";
+import { bookSearchText } from "@/lib/search";
 
 // Every action re-checks ADMIN against the database (getAdminUserId), never
 // the session's copy of the role -- the pages being hidden is not enough.
@@ -72,7 +73,7 @@ export async function createBook(_prev: BookFormState, formData: FormData): Prom
     }
 
     const id = bookIdFor(category.slug, data.title, new Set(existing.map((b) => b.id)));
-    await prisma.book.create({ data: { ...data, id, categoryId: category.id } });
+    await prisma.book.create({ data: { ...data, id, categoryId: category.id, searchText: bookSearchText(data) } });
     revalidateBookPages(id);
     return { success: true, message: "বইটি যোগ করা হয়েছে।", bookId: id };
   } catch (err) {
@@ -109,7 +110,7 @@ export async function updateBook(bookId: string, _prev: BookFormState, formData:
     // PDF uploaded a moment ago can't end up on a book marked as copyrighted.
     const result = await prisma.book.updateMany({
       where: { id: bookId, ...(data.isPublicDomain ? {} : { files: { none: {} } }) },
-      data: { ...data, categoryId: category.id },
+      data: { ...data, categoryId: category.id, searchText: bookSearchText(data) },
     });
     if (result.count === 0) return { success: false, message: HAS_PDF, fieldErrors: { isPublicDomain: HAS_PDF } };
 
@@ -252,7 +253,7 @@ async function analyzeImport(jsonText: string): Promise<{ preview: ImportPreview
     }
     for (const k of keys) seenInFile.set(k, row);
 
-    rows.push({ ...data, id: bookIdFor(category.slug, data.title, takenIds), categoryId: category.id });
+    rows.push({ ...data, id: bookIdFor(category.slug, data.title, takenIds), categoryId: category.id, searchText: bookSearchText(data) });
     preview.valid.push({ row, title: data.title, titleBangla: data.titleBangla, author: data.author, category: slug, isPublicDomain: data.isPublicDomain });
   });
 
