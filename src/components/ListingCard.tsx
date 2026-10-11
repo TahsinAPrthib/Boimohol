@@ -62,8 +62,8 @@ export default function ListingCard({
           {listingType === "SELL" && price != null ? ` · ${bnTaka(price)}` : ""}
         </span>
       </div>
-      <p className="mt-2 font-display text-base leading-snug text-ink group-hover:text-cloth">{title}</p>
-      <p className="font-body text-xs text-ink/50">{author}</p>
+      <p className="mt-2 font-display text-base leading-snug text-ink group-hover:text-cloth [overflow-wrap:anywhere]">{title}</p>
+      <p className="font-body text-xs text-ink/50 [overflow-wrap:anywhere]">{author}</p>
       <p className="mt-1 font-body text-xs text-ink/60">{location}</p>
     </Link>
   );

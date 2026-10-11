@@ -53,7 +53,7 @@ export default async function ConversationPage(props: {
             colorKey={conversation.listing.category?.colorKey}
           />
         </Link>
-        <div className="min-w-0">
+        <div className="min-w-0 [overflow-wrap:anywhere]">
           <Link
             href={`/marketplace/${conversation.listing.id}`}
             className="font-display text-lg text-ink hover:text-cloth"

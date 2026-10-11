@@ -66,7 +66,7 @@ export default async function MessagesPage() {
                 >
                   <div className="min-w-0">
                     <p className="font-body font-semibold text-ink">@{otherParty.username}</p>
-                    <p className="font-body text-sm text-ink/60">{conversation.listing.title}</p>
+                    <p className="font-body text-sm text-ink/60 [overflow-wrap:anywhere]">{conversation.listing.title}</p>
                     <p className="mt-1 truncate font-body text-sm text-ink/50">
                       {lastMessage ? lastMessage.text : "এখনো কোনো বার্তা নেই"}
                     </p>

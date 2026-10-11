@@ -81,8 +81,10 @@ export default async function ListingPage(props: { params: Promise<{ id: string 
               {listing.category.nameBangla}
             </Link>
           )}
-          <h1 className="mt-1 font-display text-3xl text-ink">{listing.title}</h1>
-          <p className="mt-1 font-body text-ink/70">{listing.author}</p>
+          {/* Titles and authors are free text: a long unbroken word must wrap
+              rather than push the page sideways. */}
+          <h1 className="mt-1 font-display text-3xl text-ink [overflow-wrap:anywhere]">{listing.title}</h1>
+          <p className="mt-1 font-body text-ink/70 [overflow-wrap:anywhere]">{listing.author}</p>
 
           <div className="mt-3 flex flex-wrap items-center gap-2 font-body text-sm text-ink/70">
             <span className="rounded-book bg-paper-dark px-2 py-1 font-semibold text-ink">

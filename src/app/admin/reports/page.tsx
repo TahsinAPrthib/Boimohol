@@ -155,7 +155,7 @@ export default async function AdminReportsPage(props: {
                   রিপোর্টকারী: <span className="font-semibold text-ink">@{report.reporter.username}</span>
                 </p>
 
-                <div className="mt-2 rounded-book border-2 border-ink/10 bg-paper p-3">
+                <div className="mt-2 rounded-book border-2 border-ink/10 bg-paper p-3 [overflow-wrap:anywhere]">
                   {report.targetType === "LISTING" &&
                     (listing ? (
                       <>

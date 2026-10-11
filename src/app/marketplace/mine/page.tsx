@@ -56,7 +56,7 @@ export default async function MyListingsPage() {
               />
               <div>
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div>
+                  <div className="min-w-0 [overflow-wrap:anywhere]">
                     <Link
                       href={`/marketplace/${listing.id}`}
                       className="font-display text-lg text-ink hover:text-cloth"
