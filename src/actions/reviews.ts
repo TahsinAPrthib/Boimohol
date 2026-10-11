@@ -91,3 +91,29 @@ export async function submitReview(
 
   return { success: true, message: "আপনার পর্যালোচনা সংরক্ষণ করা হয়েছে।" };
 }
+
+export async function deleteReview(reviewId: string): Promise<{ success: boolean; message: string }> {
+  const userId = await getSessionUserId();
+  if (!userId) {
+    return { success: false, message: "পর্যালোচনা মুছতে হলে আগে লগইন করুন।" };
+  }
+
+  const review = await prisma.review.findUnique({
+    where: { id: reviewId },
+    select: { userId: true, bookId: true },
+  });
+  if (!review) {
+    return { success: false, message: "পর্যালোচনাটি খুঁজে পাওয়া যায়নি।" };
+  }
+  if (review.userId !== userId) {
+    return { success: false, message: "শুধু নিজের পর্যালোচনাই মুছে ফেলা যায়।" };
+  }
+
+  await prisma.review.delete({ where: { id: reviewId } });
+
+  // The book's average rating, and the home page's recent reviews.
+  revalidatePath(`/books/${review.bookId}`);
+  revalidatePath("/");
+
+  return { success: true, message: "আপনার পর্যালোচনা মুছে ফেলা হয়েছে।" };
+}

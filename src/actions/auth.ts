@@ -4,9 +4,10 @@ import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { describeDbError } from "@/lib/db-errors";
+import { nameSchema, passwordSchema } from "@/lib/account-rules";
 
 const registerSchema = z.object({
-  name: z.string().trim().min(1, "নাম আবশ্যক।").max(80, "নাম অনেক বড়।"),
+  name: nameSchema,
   username: z
     .string()
     .trim()
@@ -14,7 +15,7 @@ const registerSchema = z.object({
     .max(30, "ইউজারনেম অনেক বড়।")
     .regex(/^[a-zA-Z0-9_]+$/, "ইউজারনেমে শুধু ইংরেজি অক্ষর, সংখ্যা ও আন্ডারস্কোর (_) ব্যবহার করা যাবে।"),
   email: z.string().trim().email("সঠিক ইমেইল ঠিকানা দিন।"),
-  password: z.string().min(6, "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।"),
+  password: passwordSchema,
 });
 
 export type RegisterState = {

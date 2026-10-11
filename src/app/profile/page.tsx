@@ -43,10 +43,15 @@ export default async function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
-      <div className="mb-10 border-b-2 border-ink/10 pb-6">
-        <h1 className="font-display text-3xl text-ink">{user.name}</h1>
-        <p className="font-body text-ink/50">@{user.username}</p>
-        {user.bio && <p className="mt-2 max-w-prose font-body text-ink/70">{user.bio}</p>}
+      <div className="mb-10 flex flex-wrap items-start justify-between gap-4 border-b-2 border-ink/10 pb-6">
+        <div className="min-w-0 [overflow-wrap:anywhere]">
+          <h1 className="font-display text-3xl text-ink">{user.name}</h1>
+          <p className="font-body text-ink/50">@{user.username}</p>
+          {user.bio && <p className="mt-2 max-w-prose font-body text-ink/70">{user.bio}</p>}
+        </div>
+        <Link href="/settings" className="btn-secondary whitespace-nowrap">
+          অ্যাকাউন্ট সেটিংস
+        </Link>
       </div>
 
       <div className="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-2">

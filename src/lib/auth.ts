@@ -4,7 +4,8 @@ import bcrypt from "bcryptjs";
 import type { User } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { describeDbError } from "@/lib/db-errors";
-import { findActiveUser } from "@/lib/account-status";
+import { findActiveUser, issuedForCurrentPassword } from "@/lib/account-status";
+import { passwordStamp } from "@/lib/account-rules";
 import { ACCOUNT_SUSPENDED } from "@/lib/account-notices";
 
 // What the browser receives as result.error when sign-in fails for a reason
@@ -55,6 +56,7 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           username: user.username,
           role: user.role,
+          passwordStamp: passwordStamp(user.passwordChangedAt),
         };
       },
     }),
@@ -69,13 +71,17 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.username = (user as { username?: string }).username;
         token.role = (user as { role?: string }).role;
+        // Fixed for the token's lifetime: a later password change makes it
+        // stale (see the session callback).
+        token.passwordStamp = (user as { passwordStamp?: number }).passwordStamp ?? 0;
       }
       return token;
     },
     // Runs for every session read, server and client. A token whose account
-    // has been suspended or deleted since login yields a session with no
-    // user, so pages, actions and the navbar all treat it as signed out.
-    // If the check itself fails (database unreachable), fail closed.
+    // has been suspended or deleted since login, or whose password has been
+    // changed since, yields a session with no user, so pages, actions and the
+    // navbar all treat it as signed out. If the check itself fails (database
+    // unreachable), fail closed.
     async session({ session, token }) {
       let active: Awaited<ReturnType<typeof findActiveUser>> = null;
       try {
@@ -83,11 +89,14 @@ export const authOptions: NextAuthOptions = {
       } catch (err) {
         console.error(`[auth] database error checking a session: ${describeDbError(err)}`);
       }
-      if (!active) return { expires: session.expires };
+      const stamp = token.passwordStamp as number | undefined;
+      if (!active || !issuedForCurrentPassword(active, stamp)) return { expires: session.expires };
       if (session.user) {
-        (session.user as { id?: string }).id = active.id;
-        (session.user as { username?: string }).username = token.username as string;
-        (session.user as { role?: string }).role = active.role;
+        session.user.id = active.id;
+        session.user.name = active.name;
+        session.user.username = token.username as string;
+        session.user.role = active.role;
+        session.user.passwordStamp = stamp ?? 0;
       }
       return session;
     },

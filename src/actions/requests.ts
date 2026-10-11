@@ -192,3 +192,32 @@ export async function deleteResponse(responseId: string): Promise<RequestActionR
 
   return { success: true, message: "সাড়াটি মুছে ফেলা হয়েছে।" };
 }
+
+// Other people's replies hang off the request, so they go with it.
+export async function deleteRequest(requestId: string): Promise<RequestActionResult> {
+  const userId = await getSessionUserId();
+  if (!userId) {
+    return { success: false, message: "অনুরোধ মুছতে হলে আগে লগইন করুন।" };
+  }
+
+  const request = await prisma.bookRequest.findUnique({
+    where: { id: requestId },
+    select: { requesterId: true },
+  });
+  if (!request) {
+    return { success: false, message: "অনুরোধটি খুঁজে পাওয়া যায়নি।" };
+  }
+  if (request.requesterId !== userId) {
+    return { success: false, message: "শুধু নিজের অনুরোধই মুছে ফেলা যায়।" };
+  }
+
+  await prisma.$transaction([
+    prisma.requestResponse.deleteMany({ where: { requestId } }),
+    prisma.bookRequest.delete({ where: { id: requestId } }),
+  ]);
+
+  revalidatePath("/requests", "layout");
+  revalidatePath("/search");
+
+  return { success: true, message: "অনুরোধটি মুছে ফেলা হয়েছে।" };
+}

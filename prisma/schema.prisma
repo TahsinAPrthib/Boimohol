@@ -93,6 +93,10 @@ model User {
   suspendedAt          DateTime?
   suspendedById        String?
   suspendedBy          User?              @relation("UserSuspensions", fields: [suspendedById], references: [id], onDelete: SetNull)
+  // Set when the user changes their password. A login token carries the
+  // value it saw at sign-in; once they differ the token no longer counts,
+  // which signs out every other session (see src/lib/account-status.ts).
+  passwordChangedAt    DateTime?
   suspensionsMade      User[]             @relation("UserSuspensions")
   reviews              Review[]
   shelfItems           ShelfItem[]

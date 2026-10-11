@@ -5,6 +5,8 @@ import { bn } from "@/lib/bangla";
 import { getSessionUserId } from "@/lib/authz";
 import { withCallbackUrl } from "@/lib/safe-redirect";
 import RequestStatusControls from "@/components/RequestStatusControls";
+import ConfirmAction from "@/components/ConfirmAction";
+import { deleteRequest } from "@/actions/requests";
 
 const STATUS_LABEL: Record<string, string> = {
   OPEN: "খোলা",
@@ -81,8 +83,15 @@ export default async function MyRequestsPage() {
                   : "এখনো কেউ সাড়া দেননি"}
               </p>
 
-              <div className="mt-3">
+              <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
                 <RequestStatusControls requestId={request.id} currentStatus={request.status} />
+                <ConfirmAction
+                  action={deleteRequest.bind(null, request.id)}
+                  label="অনুরোধ মুছে ফেলুন"
+                  question="অনুরোধটি, অন্যদের সাড়াসহ, চিরতরে মুছে ফেলবেন?"
+                  confirmLabel="হ্যাঁ, মুছুন"
+                  pendingLabel="মুছে ফেলা হচ্ছে..."
+                />
               </div>
             </div>
           ))}

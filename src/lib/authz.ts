@@ -3,22 +3,23 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { withCallbackUrl } from "@/lib/safe-redirect";
-import { findActiveUser } from "@/lib/account-status";
+import { findActiveUser, issuedForCurrentPassword } from "@/lib/account-status";
 
 // One session read per request, however many layouts and pages ask for it.
 // (Outside a render, e.g. in a server action, cache() simply doesn't memoise.)
 const getSession = cache(() => getServerSession(authOptions));
 
 // The single place session-gating is expressed, so actions and pages agree
-// on what "logged in" means: a valid login token AND an account that still
-// exists and isn't suspended. (The session callback already drops such a
-// user; this checks again so no caller depends on that alone. Within a
-// render both share one cached lookup.)
+// on what "logged in" means: a valid login token, for an account that still
+// exists and isn't suspended, issued since its password was last changed.
+// (The session callback already drops such a user; this checks again so no
+// caller depends on that alone. Within a render both share one cached lookup.)
 export async function getSessionUserId(): Promise<string | null> {
   const session = await getSession();
   const userId = session?.user?.id;
   if (!userId) return null;
-  return (await findActiveUser(userId))?.id ?? null;
+  const active = await findActiveUser(userId);
+  return active && issuedForCurrentPassword(active, session.user.passwordStamp) ? active.id : null;
 }
 
 // For the layout of a signed-in-only route. Layouts render before the route's

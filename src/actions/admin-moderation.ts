@@ -1,11 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import type { Prisma, PrismaPromise, ReportTargetType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getAdminUserId } from "@/lib/authz";
-import { serverCloudinary } from "@/lib/cloudinary-server";
-import { describeDbError } from "@/lib/db-errors";
+import { resolveReports, runSteps } from "@/lib/moderation-db";
+import { deleteAccount } from "@/lib/account-deletion";
 import type { AdminResult } from "@/actions/admin";
 
 // Every action here re-checks the caller is an admin (a server action is a
@@ -19,46 +18,6 @@ const FAILED: AdminResult = { success: false, message: "কাজটি সম�
 // library ratings, search, the marketplace, profiles), so refresh them all.
 function revalidateEverything() {
   revalidatePath("/", "layout");
-}
-
-// Updates that close the reports a step answers: the one it was taken from,
-// plus any other open report about the same thing (removing a listing
-// settles every report about it). An existing admin note is kept.
-async function resolveReports(
-  reportId: string | undefined,
-  targets: { type: ReportTargetType; ids: string[] }[],
-  note: string
-): Promise<{ reportId: string | null; updates: PrismaPromise<unknown>[] }> {
-  const or: Prisma.ReportWhereInput[] = targets
-    .filter((t) => t.ids.length > 0)
-    .map((t) => ({ targetType: t.type, targetId: { in: t.ids } }));
-  if (reportId) or.push({ id: reportId });
-  if (or.length === 0) return { reportId: null, updates: [] };
-
-  const reports = await prisma.report.findMany({
-    where: { OR: or, status: { in: ["OPEN", "REVIEWING"] } },
-    select: { id: true, adminNote: true },
-  });
-  const known = reportId ? await prisma.report.findUnique({ where: { id: reportId }, select: { id: true } }) : null;
-  return {
-    reportId: known?.id ?? null,
-    updates: reports.map((r) =>
-      prisma.report.update({
-        where: { id: r.id },
-        data: { status: "RESOLVED", adminNote: r.adminNote || note },
-      })
-    ),
-  };
-}
-
-async function run(steps: PrismaPromise<unknown>[], what: string): Promise<boolean> {
-  try {
-    await prisma.$transaction(steps);
-    return true;
-  } catch (err) {
-    console.error(`[admin] ${what} failed: ${describeDbError(err)}`);
-    return false;
-  }
 }
 
 export async function adminRemoveListing(listingId: string, reportId?: string): Promise<AdminResult> {
@@ -77,12 +36,12 @@ export async function adminRemoveListing(listingId: string, reportId?: string): 
   // Already removed (say, from another report about it): just close the
   // reports, keeping the original removal's who and when.
   if (listing.removedByAdminAt) {
-    if (!(await run(resolved.updates, "resolving reports"))) return FAILED;
+    if (!(await runSteps(resolved.updates, "resolving reports"))) return FAILED;
     revalidatePath("/admin/reports");
     return { success: true, message: "তালিকাটি আগেই সরানো হয়েছিল।" };
   }
 
-  const ok = await run(
+  const ok = await runSteps(
     [
       prisma.listing.update({
         where: { id: listing.id },
@@ -118,7 +77,7 @@ export async function adminDeleteReview(reviewId: string): Promise<AdminResult> 
   });
   if (!review) return { success: false, message: "পর্যালোচনাটি খুঁজে পাওয়া যায়নি।" };
 
-  const ok = await run(
+  const ok = await runSteps(
     [
       prisma.review.delete({ where: { id: review.id } }),
       prisma.moderationAction.create({
@@ -149,7 +108,7 @@ export async function adminDeleteRequest(requestId: string): Promise<AdminResult
   });
   if (!request) return { success: false, message: "অনুরোধটি খুঁজে পাওয়া যায়নি।" };
 
-  const ok = await run(
+  const ok = await runSteps(
     [
       // Other people's replies hang off the request, so they go with it.
       prisma.requestResponse.deleteMany({ where: { requestId: request.id } }),
@@ -188,12 +147,12 @@ export async function suspendUser(userId: string, reportId?: string): Promise<Ad
   const resolved = await resolveReports(reportId, [], "অ্যাডমিন অ্যাকাউন্টটি স্থগিত করেছেন।");
 
   if (user.suspendedAt) {
-    if (!(await run(resolved.updates, "resolving a report"))) return FAILED;
+    if (!(await runSteps(resolved.updates, "resolving a report"))) return FAILED;
     revalidatePath("/admin", "layout");
     return { success: true, message: "অ্যাকাউন্টটি আগেই স্থগিত করা হয়েছিল।" };
   }
 
-  const ok = await run(
+  const ok = await runSteps(
     [
       prisma.user.update({
         where: { id: user.id },
@@ -230,7 +189,7 @@ export async function unsuspendUser(userId: string): Promise<AdminResult> {
   if (!user) return { success: false, message: "ব্যবহারকারীকে খুঁজে পাওয়া যায়নি।" };
   if (!user.suspendedAt) return { success: true, message: "অ্যাকাউন্টটি স্থগিত নয়।" };
 
-  const ok = await run(
+  const ok = await runSteps(
     [
       prisma.user.update({ where: { id: user.id }, data: { suspendedAt: null, suspendedById: null } }),
       prisma.moderationAction.create({
@@ -251,82 +210,26 @@ export async function unsuspendUser(userId: string): Promise<AdminResult> {
   return { success: true, message: `@${user.username} এর স্থগিতাদেশ তুলে নেওয়া হয়েছে।` };
 }
 
-// Deletes the account and everything that is only theirs: listings (and
-// their photos, here and on Cloudinary), reviews, book requests (with the
-// replies to them), replies they wrote, shelf, wishlist, reading activity and
-// blocks. What other people hold is kept: messages they received stay in the
-// conversation, shown as from a deleted user (Message.senderId, like
-// Conversation.buyerId/listingId and Report.reporterId, becomes NULL).
+// Deletes the account and everything only it owns, as described in
+// src/lib/account-deletion.ts (the same path a user deleting themselves
+// takes), and logs who did it.
 export async function deleteUserAccount(userId: string): Promise<AdminResult> {
   const adminId = await getAdminUserId();
   if (!adminId) return NOT_ALLOWED;
   if (userId === adminId) return { success: false, message: "নিজের অ্যাকাউন্ট মুছে ফেলা যাবে না।" };
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      id: true,
-      username: true,
-      listings: { select: { id: true, photos: { select: { publicId: true } } } },
-      messagesSent: { select: { id: true } },
-    },
-  });
-  if (!user) return { success: false, message: "ব্যবহারকারীকে খুঁজে পাওয়া যায়নি।" };
-
-  const listingIds = user.listings.map((l) => l.id);
-  const photoIds = user.listings.flatMap((l) => l.photos.map((p) => p.publicId));
-  const resolved = await resolveReports(
-    undefined,
-    [
-      { type: "USER", ids: [user.id] },
-      { type: "LISTING", ids: listingIds },
-      { type: "MESSAGE", ids: user.messagesSent.map((m) => m.id) },
-    ],
-    "অ্যাডমিন অ্যাকাউন্টটি মুছে ফেলেছেন।"
-  );
-
-  // A conversation where the other person's account is already gone has no
-  // one left to read it once this one goes too.
-  const orphaned = { buyerId: null, listingId: null };
-
-  const ok = await run(
-    [
-      prisma.requestResponse.deleteMany({
-        where: { OR: [{ responderId: user.id }, { request: { requesterId: user.id } }] },
-      }),
-      prisma.bookRequest.deleteMany({ where: { requesterId: user.id } }),
-      prisma.review.deleteMany({ where: { userId: user.id } }),
-      prisma.shelfItem.deleteMany({ where: { userId: user.id } }),
-      prisma.wishlistItem.deleteMany({ where: { userId: user.id } }),
-      prisma.readingActivity.deleteMany({ where: { userId: user.id } }),
-      prisma.block.deleteMany({ where: { OR: [{ blockerId: user.id }, { blockedId: user.id }] } }),
-      // Photos go with them (cascade); conversations about them stay.
-      prisma.listing.deleteMany({ where: { sellerId: user.id } }),
-      ...resolved.updates,
+  const result = await deleteAccount(userId, {
+    note: "অ্যাডমিন অ্যাকাউন্টটি মুছে ফেলেছেন।",
+    extraSteps: (user) => [
       prisma.moderationAction.create({
-        data: {
-          adminId,
-          action: "DELETE_USER",
-          targetId: user.id,
-          summary: `@${user.username}`,
-        },
+        data: { adminId, action: "DELETE_USER", targetId: user.id, summary: `@${user.username}` },
       }),
-      prisma.user.delete({ where: { id: user.id } }),
-      prisma.message.deleteMany({ where: { conversation: orphaned } }),
-      prisma.conversation.deleteMany({ where: orphaned }),
     ],
-    "deleting an account"
-  );
-  if (!ok) return FAILED;
-
-  // After the commit, so a failed delete never leaves rows pointing at
-  // images that are gone. A failed remote delete only leaves an orphaned
-  // image behind; the account is gone either way.
-  const cloudinary = serverCloudinary();
-  const destroyed = await Promise.allSettled(photoIds.map((id) => cloudinary.uploader.destroy(id)));
-  const failed = destroyed.filter((d) => d.status === "rejected" || d.value?.result !== "ok").length;
-  if (failed > 0) console.error(`[admin] ${failed} of ${photoIds.length} listing photos not deleted from Cloudinary`);
+  });
+  if (!result.ok) {
+    return result.reason === "not-found" ? { success: false, message: "ব্যবহারকারীকে খুঁজে পাওয়া যায়নি।" } : FAILED;
+  }
 
   revalidateEverything();
-  return { success: true, message: `@${user.username} এর অ্যাকাউন্ট মুছে ফেলা হয়েছে।` };
+  return { success: true, message: `@${result.username} এর অ্যাকাউন্ট মুছে ফেলা হয়েছে।` };
 }

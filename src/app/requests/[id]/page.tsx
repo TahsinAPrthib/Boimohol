@@ -8,6 +8,8 @@ import { withCallbackUrl } from "@/lib/safe-redirect";
 import RequestResponseForm from "@/components/RequestResponseForm";
 import RequestStatusControls from "@/components/RequestStatusControls";
 import ReportButton from "@/components/ReportButton";
+import ConfirmAction from "@/components/ConfirmAction";
+import { deleteRequest } from "@/actions/requests";
 
 const STATUS_LABEL: Record<string, string> = {
   OPEN: "খোলা",
@@ -84,6 +86,16 @@ export default async function RequestDetailPage(props: { params: Promise<{ id: s
               বর্তমান অবস্থা: {STATUS_LABEL[request.status]}
             </p>
             <RequestStatusControls requestId={request.id} currentStatus={request.status} />
+            <div className="mt-4">
+              <ConfirmAction
+                action={deleteRequest.bind(null, request.id)}
+                label="অনুরোধ মুছে ফেলুন"
+                question="অনুরোধটি, অন্যদের সাড়াসহ, চিরতরে মুছে ফেলবেন?"
+                confirmLabel="হ্যাঁ, মুছুন"
+                pendingLabel="মুছে ফেলা হচ্ছে..."
+                redirectTo="/requests/mine"
+              />
+            </div>
           </div>
         ) : (
           viewerId && (

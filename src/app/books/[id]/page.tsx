@@ -12,6 +12,8 @@ import ReviewForm from "@/components/ReviewForm";
 import ShelfButtons from "@/components/ShelfButtons";
 import WishlistButton from "@/components/WishlistButton";
 import BookDownloadButton from "@/components/BookDownloadButton";
+import ConfirmAction from "@/components/ConfirmAction";
+import { deleteReview } from "@/actions/reviews";
 
 export default async function BookPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -108,20 +110,36 @@ export default async function BookPage(props: { params: Promise<{ id: string }> 
 
       <div className="mt-10 border-t-2 border-ink/10 pt-8">
         {userId ? (
-          <ReviewForm
-            bookId={book.id}
-            existingReview={
-              myReview
-                ? {
-                    rating: myReview.rating,
-                    text: myReview.text,
-                    plotRating: myReview.plotRating,
-                    writingRating: myReview.writingRating,
-                    pacingRating: myReview.pacingRating,
-                  }
-                : null
-            }
-          />
+          <>
+            {/* Keyed so that once the review is deleted the form starts empty
+                instead of keeping the stars it was showing. */}
+            <ReviewForm
+              key={myReview?.id ?? "new"}
+              bookId={book.id}
+              existingReview={
+                myReview
+                  ? {
+                      rating: myReview.rating,
+                      text: myReview.text,
+                      plotRating: myReview.plotRating,
+                      writingRating: myReview.writingRating,
+                      pacingRating: myReview.pacingRating,
+                    }
+                  : null
+              }
+            />
+            {myReview && (
+              <div className="mt-3">
+                <ConfirmAction
+                  action={deleteReview.bind(null, myReview.id)}
+                  label="পর্যালোচনা মুছে ফেলুন"
+                  question="আপনার পর্যালোচনা ও রেটিং চিরতরে মুছে ফেলবেন?"
+                  confirmLabel="হ্যাঁ, মুছুন"
+                  pendingLabel="মুছে ফেলা হচ্ছে..."
+                />
+              </div>
+            )}
+          </>
         ) : (
           <div className="rounded-book border-2 border-dashed border-ink/15 px-4 py-5 text-center font-body text-ink/60">
             পর্যালোচনা লিখতে হলে{" "}
