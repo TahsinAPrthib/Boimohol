@@ -11,6 +11,8 @@ const eslintConfig = [
       "out/**",
       "build/**",
       "next-env.d.ts",
+      // Local, untracked folder for preparing library PDFs (see .gitignore).
+      "library-uploads/**",
     ],
   },
 ];
