@@ -40,3 +40,21 @@ export function bnTaka(value: number): string {
     : value.toLocaleString("bn-BD", { maximumFractionDigits: 2 });
   return `৳${formatted}`;
 }
+
+// Dates are shown in Bangladesh time wherever the server happens to run.
+const DATE_OPTIONS: Intl.DateTimeFormatOptions = {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+  timeZone: "Asia/Dhaka",
+};
+
+/** A date, e.g. "১২ অক্টো, ২০২৬". */
+export function bnDate(value: Date): string {
+  return value.toLocaleDateString("bn-BD", DATE_OPTIONS);
+}
+
+/** Date and 24-hour time, e.g. "১২ অক্টো, ২০২৬, ০২:৩০" -- no Latin "AM". */
+export function bnDateTime(value: Date): string {
+  return value.toLocaleString("bn-BD", { ...DATE_OPTIONS, hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+}

@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getSessionUserId } from "@/lib/authz";
 import { withCallbackUrl } from "@/lib/safe-redirect";
 import ListingCover from "@/components/ListingCover";
 import ListingStatusControls from "@/components/ListingStatusControls";
+import { ADMIN_REMOVED_NOTICE } from "@/lib/moderation";
 
 const TYPE_LABEL: Record<string, string> = {
   SELL: "বিক্রি",
@@ -21,11 +21,11 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 export default async function MyListingsPage() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) redirect(withCallbackUrl("/login", "/marketplace/mine"));
+  const userId = await getSessionUserId();
+  if (!userId) redirect(withCallbackUrl("/login", "/marketplace/mine"));
 
   const listings = await prisma.listing.findMany({
-    where: { sellerId: session.user.id },
+    where: { sellerId: userId },
     include: { category: true },
     orderBy: { createdAt: "desc" },
   });
@@ -75,16 +75,24 @@ export default async function MyListingsPage() {
                   </div>
                 </div>
 
-                <Link
-                  href={`/marketplace/${listing.id}/edit`}
-                  className="mt-2 inline-block font-body text-sm font-semibold text-cloth hover:underline"
-                >
-                  সম্পাদনা করুন
-                </Link>
+                {listing.removedByAdminAt ? (
+                  <p className="mt-3 rounded-book border-2 border-oxblood/40 bg-oxblood/10 px-3 py-2 font-body text-sm text-oxblood">
+                    {ADMIN_REMOVED_NOTICE}
+                  </p>
+                ) : (
+                  <>
+                    <Link
+                      href={`/marketplace/${listing.id}/edit`}
+                      className="mt-2 inline-block font-body text-sm font-semibold text-cloth hover:underline"
+                    >
+                      সম্পাদনা করুন
+                    </Link>
 
-                <div className="mt-3">
-                  <ListingStatusControls listingId={listing.id} currentStatus={listing.status} />
-                </div>
+                    <div className="mt-3">
+                      <ListingStatusControls listingId={listing.id} currentStatus={listing.status} />
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           ))}

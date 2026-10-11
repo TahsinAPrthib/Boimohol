@@ -1,17 +1,14 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getSessionUserId } from "@/lib/authz";
 import { bn } from "@/lib/bangla";
 import { withCallbackUrl } from "@/lib/safe-redirect";
+import { DELETED_USER_LABEL } from "@/lib/account-notices";
 
 export default async function MessagesPage() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) redirect(withCallbackUrl("/login", "/messages"));
-
-  const userId = session.user.id;
-
+  const userId = await getSessionUserId();
+  if (!userId) redirect(withCallbackUrl("/login", "/messages"));
   const conversations = await prisma.conversation.findMany({
     where: {
       OR: [{ buyerId: userId }, { listing: { sellerId: userId } }],
@@ -28,7 +25,10 @@ export default async function MessagesPage() {
       messages: { orderBy: { createdAt: "desc" }, take: 1 },
       _count: {
         select: {
-          messages: { where: { senderId: { not: userId }, readAt: null } },
+          // senderId is NULL for a deleted sender; <> alone would skip those.
+          messages: {
+            where: { OR: [{ senderId: { not: userId } }, { senderId: null }], readAt: null },
+          },
         },
       },
     },
@@ -53,8 +53,10 @@ export default async function MessagesPage() {
       ) : (
         <ul className="flex flex-col gap-3">
           {sorted.map((conversation) => {
+            // null once the other person has deleted their account (deleting
+            // a seller deletes their listings too, so listing is null then).
             const otherParty =
-              conversation.buyerId === userId ? conversation.listing.seller : conversation.buyer;
+              conversation.buyerId === userId ? (conversation.listing?.seller ?? null) : conversation.buyer;
             const lastMessage = conversation.messages[0];
             const unread = conversation._count.messages;
 
@@ -65,8 +67,12 @@ export default async function MessagesPage() {
                   className="flex items-start justify-between gap-4 rounded-book border-2 border-ink/10 bg-paper-dark p-4 transition-colors hover:border-cloth"
                 >
                   <div className="min-w-0">
-                    <p className="font-body font-semibold text-ink">@{otherParty.username}</p>
-                    <p className="font-body text-sm text-ink/60 [overflow-wrap:anywhere]">{conversation.listing.title}</p>
+                    <p className="font-body font-semibold text-ink">
+                      {otherParty ? `@${otherParty.username}` : DELETED_USER_LABEL}
+                    </p>
+                    <p className="font-body text-sm text-ink/60 [overflow-wrap:anywhere]">
+                      {conversation.listing?.title ?? "তালিকাটি আর নেই"}
+                    </p>
                     <p className="mt-1 truncate font-body text-sm text-ink/50">
                       {lastMessage ? lastMessage.text : "এখনো কোনো বার্তা নেই"}
                     </p>

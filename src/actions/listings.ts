@@ -1,12 +1,12 @@
 "use server";
 
 import { z } from "zod";
-import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getSessionUserId } from "@/lib/authz";
 import { attachPhotosToListing } from "@/actions/photos";
 import { listingSearchText } from "@/lib/search";
+import { ADMIN_REMOVED_NOTICE } from "@/lib/moderation";
 
 // Photos are uploaded to Cloudinary by the browser before submit, so the form
 // carries only their public_ids. Attaching reuses attachPhotosToListing, which
@@ -100,8 +100,8 @@ export async function createListing(
   _prevState: ListingFormState,
   formData: FormData
 ): Promise<ListingFormState> {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
+  const userId = await getSessionUserId();
+  if (!userId) {
     return { success: false, message: "বই তালিকাভুক্ত করতে হলে আগে লগইন করুন।" };
   }
 
@@ -114,7 +114,7 @@ export async function createListing(
 
   const listing = await prisma.listing.create({
     data: {
-      sellerId: session.user.id,
+      sellerId: userId,
       title,
       author,
       categoryId: categoryId ?? null,
@@ -151,8 +151,8 @@ export async function updateListing(
   _prevState: ListingFormState,
   formData: FormData
 ): Promise<ListingFormState> {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
+  const userId = await getSessionUserId();
+  if (!userId) {
     return { success: false, message: "তালিকা সম্পাদনা করতে হলে আগে লগইন করুন।" };
   }
 
@@ -160,8 +160,11 @@ export async function updateListing(
   if (!existing) {
     return { success: false, message: "তালিকাটি খুঁজে পাওয়া যায়নি।" };
   }
-  if (existing.sellerId !== session.user.id) {
+  if (existing.sellerId !== userId) {
     return { success: false, message: "শুধু বিক্রেতা নিজেই এই তালিকাটি সম্পাদনা করতে পারবেন।" };
+  }
+  if (existing.removedByAdminAt) {
+    return { success: false, message: ADMIN_REMOVED_NOTICE };
   }
 
   const parsed = listingSchema.safeParse(parseListingFormData(formData));
@@ -204,8 +207,8 @@ export async function updateListingStatus(
   listingId: string,
   status: "AVAILABLE" | "RESERVED" | "COMPLETED" | "REMOVED"
 ): Promise<ListingStatusState> {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
+  const userId = await getSessionUserId();
+  if (!userId) {
     return { success: false, message: "অবস্থা পরিবর্তন করতে হলে আগে লগইন করুন।" };
   }
 
@@ -218,8 +221,13 @@ export async function updateListingStatus(
   if (!listing) {
     return { success: false, message: "তালিকাটি খুঁজে পাওয়া যায়নি।" };
   }
-  if (listing.sellerId !== session.user.id) {
+  if (listing.sellerId !== userId) {
     return { success: false, message: "শুধু বিক্রেতা নিজেই এই তালিকার অবস্থা পরিবর্তন করতে পারবেন।" };
+  }
+  // An admin's removal is final: the seller can't put it back on show (or
+  // change it at all) by calling this directly.
+  if (listing.removedByAdminAt) {
+    return { success: false, message: ADMIN_REMOVED_NOTICE };
   }
 
   await prisma.listing.update({

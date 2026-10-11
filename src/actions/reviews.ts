@@ -1,10 +1,9 @@
 "use server";
 
 import { z } from "zod";
-import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getSessionUserId } from "@/lib/authz";
 import { logReadingActivity } from "@/lib/streak";
 
 const aspectRating = z.coerce.number().int().min(1).max(5).optional().nullable();
@@ -41,8 +40,8 @@ export async function submitReview(
   _prevState: ReviewState,
   formData: FormData
 ): Promise<ReviewState> {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
+  const userId = await getSessionUserId();
+  if (!userId) {
     return { success: false, message: "পর্যালোচনা দিতে হলে আগে লগইন করুন।" };
   }
 
@@ -67,7 +66,7 @@ export async function submitReview(
   const { bookId, rating, text, plotRating, writingRating, pacingRating } = parsed.data;
 
   await prisma.review.upsert({
-    where: { bookId_userId: { bookId, userId: session.user.id } },
+    where: { bookId_userId: { bookId, userId } },
     update: {
       rating,
       text: text || null,
@@ -77,7 +76,7 @@ export async function submitReview(
     },
     create: {
       bookId,
-      userId: session.user.id,
+      userId,
       rating,
       text: text || null,
       plotRating: plotRating ?? null,
@@ -86,7 +85,7 @@ export async function submitReview(
     },
   });
 
-  await logReadingActivity(session.user.id);
+  await logReadingActivity(userId);
 
   revalidatePath(`/books/${bookId}`);
 

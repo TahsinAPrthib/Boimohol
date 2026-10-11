@@ -2,18 +2,23 @@ import { cache } from "react";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
 import { withCallbackUrl } from "@/lib/safe-redirect";
+import { findActiveUser } from "@/lib/account-status";
 
 // One session read per request, however many layouts and pages ask for it.
 // (Outside a render, e.g. in a server action, cache() simply doesn't memoise.)
 const getSession = cache(() => getServerSession(authOptions));
 
 // The single place session-gating is expressed, so actions and pages agree
-// on what "logged in" means.
+// on what "logged in" means: a valid login token AND an account that still
+// exists and isn't suspended. (The session callback already drops such a
+// user; this checks again so no caller depends on that alone. Within a
+// render both share one cached lookup.)
 export async function getSessionUserId(): Promise<string | null> {
   const session = await getSession();
-  return session?.user?.id ?? null;
+  const userId = session?.user?.id;
+  if (!userId) return null;
+  return (await findActiveUser(userId))?.id ?? null;
 }
 
 // For the layout of a signed-in-only route. Layouts render before the route's
@@ -32,11 +37,5 @@ export async function requireUserId(callbackPath: string): Promise<string> {
 export async function getAdminUserId(): Promise<string | null> {
   const userId = await getSessionUserId();
   if (!userId) return null;
-
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { role: true },
-  });
-
-  return user?.role === "ADMIN" ? userId : null;
+  return (await findActiveUser(userId))?.role === "ADMIN" ? userId : null;
 }

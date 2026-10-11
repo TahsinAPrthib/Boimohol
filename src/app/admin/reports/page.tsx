@@ -3,7 +3,50 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getAdminUserId } from "@/lib/authz";
 import { cloudinaryUrl } from "@/lib/cloudinary-url";
+import { bnDate, bnDateTime } from "@/lib/bangla";
+import { DELETED_USER_LABEL } from "@/lib/account-notices";
+import { adminRemoveListing, suspendUser } from "@/actions/admin-moderation";
 import ReportStatusControls from "@/components/ReportStatusControls";
+import ConfirmAction from "@/components/ConfirmAction";
+
+// Who a report's content belongs to, with a link to their admin page and a
+// one-step suspend -- unless that's the admin looking at it, or the account
+// is already suspended.
+function OwnerActions({
+  owner,
+  role,
+  reportId,
+  adminId,
+}: {
+  owner: { id: string; username: string; suspendedAt: Date | null };
+  role: string;
+  reportId: string;
+  adminId: string;
+}) {
+  return (
+    <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 font-body text-xs text-ink/60">
+      <span>
+        {role}:{" "}
+        <Link href={`/admin/users/${owner.id}`} className="font-semibold text-cloth hover:underline">
+          @{owner.username}
+        </Link>
+      </span>
+      {owner.suspendedAt ? (
+        <span className="font-semibold text-oxblood">{bnDateTime(owner.suspendedAt)} থেকে স্থগিত</span>
+      ) : (
+        owner.id !== adminId && (
+          <ConfirmAction
+            action={suspendUser.bind(null, owner.id, reportId)}
+            label="অ্যাকাউন্ট স্থগিত করুন"
+            question={`@${owner.username} আর লগইন বা কিছু করতে পারবেন না। স্থগিত করে রিপোর্টটি নিষ্পত্তি করবেন?`}
+            confirmLabel="হ্যাঁ, স্থগিত করুন"
+            pendingLabel="স্থগিত করা হচ্ছে..."
+          />
+        )
+      )}
+    </div>
+  );
+}
 
 type Status = "OPEN" | "REVIEWING" | "RESOLVED" | "DISMISSED";
 
@@ -62,6 +105,7 @@ export default async function AdminReportsPage(props: {
   const idsByType = (type: string) =>
     reports.filter((r) => r.targetType === type).map((r) => r.targetId);
 
+  const owner = { id: true, username: true, suspendedAt: true } as const;
   const [listings, messages, users] = await Promise.all([
     prisma.listing.findMany({
       where: { id: { in: idsByType("LISTING") } },
@@ -69,6 +113,9 @@ export default async function AdminReportsPage(props: {
         id: true,
         title: true,
         author: true,
+        removedByAdminAt: true,
+        removedByAdmin: { select: { username: true } },
+        seller: { select: owner },
         // Reports are often about the image itself, so the reviewer needs to
         // see it without leaving the queue.
         photos: { orderBy: { order: "asc" }, select: { id: true, publicId: true } },
@@ -79,12 +126,12 @@ export default async function AdminReportsPage(props: {
       select: {
         id: true,
         text: true,
-        sender: { select: { username: true } },
+        sender: { select: owner },
       },
     }),
     prisma.user.findMany({
       where: { id: { in: idsByType("USER") } },
-      select: { id: true, username: true },
+      select: owner,
     }),
   ]);
 
@@ -143,16 +190,15 @@ export default async function AdminReportsPage(props: {
                     </span>
                   </div>
                   <span className="font-body text-xs text-ink/50">
-                    {report.createdAt.toLocaleDateString("bn-BD", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
+                    {bnDate(report.createdAt)}
                   </span>
                 </div>
 
                 <p className="mt-2 font-body text-sm text-ink/60">
-                  রিপোর্টকারী: <span className="font-semibold text-ink">@{report.reporter.username}</span>
+                  রিপোর্টকারী:{" "}
+                  <span className="font-semibold text-ink">
+                    {report.reporter ? `@${report.reporter.username}` : DELETED_USER_LABEL}
+                  </span>
                 </p>
 
                 <div className="mt-2 rounded-book border-2 border-ink/10 bg-paper p-3 [overflow-wrap:anywhere]">
@@ -166,6 +212,12 @@ export default async function AdminReportsPage(props: {
                           {listing.title}
                         </Link>
                         <p className="font-body text-xs text-ink/50">{listing.author}</p>
+                        {listing.removedByAdminAt && (
+                          <p className="mt-1 font-body text-xs font-semibold text-oxblood">
+                            {listing.removedByAdmin ? `@${listing.removedByAdmin.username}` : "একজন অ্যাডমিন"}{" "}
+                            সরিয়েছেন, {bnDateTime(listing.removedByAdminAt)}
+                          </p>
+                        )}
                         {listing.photos.length > 0 && (
                           <ul className="mt-2 flex flex-wrap gap-2">
                             {listing.photos.map((photo) => (
@@ -180,6 +232,18 @@ export default async function AdminReportsPage(props: {
                             ))}
                           </ul>
                         )}
+                        {!listing.removedByAdminAt && (
+                          <div className="mt-3">
+                            <ConfirmAction
+                              action={adminRemoveListing.bind(null, listing.id, report.id)}
+                              label="তালিকা সরিয়ে ফেলুন"
+                              question="তালিকাটি সবার কাছ থেকে সরিয়ে রিপোর্টটি নিষ্পত্তি করবেন? বিক্রেতা এটি আর ফেরাতে বা সম্পাদনা করতে পারবেন না।"
+                              confirmLabel="হ্যাঁ, সরিয়ে ফেলুন"
+                              pendingLabel="সরানো হচ্ছে..."
+                            />
+                          </div>
+                        )}
+                        <OwnerActions owner={listing.seller} role="বিক্রেতা" reportId={report.id} adminId={adminId} />
                       </>
                     ) : (
                       <p className="font-body text-sm text-ink/40">তালিকাটি আর নেই (মুছে ফেলা হয়েছে)।</p>
@@ -194,9 +258,11 @@ export default async function AdminReportsPage(props: {
                             404 for any admin who isn't in the conversation.
                             Giving admins read access to private threads is a
                             privacy call to make explicitly, not a side effect. */}
-                        <p className="mt-1 font-body text-xs text-ink/50">
-                          প্রেরক: @{message.sender.username}
-                        </p>
+                        {message.sender ? (
+                          <OwnerActions owner={message.sender} role="প্রেরক" reportId={report.id} adminId={adminId} />
+                        ) : (
+                          <p className="mt-1 font-body text-xs text-ink/50">প্রেরক: {DELETED_USER_LABEL}</p>
+                        )}
                       </>
                     ) : (
                       <p className="font-body text-sm text-ink/40">বার্তাটি আর নেই (মুছে ফেলা হয়েছে)।</p>
@@ -204,7 +270,7 @@ export default async function AdminReportsPage(props: {
 
                   {report.targetType === "USER" &&
                     (user ? (
-                      <p className="font-body text-sm text-ink/80">@{user.username}</p>
+                      <OwnerActions owner={user} role="ব্যবহারকারী" reportId={report.id} adminId={adminId} />
                     ) : (
                       <p className="font-body text-sm text-ink/40">
                         ব্যবহারকারীটি আর নেই (মুছে ফেলা হয়েছে)।
@@ -224,7 +290,10 @@ export default async function AdminReportsPage(props: {
                   </p>
                 )}
 
+                {/* Keyed on what it shows: an action above can resolve the
+                    report, and the controls keep their own copy of status. */}
                 <ReportStatusControls
+                  key={`${report.status}:${report.adminNote ?? ""}`}
                   reportId={report.id}
                   currentStatus={report.status}
                   currentNote={report.adminNote}

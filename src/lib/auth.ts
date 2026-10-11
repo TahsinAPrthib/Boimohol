@@ -4,6 +4,8 @@ import bcrypt from "bcryptjs";
 import type { User } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { describeDbError } from "@/lib/db-errors";
+import { findActiveUser } from "@/lib/account-status";
+import { ACCOUNT_SUSPENDED } from "@/lib/account-notices";
 
 // What the browser receives as result.error when sign-in fails for a reason
 // other than bad credentials. NextAuth URL-encodes a thrown error's message
@@ -43,6 +45,10 @@ export const authOptions: NextAuthOptions = {
         const valid = await bcrypt.compare(credentials.password, user.passwordHash);
         if (!valid) return null;
 
+        // Checked only after the password, so a wrong guess can't learn that
+        // an account is suspended.
+        if (user.suspendedAt) throw new Error(ACCOUNT_SUSPENDED);
+
         return {
           id: user.id,
           name: user.name,
@@ -66,11 +72,22 @@ export const authOptions: NextAuthOptions = {
       }
       return token;
     },
+    // Runs for every session read, server and client. A token whose account
+    // has been suspended or deleted since login yields a session with no
+    // user, so pages, actions and the navbar all treat it as signed out.
+    // If the check itself fails (database unreachable), fail closed.
     async session({ session, token }) {
+      let active: Awaited<ReturnType<typeof findActiveUser>> = null;
+      try {
+        active = token.id ? await findActiveUser(token.id as string) : null;
+      } catch (err) {
+        console.error(`[auth] database error checking a session: ${describeDbError(err)}`);
+      }
+      if (!active) return { expires: session.expires };
       if (session.user) {
-        (session.user as { id?: string }).id = token.id as string;
+        (session.user as { id?: string }).id = active.id;
         (session.user as { username?: string }).username = token.username as string;
-        (session.user as { role?: string }).role = token.role as string;
+        (session.user as { role?: string }).role = active.role;
       }
       return session;
     },

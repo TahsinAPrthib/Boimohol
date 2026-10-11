@@ -1,7 +1,6 @@
+import { getSessionUserId } from "@/lib/authz";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { loadListing } from "@/lib/loaders";
 import { bnTaka, bnYear } from "@/lib/bangla";
 import { withCallbackUrl } from "@/lib/safe-redirect";
@@ -11,6 +10,7 @@ import SafetyNotice from "@/components/SafetyNotice";
 import ListingStatusControls from "@/components/ListingStatusControls";
 import ContactSellerButton from "@/components/ContactSellerButton";
 import ReportButton from "@/components/ReportButton";
+import { ADMIN_REMOVED_NOTICE } from "@/lib/moderation";
 
 const CONDITION_LABEL: Record<string, string> = {
   NEW: "নতুন",
@@ -39,8 +39,8 @@ export default async function ListingPage(props: { params: Promise<{ id: string 
 
   if (!listing) notFound();
 
-  const session = await getServerSession(authOptions);
-  const isSeller = session?.user?.id === listing.sellerId;
+  const userId = await getSessionUserId();
+  const isSeller = userId === listing.sellerId;
 
   if (listing.status !== "AVAILABLE" && !isSeller) {
     return (
@@ -114,17 +114,25 @@ export default async function ListingPage(props: { params: Promise<{ id: string 
               <p className="mb-2 font-body text-sm font-semibold text-ink/70">
                 বর্তমান অবস্থা: {STATUS_LABEL[listing.status]}
               </p>
-              <ListingStatusControls listingId={listing.id} currentStatus={listing.status} />
-              <Link
-                href={`/marketplace/${listing.id}/edit`}
-                className="mt-3 inline-block font-body text-sm font-semibold text-cloth hover:underline"
-              >
-                তালিকাটি সম্পাদনা করুন
-              </Link>
+              {listing.removedByAdminAt ? (
+                <p className="rounded-book border-2 border-oxblood/40 bg-oxblood/10 px-3 py-2 font-body text-sm text-oxblood">
+                  {ADMIN_REMOVED_NOTICE}
+                </p>
+              ) : (
+                <>
+                  <ListingStatusControls listingId={listing.id} currentStatus={listing.status} />
+                  <Link
+                    href={`/marketplace/${listing.id}/edit`}
+                    className="mt-3 inline-block font-body text-sm font-semibold text-cloth hover:underline"
+                  >
+                    তালিকাটি সম্পাদনা করুন
+                  </Link>
+                </>
+              )}
             </div>
           ) : (
             <div className="mt-6 flex flex-col gap-6">
-              {session?.user?.id ? (
+              {userId ? (
                 <ContactSellerButton listingId={listing.id} />
               ) : (
                 <Link
@@ -135,7 +143,7 @@ export default async function ListingPage(props: { params: Promise<{ id: string 
                 </Link>
               )}
               <SafetyNotice />
-              {session?.user?.id && (
+              {userId && (
                 <ReportButton targetType="LISTING" targetId={listing.id} label="এই তালিকাটি রিপোর্ট করুন" />
               )}
             </div>

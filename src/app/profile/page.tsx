@@ -1,8 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getSessionUserId } from "@/lib/authz";
 import { loadProfileUser } from "@/lib/loaders";
 import { bn } from "@/lib/bangla";
 import { withCallbackUrl } from "@/lib/safe-redirect";
@@ -19,10 +18,10 @@ const SECTIONS: { status: Status; label: string }[] = [
 ];
 
 export default async function ProfilePage() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) redirect(withCallbackUrl("/login", "/profile"));
+  const userId = await getSessionUserId();
+  if (!userId) redirect(withCallbackUrl("/login", "/profile"));
 
-  const user = await loadProfileUser(session.user.id);
+  const user = await loadProfileUser(userId);
 
   if (!user) redirect(withCallbackUrl("/login", "/profile"));
 

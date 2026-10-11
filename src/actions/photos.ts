@@ -12,6 +12,7 @@ import {
   MAX_PHOTO_BYTES,
   UPLOAD_FOLDER,
 } from "@/lib/cloudinary-url";
+import { ADMIN_REMOVED_NOTICE } from "@/lib/moderation";
 
 export type UploadSignature = {
   success: boolean;
@@ -126,13 +127,16 @@ export async function attachPhotosToListing(
 
   const listing = await prisma.listing.findUnique({
     where: { id: listingId },
-    select: { sellerId: true, _count: { select: { photos: true } } },
+    select: { sellerId: true, removedByAdminAt: true, _count: { select: { photos: true } } },
   });
   if (!listing) {
     return { success: false, message: "তালিকাটি খুঁজে পাওয়া যায়নি।" };
   }
   if (listing.sellerId !== userId) {
     return { success: false, message: "শুধু বিক্রেতা নিজেই এই তালিকায় ছবি যোগ করতে পারবেন।" };
+  }
+  if (listing.removedByAdminAt) {
+    return { success: false, message: ADMIN_REMOVED_NOTICE };
   }
 
   const existing = listing._count.photos;

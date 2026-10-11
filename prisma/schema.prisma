@@ -78,25 +78,34 @@ enum RequestStatus {
 }
 
 model User {
-  id                   String            @id @default(cuid())
+  id                   String             @id @default(cuid())
   name                 String
-  username             String            @unique
-  email                String            @unique
+  username             String             @unique
+  email                String             @unique
   passwordHash         String
   bio                  String?
   location             String?
-  role                 Role              @default(READER)
+  role                 Role               @default(READER)
   yearlyGoal           Int? // books-per-year goal; no goal set is a valid state
-  createdAt            DateTime          @default(now())
+  createdAt            DateTime           @default(now())
+  // Set by an admin. A suspended user can't sign in, and an existing login
+  // stops counting: see src/lib/account-status.ts.
+  suspendedAt          DateTime?
+  suspendedById        String?
+  suspendedBy          User?              @relation("UserSuspensions", fields: [suspendedById], references: [id], onDelete: SetNull)
+  suspensionsMade      User[]             @relation("UserSuspensions")
   reviews              Review[]
   shelfItems           ShelfItem[]
   readingActivity      ReadingActivity[]
-  listings             Listing[]
+  listings             Listing[]          @relation("ListingSeller")
+  listingsRemoved      Listing[]          @relation("ListingAdminRemovals")
+  moderationTaken      ModerationAction[] @relation("ModerationByAdmin")
+  moderationReceived   ModerationAction[] @relation("ModerationOfUser")
   conversationsStarted Conversation[]
   messagesSent         Message[]
   reportsFiled         Report[]
-  blocksMade           Block[]           @relation("BlocksMade")
-  blocksReceived       Block[]           @relation("BlocksReceived")
+  blocksMade           Block[]            @relation("BlocksMade")
+  blocksReceived       Block[]            @relation("BlocksReceived")
   wishlistItems        WishlistItem[]
   bookRequests         BookRequest[]
   requestResponses     RequestResponse[]
@@ -238,23 +247,28 @@ model ReadingActivity {
 // Freeform secondhand-book listings — separate from the curated Book
 // catalog above, so a listing doesn't need a matching Book/Category row.
 model Listing {
-  id          String           @id @default(cuid())
-  sellerId    String
-  seller      User             @relation(fields: [sellerId], references: [id])
-  title       String
-  author      String
-  categoryId  String?
-  category    Category?        @relation(fields: [categoryId], references: [id])
-  description String?
-  condition   ListingCondition
-  listingType ListingType
-  price       Float? // only meaningful when listingType is SELL
-  location    String
-  status      ListingStatus    @default(AVAILABLE)
+  id               String           @id @default(cuid())
+  sellerId         String
+  seller           User             @relation("ListingSeller", fields: [sellerId], references: [id])
+  title            String
+  author           String
+  categoryId       String?
+  category         Category?        @relation(fields: [categoryId], references: [id])
+  description      String?
+  condition        ListingCondition
+  listingType      ListingType
+  price            Float? // only meaningful when listingType is SELL
+  location         String
+  status           ListingStatus    @default(AVAILABLE)
   // Normalized title + author + location; written via listingSearchText().
-  searchText  String           @default("")
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  searchText       String           @default("")
+  // Set when an admin removes the listing (status REMOVED). The seller can
+  // remove and restore their own listings, but never one an admin removed.
+  removedByAdminAt DateTime?
+  removedByAdminId String?
+  removedByAdmin   User?            @relation("ListingAdminRemovals", fields: [removedByAdminId], references: [id], onDelete: SetNull)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
 
   conversations Conversation[]
   photos        ListingPhoto[]
@@ -278,12 +292,15 @@ model ListingPhoto {
 
 // One thread per (listing, interested buyer). The other participant is
 // always the listing's seller, so it isn't duplicated here.
+// Both links are nullable so a deleted account doesn't take the other
+// person's history with it: deleting the seller's account deletes the
+// listing (listingId -> NULL), deleting the buyer's sets buyerId to NULL.
 model Conversation {
   id        String    @id @default(cuid())
-  listingId String
-  listing   Listing   @relation(fields: [listingId], references: [id])
-  buyerId   String
-  buyer     User      @relation(fields: [buyerId], references: [id])
+  listingId String?
+  listing   Listing?  @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  buyerId   String?
+  buyer     User?     @relation(fields: [buyerId], references: [id], onDelete: SetNull)
   createdAt DateTime  @default(now())
   messages  Message[]
 
@@ -294,8 +311,10 @@ model Message {
   id             String       @id @default(cuid())
   conversationId String
   conversation   Conversation @relation(fields: [conversationId], references: [id])
-  senderId       String
-  sender         User         @relation(fields: [senderId], references: [id])
+  // NULL once the sender's account is deleted: the message stays with the
+  // person who received it, shown as from a deleted user.
+  senderId       String?
+  sender         User?        @relation(fields: [senderId], references: [id], onDelete: SetNull)
   text           String
   createdAt      DateTime     @default(now())
   readAt         DateTime?
@@ -308,8 +327,9 @@ model Message {
 // tolerate a target that has since been deleted.
 model Report {
   id         String           @id @default(cuid())
-  reporterId String
-  reporter   User             @relation(fields: [reporterId], references: [id])
+  // NULL once the reporter's account is deleted; the report stays as evidence.
+  reporterId String?
+  reporter   User?            @relation(fields: [reporterId], references: [id], onDelete: SetNull)
   targetType ReportTargetType
   targetId   String
   reason     ReportReason
@@ -381,4 +401,35 @@ model RequestResponse {
 
   @@unique([requestId, responderId]) // one response per person; editable, not spammable
   @@index([requestId])
+}
+
+// Every admin moderation step: who did it, when, to whose content, and a
+// readable summary, so the record survives the content (reviews and
+// requests are deleted outright) and even the account.
+model ModerationAction {
+  id           String               @id @default(cuid())
+  adminId      String?
+  admin        User?                @relation("ModerationByAdmin", fields: [adminId], references: [id], onDelete: SetNull)
+  action       ModerationActionType
+  targetUserId String?
+  targetUser   User?                @relation("ModerationOfUser", fields: [targetUserId], references: [id], onDelete: SetNull)
+  // The listing, review or request acted on. Not a foreign key: the row may
+  // be gone.
+  targetId     String?
+  summary      String
+  // Set when the action was taken from the report queue.
+  reportId     String?
+  createdAt    DateTime             @default(now())
+
+  @@index([targetUserId, createdAt])
+  @@index([createdAt])
+}
+
+enum ModerationActionType {
+  REMOVE_LISTING
+  DELETE_REVIEW
+  DELETE_REQUEST
+  SUSPEND_USER
+  UNSUSPEND_USER
+  DELETE_USER
 }

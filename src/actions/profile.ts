@@ -1,10 +1,9 @@
 "use server";
 
 import { z } from "zod";
-import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getSessionUserId } from "@/lib/authz";
 
 const goalSchema = z.coerce
   .number({ invalid_type_error: "সঠিক একটি সংখ্যা দিন।" })
@@ -18,8 +17,8 @@ export type SetGoalState = {
 };
 
 export async function setYearlyGoal(goal: number): Promise<SetGoalState> {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
+  const userId = await getSessionUserId();
+  if (!userId) {
     return { success: false, message: "লক্ষ্য নির্ধারণ করতে হলে আগে লগইন করুন।" };
   }
 
@@ -29,7 +28,7 @@ export async function setYearlyGoal(goal: number): Promise<SetGoalState> {
   }
 
   await prisma.user.update({
-    where: { id: session.user.id },
+    where: { id: userId },
     data: { yearlyGoal: parsed.data },
   });
 

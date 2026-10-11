@@ -5,6 +5,7 @@ import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { safeCallbackUrl, withCallbackUrl } from "@/lib/safe-redirect";
+import { ACCOUNT_SUSPENDED, ACCOUNT_SUSPENDED_MESSAGE } from "@/lib/account-notices";
 
 function LoginForm() {
   const router = useRouter();
@@ -33,13 +34,17 @@ function LoginForm() {
     setPending(false);
 
     if (result?.error) {
-      // Only CredentialsSignin means the email or password was rejected.
-      // Anything else -- most often the database not answering -- is a server
-      // problem, and telling the user their password is wrong would be false.
+      // Only CredentialsSignin means the email or password was rejected, and
+      // AccountSuspended (sent only after a correct password) that an admin
+      // has suspended the account. Anything else -- most often the database
+      // not answering -- is a server problem, and telling the user their
+      // password is wrong would be false.
       setError(
         result.error === "CredentialsSignin"
           ? "ইমেইল অথবা পাসওয়ার্ড সঠিক নয়।"
-          : "সার্ভারে সাময়িক সমস্যা হয়েছে, তাই এখন লগইন করা যাচ্ছে না। কিছুক্ষণ পর আবার চেষ্টা করুন।"
+          : result.error === ACCOUNT_SUSPENDED
+            ? ACCOUNT_SUSPENDED_MESSAGE
+            : "সার্ভারে সাময়িক সমস্যা হয়েছে, তাই এখন লগইন করা যাচ্ছে না। কিছুক্ষণ পর আবার চেষ্টা করুন।"
       );
       return;
     }

@@ -1,11 +1,11 @@
 "use server";
 
 import { z } from "zod";
-import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getSessionUserId } from "@/lib/authz";
 import { isBlockedEitherWay } from "@/lib/blocks";
+import { DELETED_PARTNER_NOTICE } from "@/lib/account-notices";
 
 const BLOCKED_NOTICE = "ব্লক থাকার কারণে এই আলাপে নতুন বার্তা পাঠানো যাবে না।";
 
@@ -27,7 +27,8 @@ export type SendMessageResult = {
 
 export type ThreadMessage = {
   id: string;
-  senderId: string;
+  // null once the sender's account has been deleted.
+  senderId: string | null;
   text: string;
   createdAt: string;
   readAt: string | null;
@@ -42,12 +43,17 @@ export type MessagesResult = {
   blockedNotice?: string;
 };
 
-// The other participant is whichever of (buyer, listing seller) isn't you.
+// The other participant is whichever of (buyer, listing seller) isn't you --
+// or null when their account has been deleted. Deleting the buyer clears
+// buyerId; deleting the seller deletes the listing, which clears listingId.
+// Either way the remaining participant keeps the thread.
 function otherParticipantId(
-  conversation: { buyerId: string; listing: { sellerId: string } },
+  conversation: { buyerId: string | null; listing: { sellerId: string } | null },
   userId: string
 ) {
-  return conversation.buyerId === userId ? conversation.listing.sellerId : conversation.buyerId;
+  return conversation.buyerId === userId
+    ? (conversation.listing?.sellerId ?? null)
+    : conversation.buyerId;
 }
 
 // A conversation's participants are its buyer and the listing's seller.
@@ -59,14 +65,20 @@ async function loadAuthorizedConversation(conversationId: string, userId: string
   });
 
   if (!conversation) return null;
-  if (conversation.buyerId !== userId && conversation.listing.sellerId !== userId) return null;
+  if (conversation.buyerId !== userId && conversation.listing?.sellerId !== userId) return null;
 
   return conversation;
 }
 
+// Messages someone else sent you. senderId is NULL for a deleted sender, and
+// SQL's <> never matches NULL, so "not me" has to include it explicitly.
+function sentByOthers(userId: string) {
+  return { OR: [{ senderId: { not: userId } }, { senderId: null }] };
+}
+
 export async function startOrGetConversation(listingId: string): Promise<StartConversationResult> {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
+  const userId = await getSessionUserId();
+  if (!userId) {
     return { success: false, message: "বার্তা পাঠাতে হলে আগে লগইন করুন।" };
   }
 
@@ -74,26 +86,29 @@ export async function startOrGetConversation(listingId: string): Promise<StartCo
   if (!listing) {
     return { success: false, message: "তালিকাটি খুঁজে পাওয়া যায়নি।" };
   }
-  if (listing.sellerId === session.user.id) {
+  if (listing.status === "REMOVED") {
+    return { success: false, message: "তালিকাটি সরিয়ে ফেলা হয়েছে।" };
+  }
+  if (listing.sellerId === userId) {
     return { success: false, message: "নিজের তালিকায় নিজে বার্তা পাঠাতে পারবেন না।" };
   }
 
-  if (await isBlockedEitherWay(session.user.id, listing.sellerId)) {
+  if (await isBlockedEitherWay(userId, listing.sellerId)) {
     return { success: false, message: "ব্লক থাকার কারণে এই বিক্রেতার সাথে যোগাযোগ করা যাবে না।" };
   }
 
   const conversation = await prisma.conversation.upsert({
-    where: { listingId_buyerId: { listingId, buyerId: session.user.id } },
+    where: { listingId_buyerId: { listingId, buyerId: userId } },
     update: {},
-    create: { listingId, buyerId: session.user.id },
+    create: { listingId, buyerId: userId },
   });
 
   return { success: true, conversationId: conversation.id };
 }
 
 export async function sendMessage(conversationId: string, text: string): Promise<SendMessageResult> {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
+  const userId = await getSessionUserId();
+  if (!userId) {
     return { success: false, message: "বার্তা পাঠাতে হলে আগে লগইন করুন।" };
   }
 
@@ -102,19 +117,23 @@ export async function sendMessage(conversationId: string, text: string): Promise
     return { success: false, message: parsed.error.issues[0]?.message ?? "বার্তাটি সঠিক নয়।" };
   }
 
-  const conversation = await loadAuthorizedConversation(parsed.data.conversationId, session.user.id);
+  const conversation = await loadAuthorizedConversation(parsed.data.conversationId, userId);
   if (!conversation) {
     return { success: false, message: "এই আলাপে বার্তা পাঠানোর অনুমতি আপনার নেই।" };
   }
 
-  if (await isBlockedEitherWay(session.user.id, otherParticipantId(conversation, session.user.id))) {
+  const otherId = otherParticipantId(conversation, userId);
+  if (!otherId) {
+    return { success: false, message: DELETED_PARTNER_NOTICE };
+  }
+  if (await isBlockedEitherWay(userId, otherId)) {
     return { success: false, message: BLOCKED_NOTICE };
   }
 
   await prisma.message.create({
     data: {
       conversationId: conversation.id,
-      senderId: session.user.id,
+      senderId: userId,
       text: parsed.data.text,
     },
   });
@@ -129,12 +148,12 @@ export async function sendMessage(conversationId: string, text: string): Promise
 // client every few seconds, and a server action is the simplest way to do an
 // authorized read without standing up a separate API route.
 export async function getConversationMessages(conversationId: string): Promise<MessagesResult> {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
+  const userId = await getSessionUserId();
+  if (!userId) {
     return { success: false, message: "বার্তা দেখতে হলে আগে লগইন করুন।" };
   }
 
-  const conversation = await loadAuthorizedConversation(conversationId, session.user.id);
+  const conversation = await loadAuthorizedConversation(conversationId, userId);
   if (!conversation) {
     return { success: false, message: "এই আলাপ দেখার অনুমতি আপনার নেই।" };
   }
@@ -144,15 +163,13 @@ export async function getConversationMessages(conversationId: string): Promise<M
     orderBy: { createdAt: "asc" },
   });
 
-  const blocked = await isBlockedEitherWay(
-    session.user.id,
-    otherParticipantId(conversation, session.user.id)
-  );
+  const otherId = otherParticipantId(conversation, userId);
+  const blocked = otherId !== null && (await isBlockedEitherWay(userId, otherId));
 
   return {
     success: true,
-    canSend: !blocked,
-    blockedNotice: blocked ? BLOCKED_NOTICE : undefined,
+    canSend: otherId !== null && !blocked,
+    blockedNotice: !otherId ? DELETED_PARTNER_NOTICE : blocked ? BLOCKED_NOTICE : undefined,
     messages: messages.map((m) => ({
       id: m.id,
       senderId: m.senderId,
@@ -164,12 +181,12 @@ export async function getConversationMessages(conversationId: string): Promise<M
 }
 
 export async function markConversationRead(conversationId: string): Promise<SendMessageResult> {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
+  const userId = await getSessionUserId();
+  if (!userId) {
     return { success: false, message: "বার্তা দেখতে হলে আগে লগইন করুন।" };
   }
 
-  const conversation = await loadAuthorizedConversation(conversationId, session.user.id);
+  const conversation = await loadAuthorizedConversation(conversationId, userId);
   if (!conversation) {
     return { success: false, message: "এই আলাপ দেখার অনুমতি আপনার নেই।" };
   }
@@ -177,7 +194,7 @@ export async function markConversationRead(conversationId: string): Promise<Send
   await prisma.message.updateMany({
     where: {
       conversationId: conversation.id,
-      senderId: { not: session.user.id },
+      ...sentByOthers(userId),
       readAt: null,
     },
     data: { readAt: new Date() },
@@ -187,18 +204,15 @@ export async function markConversationRead(conversationId: string): Promise<Send
 }
 
 export async function getUnreadCount(): Promise<number> {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) return 0;
-
-  const userId = session.user.id;
-
+  const userId = await getSessionUserId();
+  if (!userId) return 0;
   return prisma.message.count({
     where: {
-      senderId: { not: userId },
+      AND: [
+        sentByOthers(userId),
+        { conversation: { OR: [{ buyerId: userId }, { listing: { sellerId: userId } }] } },
+      ],
       readAt: null,
-      conversation: {
-        OR: [{ buyerId: userId }, { listing: { sellerId: userId } }],
-      },
     },
   });
 }

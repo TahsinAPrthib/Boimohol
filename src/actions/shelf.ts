@@ -1,10 +1,9 @@
 "use server";
 
 import { z } from "zod";
-import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getSessionUserId } from "@/lib/authz";
 import { logReadingActivity } from "@/lib/streak";
 
 const shelfSchema = z.object({
@@ -21,8 +20,8 @@ export async function updateShelfStatus(
   bookId: string,
   status: "WANT" | "READING" | "FINISHED"
 ): Promise<ShelfState> {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
+  const userId = await getSessionUserId();
+  if (!userId) {
     return { success: false, message: "বইতাকে যোগ করতে হলে আগে লগইন করুন।" };
   }
 
@@ -35,14 +34,14 @@ export async function updateShelfStatus(
 
   await prisma.shelfItem.upsert({
     where: {
-      userId_bookId: { userId: session.user.id, bookId: parsed.data.bookId },
+      userId_bookId: { userId, bookId: parsed.data.bookId },
     },
     update: {
       status: parsed.data.status,
       ...(finishedAt ? { finishedAt } : {}),
     },
     create: {
-      userId: session.user.id,
+      userId,
       bookId: parsed.data.bookId,
       status: parsed.data.status,
       ...(finishedAt ? { finishedAt } : {}),
@@ -52,7 +51,7 @@ export async function updateShelfStatus(
   // v1: any shelf status change counts toward the reading streak, not just
   // READING/FINISHED. Intentionally simple — tighten this if it turns out
   // to be easy to game for an inflated streak.
-  await logReadingActivity(session.user.id);
+  await logReadingActivity(userId);
 
   revalidatePath(`/books/${bookId}`);
   revalidatePath("/profile");

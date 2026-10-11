@@ -1,6 +1,6 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
-import { bn, bnFixed, bnTaka, bnYear } from "./bangla";
+import { bn, bnDate, bnDateTime, bnFixed, bnTaka, bnYear } from "./bangla";
 
 // Digits 0-9 must never appear in output that sits next to Bangla text.
 const LATIN_DIGIT = /[0-9]/;
@@ -94,5 +94,20 @@ describe("bnTaka — prices", () => {
     for (const v of [0, 5, 99, 250, 1500, 99999]) {
       assert.ok(!LATIN_DIGIT.test(bnTaka(v)), `bnTaka(${v}) leaked`);
     }
+  });
+});
+
+describe("bnDate / bnDateTime — Bangladesh time", () => {
+  // 20:30 UTC is 02:30 the next day in Dhaka.
+  const late = new Date("2026-10-11T20:30:00Z");
+
+  test("uses the Dhaka calendar day", () => {
+    assert.equal(bnDate(late), "১২ অক্টো, ২০২৬");
+  });
+
+  test("24-hour time, all Bangla digits", () => {
+    assert.equal(bnDateTime(late), "১২ অক্টো, ২০২৬, ০২:৩০");
+    assert.ok(!LATIN_DIGIT.test(bnDateTime(late)));
+    assert.ok(!/AM|PM/.test(bnDateTime(late)));
   });
 });

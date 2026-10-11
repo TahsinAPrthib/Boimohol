@@ -13,6 +13,6 @@ export default async function ConversationLayout(props: {
   const userId = await requireUserId(`/messages/${conversationId}`);
   const conversation = await loadConversation(conversationId);
   if (!conversation) notFound();
-  if (conversation.buyerId !== userId && conversation.listing.sellerId !== userId) notFound();
+  if (conversation.buyerId !== userId && conversation.listing?.sellerId !== userId) notFound();
   return props.children;
 }

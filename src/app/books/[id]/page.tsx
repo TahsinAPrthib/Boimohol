@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getSessionUserId } from "@/lib/authz";
 import { canBePublicDomain } from "@/lib/public-domain";
 import { loadBook } from "@/lib/loaders";
 import { bn, bnFixed } from "@/lib/bangla";
@@ -20,8 +19,7 @@ export default async function BookPage(props: { params: Promise<{ id: string }> 
 
   if (!book) notFound();
 
-  const session = await getServerSession(authOptions);
-  const userId = session?.user?.id;
+  const userId = await getSessionUserId();
 
   const reviewCount = book.reviews.length;
   const averageRating =

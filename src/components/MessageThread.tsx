@@ -8,6 +8,7 @@ import {
   type ThreadMessage,
 } from "@/actions/messages";
 import ReportButton from "@/components/ReportButton";
+import { DELETED_USER_LABEL } from "@/lib/account-notices";
 
 const POLL_INTERVAL_MS = 4000;
 
@@ -126,6 +127,8 @@ export default function MessageThread({
           messages.map((m) => {
             const mine = m.senderId === currentUserId;
             const optimistic = m.id.startsWith("optimistic-");
+            // Sent by someone whose account has since been deleted.
+            const fromDeleted = m.senderId === null;
             return (
               <div
                 key={m.id}
@@ -136,16 +139,20 @@ export default function MessageThread({
                     mine ? "bg-cloth text-paper" : "border-2 border-ink/10 bg-paper-dark text-ink"
                   }`}
                 >
+                  {fromDeleted && (
+                    <p className="mb-1 text-xs font-semibold text-ink/50">{DELETED_USER_LABEL}</p>
+                  )}
                   <p className="whitespace-pre-wrap break-words">{m.text}</p>
                   <p className={`mt-1 text-xs ${mine ? "text-paper/60" : "text-ink/40"}`}>
                     {formatTime(m.createdAt)}
                   </p>
                 </div>
 
-                {/* Only the other party's messages are reportable. Always
-                    rendered rather than hover-revealed — hover has no touch
-                    equivalent — and kept quiet via a low-contrast glyph. */}
-                {!mine && !optimistic && (
+                {/* Only the other party's messages are reportable, and not
+                    once their account is gone (there is no one to act on).
+                    Always rendered rather than hover-revealed — hover has no
+                    touch equivalent — and kept quiet via a low-contrast glyph. */}
+                {!mine && !optimistic && !fromDeleted && (
                   <ReportButton
                     variant="icon"
                     targetType="MESSAGE"

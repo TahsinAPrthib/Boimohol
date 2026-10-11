@@ -79,6 +79,9 @@ export default function Navbar() {
                   <Link href="/admin/books" className="hover:text-cloth">
                     ফাইল
                   </Link>
+                  <Link href="/admin/users" className="hover:text-cloth">
+                    ব্যবহারকারী
+                  </Link>
                 </>
               )}
               <button

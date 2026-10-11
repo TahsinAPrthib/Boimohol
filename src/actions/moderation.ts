@@ -39,7 +39,9 @@ async function resolveTargetOwner(
         where: { id: targetId },
         select: { senderId: true },
       });
-      return message ? { ownerId: message.senderId } : null;
+      // A message whose sender has deleted their account has no one left to
+      // act against, so it's treated as gone.
+      return message?.senderId ? { ownerId: message.senderId } : null;
     }
     case "USER": {
       const user = await prisma.user.findUnique({

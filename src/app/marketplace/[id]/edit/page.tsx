@@ -1,7 +1,6 @@
 import { redirect, notFound } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getSessionUserId } from "@/lib/authz";
 import { loadListing } from "@/lib/loaders";
 import { withCallbackUrl } from "@/lib/safe-redirect";
 import { updateListing } from "@/actions/listings";
@@ -9,14 +8,16 @@ import ListingForm from "@/components/ListingForm";
 
 export default async function EditListingPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
+  const userId = await getSessionUserId();
+  if (!userId) {
     redirect(withCallbackUrl("/login", `/marketplace/${params.id}/edit`));
   }
 
   const listing = await loadListing(params.id);
   if (!listing) notFound();
-  if (listing.sellerId !== session.user.id) redirect("/marketplace/mine");
+  if (listing.sellerId !== userId) redirect("/marketplace/mine");
+  // The listing page explains why; updateListing refuses it regardless.
+  if (listing.removedByAdminAt) redirect(`/marketplace/${listing.id}`);
 
   const categories = await prisma.category.findMany({ orderBy: { name: "asc" } });
   const boundUpdateListing = updateListing.bind(null, listing.id);
