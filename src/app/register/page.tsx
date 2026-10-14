@@ -1,42 +1,21 @@
-"use client";
-
-import { useFormStatus } from "react-dom";
+import type { Metadata } from "next";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useActionState, useEffect } from "react";
-import { registerUser, type RegisterState } from "@/actions/auth";
 import { safeCallbackUrl, withCallbackUrl } from "@/lib/safe-redirect";
-import { submitKeepingValues } from "@/lib/form-submit";
-import GoogleButton, { OrDivider } from "@/components/GoogleButton";
+import GoogleButton from "@/components/GoogleButton";
 
-const initialState: RegisterState = { success: false };
+export const metadata: Metadata = { title: "নতুন অ্যাকাউন্ট — বই মহল" };
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <button type="submit" disabled={pending} className="btn-primary w-full disabled:opacity-60">
-      {pending ? "তৈরি হচ্ছে..." : "সাইন আপ"}
-    </button>
-  );
-}
-
-function RegisterForm() {
-  const [state, formAction] = useActionState(registerUser, initialState);
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const rawCallback = searchParams.get("callbackUrl");
+// New accounts are made only through Google, so every account starts with an
+// email address that is known to belong to its owner. There is no email and
+// password sign-up on the server any more either: the only code that creates
+// an account is the Google sign-in in src/lib/google-auth.ts. Existing
+// email/password accounts still log in as before.
+export default async function RegisterPage(props: { searchParams: Promise<{ callbackUrl?: string | string[] }> }) {
+  const raw = (await props.searchParams).callbackUrl;
+  const rawCallback = Array.isArray(raw) ? raw[0] : raw;
   const callbackUrl = safeCallbackUrl(rawCallback);
-
-  // Registration doesn't sign the user in, so it hands the destination on to
-  // the login page rather than navigating there itself.
+  // Carry the destination through to the login page, sanitised.
   const loginHref = rawCallback ? withCallbackUrl("/login", callbackUrl) : "/login";
-
-  useEffect(() => {
-    if (state.success) {
-      const timeout = setTimeout(() => router.push(loginHref), 1200);
-      return () => clearTimeout(timeout);
-    }
-  }, [state.success, router, loginHref]);
 
   return (
     <div className="mx-auto flex min-h-[80vh] max-w-md flex-col justify-center px-4 py-10">
@@ -45,87 +24,24 @@ function RegisterForm() {
         বই মহলে যোগ দিন — পড়ুন, পর্যালোচনা লিখুন, নিজের বইতাক সাজান।
       </p>
 
-      {state.success ? (
-        <div className="rounded-book border-2 border-sage bg-sage/10 px-4 py-3 font-body text-sage">
-          {state.message} লগইন পাতায় নিয়ে যাওয়া হচ্ছে...
-        </div>
-      ) : (
-        <>
-          <GoogleButton callbackUrl={callbackUrl} />
-          <OrDivider label="অথবা ইমেইল দিয়ে" />
-          <form action={formAction} onSubmit={submitKeepingValues(formAction)} className="flex flex-col gap-4">
-            {state.message && !state.success && (
-              <div className="rounded-book border-2 border-oxblood bg-oxblood/10 px-4 py-3 font-body text-sm text-oxblood">
-                {state.message}
-              </div>
-            )}
+      <GoogleButton callbackUrl={callbackUrl} />
 
-            <div>
-              <label htmlFor="name" className="field-label">
-                নাম
-              </label>
-              <input id="name" name="name" type="text" className="field-input" placeholder="আপনার নাম" />
-              {state.fieldErrors?.name && <p className="field-error">{state.fieldErrors.name}</p>}
-            </div>
+      <p className="mt-5 font-body text-sm leading-relaxed text-ink/70">
+        নতুন অ্যাকাউন্ট এখন শুধু Google দিয়ে খোলা যায়, যাতে প্রতিটি অ্যাকাউন্টের ইমেইল ঠিকানা যে সত্যিই তার মালিকের,
+        তা নিশ্চিত থাকে। অ্যাকাউন্ট খোলার পর চাইলে সেটিংস থেকে একটি পাসওয়ার্ডও ঠিক করে নিতে পারবেন।
+      </p>
 
-            <div>
-              <label htmlFor="username" className="field-label">
-                ইউজারনেম
-              </label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                className="field-input"
-                placeholder="যেমন: rahim_reads"
-              />
-              {state.fieldErrors?.username && <p className="field-error">{state.fieldErrors.username}</p>}
-            </div>
-
-            <div>
-              <label htmlFor="email" className="field-label">
-                ইমেইল
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                className="field-input"
-                placeholder="you@example.com"
-              />
-              {state.fieldErrors?.email && <p className="field-error">{state.fieldErrors.email}</p>}
-            </div>
-
-            <div>
-              <label htmlFor="password" className="field-label">
-                পাসওয়ার্ড
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                className="field-input"
-                placeholder="কমপক্ষে ৬ অক্ষর"
-              />
-              {state.fieldErrors?.password && <p className="field-error">{state.fieldErrors.password}</p>}
-            </div>
-
-            <p className="font-body text-xs leading-relaxed text-ink/60">
-              সাইন আপ করলে আপনি আমাদের{" "}
-              <Link href="/terms" className="font-semibold text-cloth hover:underline">
-                ব্যবহারের শর্তাবলী
-              </Link>{" "}
-              ও{" "}
-              <Link href="/privacy" className="font-semibold text-cloth hover:underline">
-                গোপনীয়তা নীতিতে
-              </Link>{" "}
-              সম্মতি দিচ্ছেন।
-            </p>
-
-            <SubmitButton />
-          </form>
-        </>
-      )}
+      <p className="mt-4 font-body text-xs leading-relaxed text-ink/60">
+        সাইন আপ করলে আপনি আমাদের{" "}
+        <Link href="/terms" className="font-semibold text-cloth hover:underline">
+          ব্যবহারের শর্তাবলী
+        </Link>{" "}
+        ও{" "}
+        <Link href="/privacy" className="font-semibold text-cloth hover:underline">
+          গোপনীয়তা নীতিতে
+        </Link>{" "}
+        সম্মতি দিচ্ছেন।
+      </p>
 
       <p className="mt-6 text-center font-body text-sm text-ink/60">
         আগে থেকেই অ্যাকাউন্ট আছে?{" "}
@@ -134,20 +50,5 @@ function RegisterForm() {
         </Link>
       </p>
     </div>
-  );
-}
-
-export default function RegisterPage() {
-  return (
-    // useSearchParams needs a Suspense boundary for this page to prerender.
-    <Suspense
-      fallback={
-        <div className="mx-auto flex min-h-[80vh] max-w-md flex-col justify-center px-4 py-10">
-          <h1 className="mb-1 font-display text-3xl text-ink">নতুন অ্যাকাউন্ট</h1>
-        </div>
-      }
-    >
-      <RegisterForm />
-    </Suspense>
   );
 }

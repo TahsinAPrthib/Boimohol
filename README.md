@@ -8,13 +8,13 @@ Stack: Next.js 14 (App Router, TypeScript) + PostgreSQL + Prisma + NextAuth + Ta
 - `prisma/seed.ts` — 6 categories + real books (with honest `isPublicDomain` flags) + per-category "start here" picks + a demo user
 - `tailwind.config.ts` — custom design tokens (paper/ink/cloth/oxblood/turmeric/sage palette; see file comments)
 - `src/lib/prisma.ts` — Prisma client singleton
-- `src/lib/auth.ts` + `src/app/api/auth/[...nextauth]/route.ts` — NextAuth Credentials login (bcrypt, JWT sessions)
+- `src/lib/auth.ts` + `src/app/api/auth/[...nextauth]/route.ts` — NextAuth with JWT sessions: Google sign-in, plus email/password login (bcrypt) for accounts that have a password
 - `src/types/next-auth.d.ts` — session type augmentation (adds `id`, `username`)
-- `src/actions/auth.ts` — `registerUser` server action: zod validation, bcrypt hash, unique email/username checks, Bangla error messages
+- `src/lib/google-auth.ts` — Google sign-in, the only way to create an account: matched on Google's account ID (never the email), a new account picks its username at `/welcome`, and an email that already has an account is refused rather than linked. There is no email/password sign-up on the server.
 - `src/app/globals.css`, `src/app/layout.tsx` — Tailwind base styles, Tiro Bangla + Hind Siliguri fonts (via `next/font/google`, bengali subset), `SessionProvider` wrapper, PWA meta tags
 - `src/components/SessionProvider.tsx` — client wrapper around NextAuth's `SessionProvider`
 - `src/components/Navbar.tsx` — session-aware nav with Bangla labels (হোম, বিভাগ, প্রোফাইল, লগইন/লগ আউট, সাইন আপ)
-- `src/app/register/page.tsx`, `src/app/login/page.tsx` — client auth forms
+- `src/app/register/page.tsx` — sign-up, Google only; `src/app/login/page.tsx` — Google, or email and password for accounts that have one
 - `src/components/BookCover.tsx` — generated placeholder book cover, colored by `Category.colorKey`, shows title/author — no external cover art (see copyright note below)
 - `src/app/page.tsx` — home page: hero + category grid (reads categories from the DB, links to `/categories/[slug]`)
 - `public/manifest.json` + `public/icons/icon.svg` — PWA manifest and icon for installability
@@ -39,7 +39,7 @@ Messaging polls rather than using websockets — `MessageThread` every 4s while 
 
 ## Local setup
 ```bash
-cp .env.example .env   # fill in DATABASE_URL, DIRECT_URL, and NEXTAUTH_SECRET
+cp .env.example .env   # fill in DATABASE_URL, DIRECT_URL, NEXTAUTH_SECRET, and the Google OAuth client (new accounts can only be made through Google)
 npm install
 npx prisma migrate dev --name init
 npm run seed
@@ -99,6 +99,8 @@ every build).
 | `CLOUDINARY_API_KEY` | Cloudinary API key, used server-side when signing uploads. |
 | `CLOUDINARY_API_SECRET` | Signs upload requests. |
 | `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | Same value as `CLOUDINARY_CLOUD_NAME`, read in the browser to build delivery URLs. |
+| `GOOGLE_CLIENT_ID` | Google OAuth client for "Google দিয়ে চালিয়ে যান". Sign-up is Google-only, so without it no one can create an account. The client's authorised redirect URI must be `<NEXTAUTH_URL>/api/auth/callback/google`. |
+| `GOOGLE_CLIENT_SECRET` | The same client's secret. |
 
 ### Which variables must NOT be public
 
@@ -108,7 +110,7 @@ readable by anyone**. Only one variable here is safe to expose:
 - `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` — safe. A cloud name already appears in
   every image URL the site serves.
 - **Never** add the `NEXT_PUBLIC_` prefix to `CLOUDINARY_API_SECRET`,
-  `CLOUDINARY_API_KEY`, `NEXTAUTH_SECRET`, `DATABASE_URL` or `DIRECT_URL`.
+  `CLOUDINARY_API_KEY`, `NEXTAUTH_SECRET`, `GOOGLE_CLIENT_SECRET`, `DATABASE_URL` or `DIRECT_URL`.
   Prefixing the API secret would publish the ability to sign uploads against
   your account to every visitor.
 
@@ -134,5 +136,6 @@ account to admin instead, using the commented block at the end of
 - The policy pages (`/terms`, `/privacy`, `/guidelines`) are drafts that have
   not been reviewed by a lawyer, and `/terms` still carries a TODO for the
   governing-law clause.
-- `/privacy` names Neon and Cloudinary as the only third parties. Adding
-  analytics, ads or payments means updating that page in the same change.
+- `/privacy` names Vercel, Neon, Cloudinary and Google as the only third
+  parties. Adding analytics, ads or payments means updating that page in the
+  same change.
