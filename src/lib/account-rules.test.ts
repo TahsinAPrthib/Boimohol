@@ -1,6 +1,15 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
-import { canDeleteOwnAccount, nameSchema, passwordSchema, passwordStamp } from "./account-rules";
+import {
+  canDeleteOwnAccount,
+  emailsMatch,
+  nameFromGoogle,
+  nameSchema,
+  passwordSchema,
+  passwordStamp,
+  pendingUsername,
+  usernameSchema,
+} from "./account-rules";
 
 describe("nameSchema / passwordSchema — the sign-up rules", () => {
   test("names are trimmed, required, at most 80 characters", () => {
@@ -32,5 +41,31 @@ describe("canDeleteOwnAccount — the last admin stays", () => {
   test("an admin only while another active admin remains", () => {
     assert.equal(canDeleteOwnAccount("ADMIN", 0), false);
     assert.equal(canDeleteOwnAccount("ADMIN", 1), true);
+  });
+});
+
+describe("usernameSchema / pendingUsername", () => {
+  test("the sign-up username rules", () => {
+    assert.equal(usernameSchema.parse("  rahim_reads "), "rahim_reads");
+    assert.equal(usernameSchema.safeParse("ab").success, false);
+    assert.equal(usernameSchema.safeParse("a".repeat(31)).success, false);
+    assert.equal(usernameSchema.safeParse("রহিম").success, false);
+  });
+
+  test("a Google placeholder can never be chosen as a username", () => {
+    assert.equal(usernameSchema.safeParse(pendingUsername("8f3a9c2d1b")).success, false);
+  });
+});
+
+describe("emailsMatch / nameFromGoogle", () => {
+  test("emails match ignoring case and surrounding spaces", () => {
+    assert.equal(emailsMatch("Rahim@Gmail.com ", "rahim@gmail.com"), true);
+    assert.equal(emailsMatch("rahim@gmail.com", "rahima@gmail.com"), false);
+  });
+
+  test("Google's name, else the email's local part, at most 80 characters", () => {
+    assert.equal(nameFromGoogle("  Rahima Khatun ", "x@y.com"), "Rahima Khatun");
+    assert.equal(nameFromGoogle("", "rahim.reads@gmail.com"), "rahim.reads");
+    assert.equal(nameFromGoogle("ক".repeat(90), "x@y.com").length, 80);
   });
 });

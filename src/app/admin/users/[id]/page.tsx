@@ -63,6 +63,9 @@ export default async function AdminUserPage(props: { params: Promise<{ id: strin
       createdAt: true,
       suspendedAt: true,
       suspendedBy: { select: { username: true } },
+      needsUsername: true,
+      googleId: true,
+      emailVerified: true,
       listings: {
         orderBy: { createdAt: "desc" },
         select: {
@@ -134,8 +137,17 @@ export default async function AdminUserPage(props: { params: Promise<{ id: strin
           )}
         </h1>
         <p className="mt-1 font-body text-ink/70">{user.name}</p>
-        <p className="font-body text-sm text-ink/60">{user.email}</p>
+        <p className="font-body text-sm text-ink/60">
+          {user.email}
+          {user.emailVerified ? " · যাচাই করা ইমেইল" : ""}
+          {user.googleId ? " · Google যুক্ত" : ""}
+        </p>
         <p className="font-body text-xs text-ink/50">যোগ দিয়েছেন {bnDate(user.createdAt)}</p>
+        {user.needsUsername && (
+          <p className="mt-1 font-body text-xs text-ink/60">
+            Google দিয়ে খোলা নতুন অ্যাকাউন্ট — এখনো ইউজারনেম বেছে নেননি, তাই সাইটে কিছু করতে পারেন না।
+          </p>
+        )}
 
         {user.suspendedAt && (
           <p className="mt-3 font-body text-sm text-oxblood">

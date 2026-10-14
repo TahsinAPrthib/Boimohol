@@ -82,7 +82,19 @@ model User {
   name                 String
   username             String             @unique
   email                String             @unique
-  passwordHash         String
+  // When the email was shown to belong to this person: at sign-up through
+  // Google, or when they connect a Google account with the same address.
+  // Password sign-ups are unverified (null).
+  emailVerified        DateTime?
+  // NULL for an account created through Google that hasn't set a password.
+  passwordHash         String?
+  // Google's account ID ("sub"). Google sign-ins are matched on this, never
+  // on the email address.
+  googleId             String?            @unique
+  // True from a Google sign-up until the person picks a username; until
+  // then they can't use the site (src/proxy.ts, src/lib/authz.ts). The
+  // username meanwhile is a placeholder registration can never produce.
+  needsUsername        Boolean            @default(false)
   bio                  String?
   location             String?
   role                 Role               @default(READER)

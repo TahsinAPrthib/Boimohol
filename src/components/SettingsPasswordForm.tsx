@@ -6,7 +6,9 @@ import { signIn } from "next-auth/react";
 import { changePassword, type AccountResult } from "@/actions/account";
 import FormMessage from "@/components/FormMessage";
 
-export default function SettingsPasswordForm({ email }: { email: string }) {
+// hasPassword false: an account created through Google, setting its first
+// password -- there is no current one to ask for.
+export default function SettingsPasswordForm({ email, hasPassword }: { email: string; hasPassword: boolean }) {
   const router = useRouter();
   const [current, setCurrent] = useState("");
   const [next, setNext] = useState("");
@@ -48,20 +50,22 @@ export default function SettingsPasswordForm({ email }: { email: string }) {
     <form onSubmit={submit} noValidate className="flex flex-col gap-3">
       {/* Lets a password manager tell which account the new password is for. */}
       <input type="email" name="email" autoComplete="username" value={email} readOnly hidden />
-      <div>
-        <label htmlFor="settings-current" className="field-label">
-          বর্তমান পাসওয়ার্ড
-        </label>
-        <input
-          id="settings-current"
-          type="password"
-          autoComplete="current-password"
-          value={current}
-          onChange={(e) => setCurrent(e.target.value)}
-          className="field-input"
-          {...field("current")}
-        />
-      </div>
+      {hasPassword && (
+        <div>
+          <label htmlFor="settings-current" className="field-label">
+            বর্তমান পাসওয়ার্ড
+          </label>
+          <input
+            id="settings-current"
+            type="password"
+            autoComplete="current-password"
+            value={current}
+            onChange={(e) => setCurrent(e.target.value)}
+            className="field-input"
+            {...field("current")}
+          />
+        </div>
+      )}
       <div>
         <label htmlFor="settings-new" className="field-label">
           নতুন পাসওয়ার্ড
@@ -98,10 +102,10 @@ export default function SettingsPasswordForm({ email }: { email: string }) {
       <div>
         <button
           type="submit"
-          disabled={pending || !current || !next || !confirm}
+          disabled={pending || (hasPassword && !current) || !next || !confirm}
           className="btn-primary disabled:opacity-60"
         >
-          {pending ? "বদলানো হচ্ছে..." : "পাসওয়ার্ড বদলান"}
+          {pending ? "সংরক্ষণ হচ্ছে..." : hasPassword ? "পাসওয়ার্ড বদলান" : "পাসওয়ার্ড ঠিক করুন"}
         </button>
       </div>
     </form>

@@ -7,6 +7,7 @@ import { Suspense, useActionState, useEffect } from "react";
 import { registerUser, type RegisterState } from "@/actions/auth";
 import { safeCallbackUrl, withCallbackUrl } from "@/lib/safe-redirect";
 import { submitKeepingValues } from "@/lib/form-submit";
+import GoogleButton, { OrDivider } from "@/components/GoogleButton";
 
 const initialState: RegisterState = { success: false };
 
@@ -49,77 +50,81 @@ function RegisterForm() {
           {state.message} লগইন পাতায় নিয়ে যাওয়া হচ্ছে...
         </div>
       ) : (
-        <form action={formAction} onSubmit={submitKeepingValues(formAction)} className="flex flex-col gap-4">
-          {state.message && !state.success && (
-            <div className="rounded-book border-2 border-oxblood bg-oxblood/10 px-4 py-3 font-body text-sm text-oxblood">
-              {state.message}
+        <>
+          <GoogleButton callbackUrl={callbackUrl} />
+          <OrDivider label="অথবা ইমেইল দিয়ে" />
+          <form action={formAction} onSubmit={submitKeepingValues(formAction)} className="flex flex-col gap-4">
+            {state.message && !state.success && (
+              <div className="rounded-book border-2 border-oxblood bg-oxblood/10 px-4 py-3 font-body text-sm text-oxblood">
+                {state.message}
+              </div>
+            )}
+
+            <div>
+              <label htmlFor="name" className="field-label">
+                নাম
+              </label>
+              <input id="name" name="name" type="text" className="field-input" placeholder="আপনার নাম" />
+              {state.fieldErrors?.name && <p className="field-error">{state.fieldErrors.name}</p>}
             </div>
-          )}
 
-          <div>
-            <label htmlFor="name" className="field-label">
-              নাম
-            </label>
-            <input id="name" name="name" type="text" className="field-input" placeholder="আপনার নাম" />
-            {state.fieldErrors?.name && <p className="field-error">{state.fieldErrors.name}</p>}
-          </div>
+            <div>
+              <label htmlFor="username" className="field-label">
+                ইউজারনেম
+              </label>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                className="field-input"
+                placeholder="যেমন: rahim_reads"
+              />
+              {state.fieldErrors?.username && <p className="field-error">{state.fieldErrors.username}</p>}
+            </div>
 
-          <div>
-            <label htmlFor="username" className="field-label">
-              ইউজারনেম
-            </label>
-            <input
-              id="username"
-              name="username"
-              type="text"
-              className="field-input"
-              placeholder="যেমন: rahim_reads"
-            />
-            {state.fieldErrors?.username && <p className="field-error">{state.fieldErrors.username}</p>}
-          </div>
+            <div>
+              <label htmlFor="email" className="field-label">
+                ইমেইল
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                className="field-input"
+                placeholder="you@example.com"
+              />
+              {state.fieldErrors?.email && <p className="field-error">{state.fieldErrors.email}</p>}
+            </div>
 
-          <div>
-            <label htmlFor="email" className="field-label">
-              ইমেইল
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              className="field-input"
-              placeholder="you@example.com"
-            />
-            {state.fieldErrors?.email && <p className="field-error">{state.fieldErrors.email}</p>}
-          </div>
+            <div>
+              <label htmlFor="password" className="field-label">
+                পাসওয়ার্ড
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                className="field-input"
+                placeholder="কমপক্ষে ৬ অক্ষর"
+              />
+              {state.fieldErrors?.password && <p className="field-error">{state.fieldErrors.password}</p>}
+            </div>
 
-          <div>
-            <label htmlFor="password" className="field-label">
-              পাসওয়ার্ড
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              className="field-input"
-              placeholder="কমপক্ষে ৬ অক্ষর"
-            />
-            {state.fieldErrors?.password && <p className="field-error">{state.fieldErrors.password}</p>}
-          </div>
+            <p className="font-body text-xs leading-relaxed text-ink/60">
+              সাইন আপ করলে আপনি আমাদের{" "}
+              <Link href="/terms" className="font-semibold text-cloth hover:underline">
+                ব্যবহারের শর্তাবলী
+              </Link>{" "}
+              ও{" "}
+              <Link href="/privacy" className="font-semibold text-cloth hover:underline">
+                গোপনীয়তা নীতিতে
+              </Link>{" "}
+              সম্মতি দিচ্ছেন।
+            </p>
 
-          <p className="font-body text-xs leading-relaxed text-ink/60">
-            সাইন আপ করলে আপনি আমাদের{" "}
-            <Link href="/terms" className="font-semibold text-cloth hover:underline">
-              ব্যবহারের শর্তাবলী
-            </Link>{" "}
-            ও{" "}
-            <Link href="/privacy" className="font-semibold text-cloth hover:underline">
-              গোপনীয়তা নীতিতে
-            </Link>{" "}
-            সম্মতি দিচ্ছেন।
-          </p>
-
-          <SubmitButton />
-        </form>
+            <SubmitButton />
+          </form>
+        </>
       )}
 
       <p className="mt-6 text-center font-body text-sm text-ink/60">

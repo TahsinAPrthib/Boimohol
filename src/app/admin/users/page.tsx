@@ -38,6 +38,8 @@ export default async function AdminUsersPage(props: { searchParams: Promise<{ q?
         role: true,
         createdAt: true,
         suspendedAt: true,
+        needsUsername: true,
+        googleId: true,
         _count: { select: { listings: true, reviews: true, bookRequests: true } },
       },
       orderBy: { createdAt: "desc" },
@@ -81,6 +83,12 @@ export default async function AdminUsersPage(props: { searchParams: Promise<{ q?
                     )}
                     {user.suspendedAt && (
                       <span className="rounded-book bg-oxblood/10 px-2 py-0.5 text-xs text-oxblood">স্থগিত</span>
+                    )}
+                    {user.googleId && (
+                      <span className="rounded-book bg-ink/10 px-2 py-0.5 text-xs text-ink/70">Google</span>
+                    )}
+                    {user.needsUsername && (
+                      <span className="rounded-book bg-turmeric/20 px-2 py-0.5 text-xs text-ink/70">ইউজারনেম বাকি</span>
                     )}
                     {user.id === adminId && <span className="text-xs font-normal text-ink/50">(আপনি)</span>}
                   </p>

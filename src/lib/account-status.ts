@@ -11,10 +11,26 @@ import { passwordStamp } from "@/lib/account-rules";
 export const findActiveUser = cache(async (userId: string) => {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { id: true, name: true, role: true, suspendedAt: true, passwordChangedAt: true },
+    select: {
+      id: true,
+      name: true,
+      username: true,
+      role: true,
+      suspendedAt: true,
+      passwordChangedAt: true,
+      needsUsername: true,
+    },
   });
   if (!user || user.suspendedAt) return null;
-  return { id: user.id, name: user.name, role: user.role, passwordStamp: passwordStamp(user.passwordChangedAt) };
+  return {
+    id: user.id,
+    name: user.name,
+    username: user.username,
+    role: user.role,
+    passwordStamp: passwordStamp(user.passwordChangedAt),
+    // Signed in, but hasn't picked a username yet (a new Google account).
+    needsUsername: user.needsUsername,
+  };
 });
 
 // A token (or the session built from it) still counts only if it was issued

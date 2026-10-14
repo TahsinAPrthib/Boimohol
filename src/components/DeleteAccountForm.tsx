@@ -7,8 +7,17 @@ import { deleteOwnAccount, type AccountResult } from "@/actions/account";
 import FormMessage from "@/components/FormMessage";
 
 // Two things stand in for a confirmation dialog: the current password, and
-// typing the username. The server checks both again.
-export default function DeleteAccountForm({ username, email }: { username: string; email: string }) {
+// typing the username. The server checks both again. An account created
+// through Google with no password confirms with the username alone.
+export default function DeleteAccountForm({
+  username,
+  email,
+  hasPassword,
+}: {
+  username: string;
+  email: string;
+  hasPassword: boolean;
+}) {
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
@@ -31,25 +40,27 @@ export default function DeleteAccountForm({ username, email }: { username: strin
     });
   }
 
-  const ready = confirmation.trim() === username && password.length > 0;
+  const ready = confirmation.trim() === username && (!hasPassword || password.length > 0);
 
   return (
     <form onSubmit={submit} noValidate className="flex flex-col gap-3">
       <input type="email" name="email" autoComplete="username" value={email} readOnly hidden />
-      <div>
-        <label htmlFor="delete-password" className="field-label">
-          বর্তমান পাসওয়ার্ড
-        </label>
-        <input
-          id="delete-password"
-          type="password"
-          autoComplete="current-password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          aria-invalid={result?.field === "current" || undefined}
-          className="field-input"
-        />
-      </div>
+      {hasPassword && (
+        <div>
+          <label htmlFor="delete-password" className="field-label">
+            বর্তমান পাসওয়ার্ড
+          </label>
+          <input
+            id="delete-password"
+            type="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            aria-invalid={result?.field === "current" || undefined}
+            className="field-input"
+          />
+        </div>
+      )}
       <div>
         <label htmlFor="delete-confirmation" className="field-label">
           নিশ্চিত করতে আপনার ইউজারনেম লিখুন: <span className="font-semibold text-ink">{username}</span>

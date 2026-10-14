@@ -5,7 +5,13 @@ import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { safeCallbackUrl, withCallbackUrl } from "@/lib/safe-redirect";
-import { ACCOUNT_SUSPENDED, ACCOUNT_SUSPENDED_MESSAGE } from "@/lib/account-notices";
+import {
+  ACCOUNT_SUSPENDED,
+  GOOGLE_ONLY_ACCOUNT,
+  SIGN_IN_SERVER_ERROR,
+  loginErrorMessage,
+} from "@/lib/account-notices";
+import GoogleButton, { OrDivider } from "@/components/GoogleButton";
 
 function LoginForm() {
   const router = useRouter();
@@ -17,7 +23,12 @@ function LoginForm() {
   const registerHref = rawCallback ? withCallbackUrl("/register", callbackUrl) : "/register";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  // A refused or failed Google sign-in comes back through NextAuth as
+  // ?error=<code>.
+  const [error, setError] = useState<string | null>(() => {
+    const code = searchParams.get("error");
+    return code ? loginErrorMessage(code) : null;
+  });
   const [pending, setPending] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
@@ -34,18 +45,14 @@ function LoginForm() {
     setPending(false);
 
     if (result?.error) {
-      // Only CredentialsSignin means the email or password was rejected, and
+      // Only CredentialsSignin means the email or password was rejected;
       // AccountSuspended (sent only after a correct password) that an admin
-      // has suspended the account. Anything else -- most often the database
-      // not answering -- is a server problem, and telling the user their
-      // password is wrong would be false.
-      setError(
-        result.error === "CredentialsSignin"
-          ? "ইমেইল অথবা পাসওয়ার্ড সঠিক নয়।"
-          : result.error === ACCOUNT_SUSPENDED
-            ? ACCOUNT_SUSPENDED_MESSAGE
-            : "সার্ভারে সাময়িক সমস্যা হয়েছে, তাই এখন লগইন করা যাচ্ছে না। কিছুক্ষণ পর আবার চেষ্টা করুন।"
-      );
+      // has suspended the account; GoogleOnlyAccount that it has no password
+      // to check. Anything else -- most often the database not answering --
+      // is a server problem, and telling the user their password is wrong
+      // would be false.
+      const known = ["CredentialsSignin", ACCOUNT_SUSPENDED, GOOGLE_ONLY_ACCOUNT];
+      setError(loginErrorMessage(known.includes(result.error) ? result.error : SIGN_IN_SERVER_ERROR));
       return;
     }
 
@@ -58,12 +65,19 @@ function LoginForm() {
       <h1 className="mb-1 font-display text-3xl text-ink">লগইন</h1>
       <p className="mb-6 font-body text-sm text-ink/60">আপনার বইতাকে ফিরে আসুন।</p>
 
+      {error && (
+        <div
+          role="alert"
+          className="mb-4 rounded-book border-2 border-oxblood bg-oxblood/10 px-4 py-3 font-body text-sm text-oxblood [overflow-wrap:anywhere]"
+        >
+          {error}
+        </div>
+      )}
+
+      <GoogleButton callbackUrl={callbackUrl} />
+      <OrDivider label="অথবা ইমেইল দিয়ে" />
+
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        {error && (
-          <div className="rounded-book border-2 border-oxblood bg-oxblood/10 px-4 py-3 font-body text-sm text-oxblood">
-            {error}
-          </div>
-        )}
 
         <div>
           <label htmlFor="email" className="field-label">

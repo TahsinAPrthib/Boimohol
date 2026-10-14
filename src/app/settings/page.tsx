@@ -9,21 +9,56 @@ import { DELETED_USER_LABEL } from "@/lib/account-notices";
 import SettingsNameForm from "@/components/SettingsNameForm";
 import SettingsPasswordForm from "@/components/SettingsPasswordForm";
 import DeleteAccountForm from "@/components/DeleteAccountForm";
+import GoogleConnection from "@/components/GoogleConnection";
+import FormMessage from "@/components/FormMessage";
 
 export const metadata: Metadata = { title: "অ্যাকাউন্ট সেটিংস — বই মহল" };
 
 const CARD = "rounded-book border-2 border-ink/10 bg-paper-dark p-5";
 
-export default async function SettingsPage() {
+// What came of "Connect Google", reported back by src/lib/google-auth.ts.
+const GOOGLE_RESULT: Record<string, string> = {
+  "email-mismatch":
+    "যুক্ত করা যায়নি: বেছে নেওয়া Google অ্যাকাউন্টের ইমেইল আপনার বই মহল অ্যাকাউন্টের ইমেইলের সাথে মেলেনি। একই ইমেইলের Google অ্যাকাউন্ট বেছে নিন।",
+  taken: "যুক্ত করা যায়নি: এই Google অ্যাকাউন্টটি অন্য একটি বই মহল অ্যাকাউন্টে যুক্ত আছে।",
+  already: "আপনার অ্যাকাউন্টে আগে থেকেই আরেকটি Google অ্যাকাউন্ট যুক্ত আছে। আগে সেটি সরিয়ে দিন।",
+  unverified: "যুক্ত করা যায়নি: এই Google অ্যাকাউন্টের ইমেইল Google-এ যাচাই করা নেই।",
+  expired: "যুক্ত করা যায়নি: অনেক সময় পেরিয়ে গেছে, অথবা এর মধ্যে লগ আউট হয়ে গিয়েছিলেন। আবার চেষ্টা করুন।",
+  error: "Google যুক্ত করা যায়নি। কিছুক্ষণ পর আবার চেষ্টা করুন।",
+};
+
+export default async function SettingsPage(props: { searchParams: Promise<{ google?: string | string[] }> }) {
   // The layout has already sent signed-out visitors to the login page.
   const userId = await getSessionUserId();
   if (!userId) redirect("/login");
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { name: true, username: true, email: true, role: true, passwordChangedAt: true },
+    select: {
+      name: true,
+      username: true,
+      email: true,
+      emailVerified: true,
+      role: true,
+      passwordHash: true,
+      passwordChangedAt: true,
+      googleId: true,
+    },
   });
   if (!user) redirect("/login");
+  const hasPassword = user.passwordHash !== null;
+  const connected = user.googleId !== null;
+
+  const googleParam = (await props.searchParams).google;
+  const googleResult = Array.isArray(googleParam) ? googleParam[0] : googleParam;
+  const googleMessage =
+    googleResult === "connected"
+      ? connected
+        ? { success: true, message: "Google অ্যাকাউন্ট যুক্ত হয়েছে, আর আপনার ইমেইল যাচাই হয়ে গেছে।" }
+        : null
+      : googleResult && GOOGLE_RESULT[googleResult]
+        ? { success: false, message: GOOGLE_RESULT[googleResult] }
+        : null;
 
   const otherActiveAdmins =
     user.role === "ADMIN"
@@ -53,7 +88,21 @@ export default async function SettingsPage() {
             </div>
             <div>
               <dt className="text-ink/60">ইমেইল</dt>
-              <dd className="font-semibold text-ink">{user.email}</dd>
+              <dd className="flex flex-wrap items-center gap-2 font-semibold text-ink">
+                {user.email}
+                {user.emailVerified ? (
+                  <span className="rounded-book bg-sage/15 px-2 py-0.5 text-xs font-semibold text-sage">যাচাই করা</span>
+                ) : (
+                  <span className="rounded-book bg-ink/10 px-2 py-0.5 text-xs font-semibold text-ink/60">
+                    যাচাই করা হয়নি
+                  </span>
+                )}
+              </dd>
+              {!user.emailVerified && (
+                <dd className="mt-1 text-xs text-ink/50">
+                  একই ইমেইলের Google অ্যাকাউন্ট যুক্ত করলে আপনার ইমেইল যাচাই হয়ে যাবে।
+                </dd>
+              )}
               <dd className="mt-1 text-xs text-ink/50">
                 ইমেইল বদলানোর ব্যবস্থা এখনো সাইটে নেই; দরকার হলে{" "}
                 <a href="mailto:tahsinaparthib1@gmail.com" className="font-semibold text-cloth hover:underline">
@@ -72,15 +121,29 @@ export default async function SettingsPage() {
           <SettingsNameForm currentName={user.name} />
         </section>
 
+        <section className={CARD} aria-labelledby="settings-google-heading">
+          <h2 id="settings-google-heading" className="mb-3 font-display text-xl text-ink">
+            Google
+          </h2>
+          {googleMessage && (
+            <div className="mb-3">
+              <FormMessage result={googleMessage} />
+            </div>
+          )}
+          <GoogleConnection connected={connected} hasPassword={hasPassword} email={user.email} />
+        </section>
+
         <section className={CARD} aria-labelledby="settings-password-heading">
           <h2 id="settings-password-heading" className="mb-1 font-display text-xl text-ink">
-            পাসওয়ার্ড
+            {hasPassword ? "পাসওয়ার্ড" : "পাসওয়ার্ড ঠিক করুন"}
           </h2>
           <p className="mb-4 font-body text-sm text-ink/60">
-            পাসওয়ার্ড বদলালে অন্য সব ডিভাইস ও ব্রাউজার থেকে আপনাকে লগ আউট করা হবে।
+            {hasPassword
+              ? "পাসওয়ার্ড বদলালে অন্য সব ডিভাইস ও ব্রাউজার থেকে আপনাকে লগ আউট করা হবে।"
+              : "আপনার অ্যাকাউন্ট Google দিয়ে খোলা, এতে এখনো কোনো পাসওয়ার্ড নেই। পাসওয়ার্ড ঠিক করলে ইমেইল ও পাসওয়ার্ড দিয়েও লগইন করতে পারবেন।"}
             {user.passwordChangedAt && ` শেষ বদলেছেন ${bnDate(user.passwordChangedAt)}।`}
           </p>
-          <SettingsPasswordForm email={user.email} />
+          <SettingsPasswordForm email={user.email} hasPassword={hasPassword} />
         </section>
 
         <section className="rounded-book border-2 border-oxblood/40 bg-oxblood/5 p-5" aria-labelledby="settings-delete-heading">
@@ -100,7 +163,7 @@ export default async function SettingsPage() {
             ।
           </p>
           {mayDelete ? (
-            <DeleteAccountForm username={user.username} email={user.email} />
+            <DeleteAccountForm username={user.username} email={user.email} hasPassword={hasPassword} />
           ) : (
             <p className="rounded-book border-2 border-dashed border-oxblood/40 px-4 py-3 font-body text-sm text-ink/70">
               আপনিই সাইটের একমাত্র সক্রিয় অ্যাডমিন, তাই এখন আপনার অ্যাকাউন্ট মুছে ফেলা যাবে না। আরেকজন অ্যাডমিন
