@@ -11,3 +11,4 @@ next-env.d.ts
 
 # Cached Wikidata/Wikisource API responses for scripts/wikisource-import.ts.
 /data/.wikisource-cache/
+/data/.gutenberg-cache/

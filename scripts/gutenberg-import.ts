@@ -1,0 +1,532 @@
+// Prepares a catalog import of about a thousand of Project Gutenberg's most
+// downloaded public-domain books, each linking to its Gutenberg page. Nothing
+// is written to any database: the output is files for a person to review and
+// import through /admin/books.
+//
+//   npx tsx scripts/gutenberg/catalog.ts          (once; see its header)
+//   npx tsx --env-file=.env scripts/gutenberg-import.ts
+//
+// Writes
+//   data/gutenberg-import-1.json, -2.json ...  rows for the admin import, at
+//                                              most 500 per file: new books,
+//                                              then links for catalog books
+//   data/gutenberg-unfit.json                  selected books that fit none of
+//                                              our categories (not imported)
+//   data/gutenberg-excluded.json               every book more downloaded than
+//                                              the last one selected that was
+//                                              left out, with the reason
+//   data/gutenberg-report.md                   counts, decisions, exclusions
+//
+// The rules, in order, for each book from the most downloaded down:
+//   1. A text, in English or Bangla only (Gutenberg has no Bangla books).
+//   2. At least one named author; not "Anonymous", "Unknown" or "Various"
+//      (an anthology without a single author); not one volume of a set.
+//   3. Every author died in or before (this year - 61): the catalog's death
+//      year, cross-checked against Wikidata where Gutenberg links the author
+//      to Wikipedia; when the two differ, the later year counts.
+//   4. A translation (a translator is credited, or the author didn't write in
+//      English) needs a named translator who also passes rule 3.
+//   5. Anyone else who added text (editor, introduction, commentary, notes)
+//      must pass rule 3 too; an illustrator known to have died after the
+//      cutoff rules the book out.
+//   6. One row per work: the most downloaded edition.
+//   7. Matched to our categories; books that fit none are listed, not forced.
+//   8. Books already in our catalog get the Gutenberg link added instead.
+import { existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import type { Agent, Ebook } from "./gutenberg/catalog";
+import { peopleByWikipedia, worksFor, type PersonFacts, type WorkFacts } from "./gutenberg/wikidata";
+import { formOf, type GForm } from "./gutenberg/forms";
+import { GUTENBERG_KNOWN } from "./gutenberg/descriptions";
+import { possessive } from "./wikisource/descriptions";
+import { networkCalls } from "./wikisource/http";
+import { normalizeForSearch } from "../src/lib/search";
+import { bookImportRowSchema } from "../src/lib/book-schema";
+
+const PD_CUTOFF = new Date().getUTCFullYear() - 61;
+const TARGET = 1000;
+const MAX_IMPORT_ROWS = 500; // same as the admin import
+const ENGLISH = "Q1860";
+
+type Row = {
+  title: string;
+  titleBangla: string | null;
+  author: string;
+  category: string;
+  description: string;
+  language: "en";
+  publishYear: number | null;
+  authorDeathYear: number;
+  isPublicDomain: true;
+  sources: { url: string; rightsBasis: string }[];
+};
+
+const bnDigits = (n: number) => String(n).replace(/\d/g, (d) => "০১২৩৪৫৬৭৮৯"[Number(d)]);
+const bnYear = (y: number) => (y < 0 ? `খ্রিস্টপূর্ব ${bnDigits(-y)}` : bnDigits(y));
+// Built from code points so no invisible character sits in the source.
+const cp = (n: number) => String.fromCodePoint(n);
+const BANGLA = new RegExp(`[${cp(0x0980)}-${cp(0x09ff)}]`);
+const COMBINING = new RegExp(`[${cp(0x0300)}-${cp(0x036f)}]`, "g");
+const NOT_WORD = new RegExp(`[^a-z0-9${cp(0x0980)}-${cp(0x09ff)}]+`, "g");
+// Possessive of a name or a list of names, by how the last one ends: a Latin
+// name takes "-এর" ("Lucy Maud Montgomery-এর"); a Bangla one ending in
+// ং takes "য়ের" ("কিপলিংয়ের"), in a hasanta "-এর", otherwise the usual
+// "র"/"ের".
+const VIRAMA = cp(0x09cd);
+const ANUSVARA = cp(0x0982);
+function possessiveAny(name: string): string {
+  const last = name.trim().split(/\s+/).pop() ?? name;
+  if (!BANGLA.test(last)) return `${name.trim()}-এর`;
+  const end = [...last].pop();
+  if (end === ANUSVARA) return `${name.trim()}য়ের`;
+  if (end === VIRAMA) return `${name.trim()}-এর`;
+  return possessive(name);
+}
+const listOf = (names: string[]) => (names.length <= 2 ? names.join(" ও ") : `${names.slice(0, -1).join(", ")} ও ${names[names.length - 1]}`);
+
+// Wikidata language items -> Bangla names, for "the original language".
+const LANGUAGE_BN: Record<string, string> = {
+  Q1860: "ইংরেজি", Q7737: "রুশ", Q150: "ফরাসি", Q188: "জার্মান", Q652: "ইতালীয়", Q1321: "স্প্যানিশ",
+  Q35497: "প্রাচীন গ্রিক", Q397: "লাতিন", Q9027: "সুইডিশ", Q9035: "ড্যানিশ", Q9043: "নরওয়েজীয়", Q7411: "ডাচ",
+  Q5146: "পর্তুগিজ", Q9288: "হিব্রু", Q11059: "সংস্কৃত", Q9610: "বাংলা", Q13955: "আরবি", Q9168: "ফারসি",
+  Q7850: "চীনা", Q5287: "জাপানি", Q1412: "ফিনিশ", Q809: "পোলিশ", Q9056: "চেক", Q9067: "হাঙ্গেরীয়",
+  Q36510: "প্রাচীন হিব্রু", Q8798: "ইউক্রেনীয়", Q256: "তুর্কি", Q36748: "প্রাচীন ইংরেজি", Q1568: "হিন্দি",
+  Q1617: "উর্দু", Q9129: "আধুনিক গ্রিক", Q12107: "ব্রেটন", Q9192: "ম্যান্ডারিন"
+};
+
+// LCC literature classes outside English and American: a book there
+// without Wikidata about its author is taken to be a translation.
+const FOREIGN_LCC = /^(PA|PB|PC|PD|PF|PG|PH|PJ|PK|PL|PM|PQ|PT)/;
+const TEXT_ROLES: Record<string, string> = { edt: "editor", com: "commentator", cmm: "commentator", aui: "author of the introduction", aft: "author of the afterword", ann: "annotator", ctb: "contributor", adp: "adapter" };
+const IMAGE_ROLES: Record<string, string> = { ill: "illustrator", pht: "photographer", art: "artist", egr: "engraver" };
+
+const VOLUME = /\b(vol(ume)?\.?|v\.)\s*([0-9]+|[ivxlc]+)\b|\(of \d+\)|\bpart\s+([0-9]+|[ivxlc]+|one|two|three)\b|—\s*volume|\bbook\s+([0-9]+|[ivxlc]+)\s+of\b/i;
+
+// "Shelley, Mary Wollstonecraft" -> "Mary Wollstonecraft Shelley";
+// "Forster, E. M. (Edward Morgan)" -> "E. M. Forster".
+function displayName(a: Agent): string {
+  const name = a.name.replace(/\s*\([^)]*\)\s*/g, " ").replace(/\s+/g, " ").trim();
+  const parts = name.split(/,\s*/);
+  if (parts.length < 2) return name;
+  const [last, first] = parts;
+  if (/^(graf|count|sir|lord|baron|emperor|king|queen|saint|st\.|duke|earl|of|the)\b/i.test(first)) return last;
+  return `${first} ${last}`.trim();
+}
+
+const SMALL = new Set(["a", "an", "and", "the", "of", "in", "on", "at", "to", "for", "or", "nor", "but", "by", "with", "from", "into", "as", "vs", "de", "von", "van", "du", "der"]);
+// Gutenberg sometimes catalogues titles in sentence case ("The strange case
+// of Dr. Jekyll and Mr. Hyde"); give those the usual title case.
+function titleCase(t: string): string {
+  const words = t.split(" ");
+  const lowerCount = words.slice(1).filter((w) => /^[a-z]/.test(w) && !SMALL.has(w)).length;
+  if (lowerCount < 1) return t;
+  return words.map((w, i) => (i > 0 && SMALL.has(w.toLowerCase()) ? w.toLowerCase() : /^d'/.test(w) ? w : w.replace(/^[a-z]/, (c) => c.toUpperCase()))).join(" ");
+}
+// The main title: before a subtitle (";", ":", "Or,", " — ") and without
+// ", Complete"; very long ones are cut at a comma.
+function mainTitle(t: string): string {
+  let first = t.split(/\s*[;:]\s+|\s+—\s+|,?\s+or,\s+/i)[0].replace(/,?\s*complete\.?$/i, "").trim();
+  if (first.length < 2) first = t;
+  if (first.length > 150) first = first.slice(0, first.indexOf(", ", 20) > 0 ? first.indexOf(", ", 20) : 150).trim();
+  return titleCase(first);
+}
+
+const loose = (s: string) =>
+  normalizeForSearch(s)
+    .normalize("NFKD")
+    .replace(COMBINING, "")
+    .replace(/^(the|a|an)\s+/, "")
+    .replace(NOT_WORD, "");
+const surname = (author: string) => loose(author.split(/\s+/).pop() ?? author);
+
+// For finding a book already in the catalog: titles compared without
+// articles, "of" or "and", with "Dr." as "Doctor" ("The Sign of Four" is "The
+// Sign of the Four"; "The Island of Dr Moreau" is "...of Doctor Moreau").
+const matchKey = (t: string) =>
+  loose(
+    t
+      .toLowerCase()
+      .replace(/&/g, " and ")
+      .replace(/\bdr\b\.?/g, "doctor")
+      .replace(/\bst\b\.?/g, "saint")
+      .replace(/\b(the|a|an|of|and)\b/g, " ")
+  );
+// One title contains the other, compared as matchKey does.
+function sameTitle(gutenberg: string, wikidata: string): boolean {
+  const a = matchKey(mainTitle(gutenberg));
+  const b = matchKey(wikidata);
+  return a.length > 0 && b.length > 0 && (a.includes(b) || b.includes(a));
+}
+function editDistance(a: string, b: string): number {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++)
+    for (let j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+  return d[a.length][b.length];
+}
+// Surnames spelt differently across sources: Dostoyevsky / Dostoevsky.
+const sameSurname = (a: string, b: string) => a === b || (a.length >= 5 && b.length >= 5 && editDistance(a, b) <= 2);
+
+type Person = { agent: Agent; facts: PersonFacts | undefined; year: number | null; text: string | null; note: string | null };
+type Candidate = { book: Ebook; authors: Person[]; translators: Person[]; others: { role: string; p: Person }[]; work?: WorkFacts };
+
+async function main() {
+  const all = JSON.parse(readFileSync("data/.gutenberg-cache/catalog.json", "utf8")) as Ebook[];
+  const ranked = [...all].sort((a, b) => b.downloads - a.downloads);
+
+  // Rules 1-2 and a first, catalog-only pass of rule 3, to bound the
+  // Wikidata lookups to a pool a little larger than we need.
+  const catalogReason = (b: Ebook): string | null => {
+    if (b.type !== "Text") return "not a text (audio, image or data)";
+    if (b.languages.length !== 1 || !["en", "bn"].includes(b.languages[0])) return "not in English or Bangla";
+    const authors = b.roles.aut ?? [];
+    if (!authors.length) return "no named author (anonymous, or only an editor or translator credited)";
+    if (authors.some((a) => /^various\b/i.test(a.name))) return "anthology without a single author (\"Various\")";
+    if (authors.some((a) => /^(anonymous|unknown)\b/i.test(a.name))) return "anonymous";
+    if (VOLUME.test(b.title)) return "one volume of a multi-volume work";
+    return null;
+  };
+  const funnel = new Map<string, number>();
+  const bump = (r: string) => funnel.set(r, (funnel.get(r) ?? 0) + 1);
+  const pool: Ebook[] = [];
+  for (const b of ranked) {
+    const r = catalogReason(b);
+    if (r) {
+      bump(r);
+      continue;
+    }
+    if ((b.roles.aut ?? []).some((a) => a.death !== null && a.death > PD_CUTOFF)) {
+      bump("author died after the cutoff (catalog)");
+      continue;
+    }
+    pool.push(b);
+    if (pool.length >= 2600) break;
+  }
+
+  // Wikidata for everyone in the pool, and for the works.
+  const people = pool.flatMap((b) => Object.values(b.roles).flat());
+  const facts = await peopleByWikipedia([...new Set(people.flatMap((a) => a.wikipedia.filter((u) => /\/\/en\.wikipedia\.org\//.test(u))))]);
+  const works = await worksFor(pool.map((b) => ({ id: b.id, wikipedia: b.wikipedia })));
+  const factsFor = (a: Agent) => a.wikipedia.map((u) => facts.get(u)).find(Boolean);
+  const person = (a: Agent): Person => {
+    const f = factsFor(a);
+    const wd = f?.death ?? null;
+    if (a.death !== null && wd && wd.year !== a.death) {
+      const later = Math.max(a.death, wd.year);
+      return { agent: a, facts: f, year: later, text: later === wd.year ? wd.text : `${bnYear(later)} সালে`, note: `catalog ${a.death}, Wikidata ${wd.year}` };
+    }
+    if (wd) return { agent: a, facts: f, year: wd.year, text: wd.text, note: null };
+    if (a.death !== null) return { agent: a, facts: f, year: a.death, text: `${bnYear(a.death)} সালে`, note: null };
+    return { agent: a, facts: f, year: null, text: null, note: null };
+  };
+
+  const excluded: { id: number; title: string; author: string; downloads: number; reason: string }[] = [];
+  const discrepancies: { id: number; who: string; note: string }[] = [];
+  const selected: Candidate[] = [];
+  const seenWorks = new Map<string, Candidate>();
+  const failName = (p: Person) => displayName(p.agent);
+
+  for (const b of ranked) {
+    if (selected.length >= TARGET) break;
+    const exclude = (reason: string) => {
+      excluded.push({ id: b.id, title: b.title, author: (b.roles.aut ?? []).map((a) => a.name).join("; ") || "—", downloads: b.downloads, reason });
+      bump(reason.replace(/\(.*\)/, "").replace(/\d{4}/g, "YYYY").trim());
+    };
+    const early = catalogReason(b);
+    if (early) {
+      excluded.push({ id: b.id, title: b.title, author: (b.roles.aut ?? []).map((a) => a.name).join("; ") || "—", downloads: b.downloads, reason: early });
+      continue;
+    }
+    if (!pool.includes(b)) {
+      exclude(`author died after ${PD_CUTOFF} (Gutenberg catalog)`);
+      continue;
+    }
+    const authors = (b.roles.aut ?? []).map(person);
+    const translators = (b.roles.trl ?? []).map(person);
+    const others = Object.entries(b.roles)
+      .filter(([role]) => TEXT_ROLES[role] || IMAGE_ROLES[role])
+      .flatMap(([role, agents]) => agents.map((a) => ({ role, p: person(a) })));
+    for (const p of [...authors, ...translators, ...others.map((o) => o.p)]) if (p.note) discrepancies.push({ id: b.id, who: p.agent.name, note: p.note });
+
+    const unknownAuthor = authors.find((p) => p.year === null);
+    if (unknownAuthor) {
+      exclude(`author's death year is unknown (${failName(unknownAuthor)})`);
+      continue;
+    }
+    const lateAuthor = authors.find((p) => p.year! > PD_CUTOFF);
+    if (lateAuthor) {
+      exclude(`author died in ${lateAuthor.year}, after ${PD_CUTOFF} (${failName(lateAuthor)}${lateAuthor.note ? `; ${lateAuthor.note}` : ""})`);
+      continue;
+    }
+    const authorLanguages = authors.flatMap((p) => p.facts?.languages ?? []);
+    const wroteInEnglish = authorLanguages.includes(ENGLISH);
+    const foreignByWikidata = authorLanguages.length > 0 && !wroteInEnglish;
+    const foreignByClass = authorLanguages.length === 0 && b.lcc.some((c) => FOREIGN_LCC.test(c));
+    const translationSubject = b.lcsh.some((s) => /translations into english/i.test(s));
+    const isTranslation = translators.length > 0 || foreignByWikidata || foreignByClass || translationSubject;
+    if (isTranslation && translators.length === 0) {
+      exclude(`translation with no named translator (${foreignByWikidata ? "the author didn't write in English, per Wikidata" : foreignByClass ? `foreign-literature class ${b.lcc.join(", ")}` : "subject: translations into English"})`);
+      continue;
+    }
+    const badTranslator = translators.find((p) => p.year === null || p.year > PD_CUTOFF);
+    if (badTranslator) {
+      exclude(badTranslator.year === null ? `translator's death year is unknown (${failName(badTranslator)})` : `translator died in ${badTranslator.year}, after ${PD_CUTOFF} (${failName(badTranslator)})`);
+      continue;
+    }
+    const badText = others.find((o) => TEXT_ROLES[o.role] && (o.p.year === null || o.p.year > PD_CUTOFF));
+    if (badText) {
+      exclude(badText.p.year === null ? `${TEXT_ROLES[badText.role]}'s death year is unknown (${failName(badText.p)})` : `${TEXT_ROLES[badText.role]} died in ${badText.p.year}, after ${PD_CUTOFF} (${failName(badText.p)})`);
+      continue;
+    }
+    const badImage = others.find((o) => IMAGE_ROLES[o.role] && o.p.year !== null && o.p.year > PD_CUTOFF);
+    if (badImage) {
+      exclude(`${IMAGE_ROLES[badImage.role]} died in ${badImage.p.year}, after ${PD_CUTOFF} (${failName(badImage.p)})`);
+      continue;
+    }
+    const authorName = (p: Person) => p.facts?.nameEn ?? displayName(p.agent);
+    // Wikidata's Gutenberg-ID claim sometimes sits on a part (ebook 887,
+    // "Intentions", points at its essay "The Critic as Artist") or on an
+    // edition with its own label ("Butcher & Lang's Odyssey"). Trust the work
+    // only when its title agrees with Gutenberg's.
+    const found = works.get(b.id);
+    const work = found && (!found.nameEn || sameTitle(b.title, found.nameEn)) ? found : undefined;
+    const workKey = `${authors.map((p) => surname(authorName(p))).join("+")}|${loose(work?.id ?? mainTitle(b.title))}`;
+    const earlier = seenWorks.get(workKey);
+    if (earlier) {
+      exclude(`another edition of the same work (kept #${earlier.book.id})`);
+      continue;
+    }
+    const c: Candidate = { book: b, authors, translators, others, work };
+    seenWorks.set(workKey, c);
+    selected.push(c);
+  }
+  const lastDownloads = selected[selected.length - 1]?.book.downloads ?? 0;
+
+  // ---- rows ----
+  const catalog = await existingCatalog();
+  // An author the catalog already has keeps the catalog's spelling
+  // ("Fyodor Dostoevsky", not Gutenberg's "Dostoyevsky").
+  const catalogAuthors = [...new Set([...catalog.values()].flat().map((b) => b.author).filter((a) => !BANGLA.test(a)))];
+  const spelled = (name: string) => {
+    const [first, last] = [name.split(/\s+/)[0]?.[0]?.toLowerCase(), surname(name)];
+    return catalogAuthors.find((a) => a !== name && a.split(/\s+/)[0]?.[0]?.toLowerCase() === first && sameSurname(surname(a), last)) ?? name;
+  };
+  const nameOf = (p: Person) => spelled(p.facts?.nameEn ?? displayName(p.agent));
+  const nameBnOr = (p: Person) => p.facts?.nameBn ?? nameOf(p);
+  const rows: { c: Candidate; form: GForm; row: Row; linked: boolean; why: string }[] = [];
+  const seenRows = new Set<string>(); // one row per work, by its final title
+  const unfit: { id: number; title: string; author: string; downloads: number; why: string; url: string }[] = [];
+  for (const c of selected) {
+    const b = c.book;
+    const formResult = formOf(b);
+    const author = listOf(c.authors.map(nameOf));
+    // Wikidata's English label for the work is its usual title; Gutenberg's
+    // own carries subtitles and cataloguing.
+    const wdTitle = c.work?.nameEn && c.work.nameEn.length <= 150 && !/^Q\d+$/.test(c.work.nameEn) ? c.work.nameEn : null;
+    const title = mainTitle(wdTitle ?? b.title);
+    const url = `https://www.gutenberg.org/ebooks/${b.id}`;
+    if (!formResult.form) {
+      unfit.push({ id: b.id, title, author, downloads: b.downloads, why: formResult.why, url });
+      continue;
+    }
+    const form = formResult.form;
+    const original = c.translators.length
+      ? (c.work?.languages ?? []).concat(c.authors.flatMap((p) => p.facts?.languages ?? [])).map((q) => LANGUAGE_BN[q]).find((l) => l && l !== "ইংরেজি") ?? null
+      : "ইংরেজি";
+    const neutral =
+      `${possessiveAny(listOf(c.authors.map(nameBnOr)))} ${original ? `${original} ` : ""}${form.noun}` +
+      (c.translators.length ? `, ${possessiveAny(listOf(c.translators.map(nameBnOr)))} ইংরেজি অনুবাদে` : "") +
+      "।";
+    const solo = c.authors.length === 1 && c.translators.length === 0 && !c.others.some((o) => TEXT_ROLES[o.role]);
+    const clauses = [
+      ...c.authors.map((p) => `লেখক ${solo ? "" : `${nameBnOr(p)} `}${p.text}`),
+      ...c.translators.map((p) => `অনুবাদক ${nameBnOr(p)} ${p.text}`),
+      ...c.others.filter((o) => TEXT_ROLES[o.role]).map((o) => `${o.role === "edt" ? "সম্পাদক" : "ভূমিকা/টীকার লেখক"} ${nameBnOr(o.p)} ${o.p.text}`),
+    ];
+    const rightsBasis = `${listOf(clauses)} মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ`;
+    const titleBangla = c.work?.bnwiki ? c.work.bnwiki.replace(/\s*\([^)]*\)\s*$/, "").trim() : null;
+    let row: Row = {
+      title,
+      titleBangla,
+      author,
+      category: form.category,
+      description: GUTENBERG_KNOWN[b.id] ?? neutral,
+      language: "en",
+      publishYear: null,
+      authorDeathYear: Math.max(...c.authors.map((p) => p.year!)),
+      isPublicDomain: true,
+      sources: [{ url, rightsBasis }],
+    };
+    // Already in the catalog: the row takes the catalog book's exact title and
+    // author so the admin import matches it and only adds the link.
+    const firstAuthor = surname(nameOf(c.authors[0]));
+    const hit = [title, mainTitle(b.title), titleBangla]
+      .filter((t): t is string => !!t)
+      .flatMap((t) => catalog.get(matchKey(t)) ?? [])
+      .find((cb) => sameSurname(surname(cb.author), firstAuthor) || (titleBangla !== null && cb.titleBangla === titleBangla));
+    if (hit) row = { ...row, title: hit.title, titleBangla: hit.titleBangla, author: hit.author, category: hit.category };
+    // Editions Wikidata didn't tie to one work (or tied to different items)
+    // still meet here, under the title they'd be shown with.
+    const rowKey = `${surname(row.author)}|${matchKey(row.title)}`;
+    if (seenRows.has(rowKey)) {
+      excluded.push({ id: b.id, title: b.title, author: author, downloads: b.downloads, reason: "another edition of the same work (same title and author as a more downloaded one)" });
+      continue;
+    }
+    seenRows.add(rowKey);
+    rows.push({ c, form, row, linked: Boolean(hit), why: formResult.why });
+  }
+
+  for (const r of rows) {
+    const check = bookImportRowSchema.safeParse(r.row);
+    if (!check.success) throw new Error(`#${r.c.book.id} "${r.row.title}" fails the import schema: ${check.error.issues.map((i) => i.message).join("; ")}`);
+  }
+
+  // ---- files ----
+  const fresh = rows.filter((r) => !r.linked);
+  const linked = rows.filter((r) => r.linked);
+  const ordered = [...fresh, ...linked];
+  for (const f of readdirSync("data").filter((f) => /^gutenberg-import-\d+\.json$/.test(f))) rmSync(`data/${f}`);
+  const files: string[] = [];
+  for (let i = 0; i < ordered.length; i += MAX_IMPORT_ROWS) {
+    const file = `data/gutenberg-import-${files.length + 1}.json`;
+    writeFileSync(file, JSON.stringify(ordered.slice(i, i + MAX_IMPORT_ROWS).map((r) => r.row), null, 2) + "\n");
+    files.push(file);
+  }
+  writeFileSync("data/gutenberg-unfit.json", JSON.stringify(unfit, null, 2) + "\n");
+  writeFileSync("data/gutenberg-excluded.json", JSON.stringify(excluded, null, 2) + "\n");
+
+  // ---- report ----
+  const count = <T,>(xs: T[], key: (x: T) => string) => {
+    const m = new Map<string, number>();
+    for (const x of xs) m.set(key(x), (m.get(key(x)) ?? 0) + 1);
+    return [...m].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  };
+  const cell = (s: string) => s.replace(/\|/g, "\\|");
+  const lines: string[] = [];
+  const L = (s = "") => lines.push(s);
+  L("# Project Gutenberg import — review report");
+  L();
+  L(`Generated ${new Date().toISOString().slice(0, 10)} by \`scripts/gutenberg-import.ts\` from Gutenberg's official RDF catalog feed (\`cache/epub/feeds/rdf-files.tar.bz2\`, downloaded 2026-10-16; download counts are Gutenberg's last-30-days figures). Public-domain cutoff: died in **${PD_CUTOFF} or earlier**.`);
+  L();
+  L("## Totals");
+  L();
+  L("| | Books |");
+  L("|---|---|");
+  L(`| Gutenberg catalog | ${all.length} |`);
+  L(`| Selected: the ${selected.length} most downloaded that pass every rule (down to ${lastDownloads} downloads) | ${selected.length} |`);
+  L(`| New books to import (${files.map((f) => `\`${f}\``).join(", ")}) | ${fresh.length} |`);
+  L(`| Links for books already in the catalog (same files, at the end) | ${linked.length} |`);
+  L(`| Selected but no fitting category (\`data/gutenberg-unfit.json\`, not imported) | ${unfit.length} |`);
+  L(`| Left out while selecting, with reasons (\`data/gutenberg-excluded.json\`) | ${excluded.length} |`);
+  L();
+  L("**Language.** Gutenberg has no Bangla books, so every row is English (`language: \"en\"` — the language of the text the link leads to, including English translations).");
+  L();
+  L(`**Descriptions.** ${rows.filter((r) => GUTENBERG_KNOWN[r.c.book.id]).length} very well-known works got an original one-sentence Bangla description (\`scripts/gutenberg/descriptions.ts\`); the rest a neutral line (author, original language, form, translator), e.g. “${fresh.find((r) => !GUTENBERG_KNOWN[r.c.book.id])?.row.description ?? ""}”`);
+  L();
+  L(`**Bangla titles.** Only where Wikidata links the work to a Bangla Wikipedia article (its title, as the established Bangla name): ${rows.filter((r) => r.row.titleBangla).length} books. No title was translated.`);
+  L();
+  const peopleInRows = rows.flatMap((r) => [...r.c.authors, ...r.c.translators]);
+  L(`**Wikidata cross-check.** ${peopleInRows.filter((p) => p.facts?.death).length} of the ${peopleInRows.length} authors and translators in the rows were found on Wikidata with a death date (through the Wikipedia page Gutenberg links them to); the rest rely on Gutenberg's catalog year alone.`);
+  L();
+  const recent = fresh.filter((r) => r.c.book.id >= 77000);
+  L("## Needs your decision");
+  L();
+  L(`1. **Bangla titles.** ${fresh.filter((r) => r.row.titleBangla).length} new books carry the title of their Bangla Wikipedia article as \`titleBangla\`. Most are transliterations (“${fresh.find((r) => r.row.titleBangla && /অ্যান্ড|দ্য |অব /.test(r.row.titleBangla))?.row.titleBangla ?? ""}”), a few translations (“${fresh.find((r) => r.c.book.id === 2600)?.row.titleBangla ?? ""}”). Covers and lists show the Bangla title first, as for the catalog's own foreign books. Keep them, or keep only translated ones?`);
+  L(`2. **Language.** Every row is \`en\`, the language of the text the link leads to (also for translations). The catalog's own foreign books keep their original language (*Crime and Punishment* is \`ru\`), so the ইংরেজি filter won't show them even once they have an English Gutenberg link.`);
+  L(`3. **What “most downloaded” means.** Gutenberg's count covers the last 30 days, so ${recent.length} recent releases (ebook ids from 77000) are in on a short spike, e.g. ${recent.slice(0, 3).map((r) => `*${r.row.title}*`).join(", ")}. They pass every rule; drop them if you'd rather have only long-standing favourites.`);
+  L(`4. **${unfit.length} selected books fit no category** (dictionaries, cookery, manuals, textbooks, folklore collections ...), listed below and in \`data/gutenberg-unfit.json\`. Not imported.`);
+  L();
+  L("## New books by category");
+  L();
+  L("| Category | Books |");
+  L("|---|---|");
+  for (const [k, v] of count(fresh, (r) => r.row.category)) L(`| \`${k}\` | ${v} |`);
+  L();
+  L("| Form | Category | Books |");
+  L("|---|---|---|");
+  for (const [k, v] of count(fresh, (r) => `${r.form.noun}|${r.form.category}`)) L(`| ${k.split("|")[0]} | \`${k.split("|")[1]}\` | ${v} |`);
+  L();
+  L("## Links for books already in the catalog");
+  L();
+  L("| Catalog book | Author | Gutenberg |");
+  L("|---|---|---|");
+  for (const r of linked) L(`| ${cell(r.row.title)} | ${cell(r.row.author)} | ${r.row.sources[0].url} |`);
+  L();
+  L("## Selected, but no fitting category");
+  L();
+  L("| Book | Author | Downloads | Why |");
+  L("|---|---|---|---|");
+  for (const u of unfit) L(`| [${cell(u.title)}](${u.url}) | ${cell(u.author)} | ${u.downloads} | ${cell(u.why)} |`);
+  L();
+  L("## Excluded while selecting, by reason");
+  L();
+  L(`Every book with more downloads than the last one selected (${lastDownloads}) that was left out:`);
+  L();
+  L("| Reason | Books |");
+  L("|---|---|");
+  const reasonKey = (r: string) => r.replace(/\(.*\)/, "").replace(/-?\d{3,4}/g, "YYYY").trim();
+  for (const [k, v] of count(excluded, (x) => reasonKey(x.reason))) L(`| ${cell(k)} | ${v} |`);
+  L();
+  L("The 60 most downloaded of them:");
+  L();
+  L("| # | Book | Author | Downloads | Reason |");
+  L("|---|---|---|---|---|");
+  for (const x of excluded.filter((x) => !/^not in English|^not a text/.test(x.reason)).slice(0, 60)) L(`| ${x.id} | ${cell(x.title.slice(0, 80))} | ${cell(x.author)} | ${x.downloads} | ${cell(x.reason)} |`);
+  L();
+  L("## Catalog and Wikidata disagree on a death year");
+  L();
+  L("The later year was used (the stricter choice).");
+  L();
+  for (const d of discrepancies.filter((d, i, a) => a.findIndex((x) => x.who === d.who) === i)) L(`- ${d.who}: ${d.note}`);
+  L();
+  L("## Per author (new books and links)");
+  L();
+  L("| Author | Books |");
+  L("|---|---|");
+  for (const [a, v] of count(rows, (r) => r.row.author).slice(0, 60)) L(`| ${cell(a)} | ${v} |`);
+  L();
+  L("## Spot-check");
+  L();
+  L("See `data/gutenberg-spot-check.md` (`scripts/gutenberg-spot-check.ts`).");
+  writeFileSync("data/gutenberg-report.md", lines.join("\n") + "\n");
+  const sample = [...fresh].sort((a, b) => ((a.c.book.id * 2654435761) % 1000) - ((b.c.book.id * 2654435761) % 1000)).slice(0, 20);
+  writeFileSync(
+    "data/.gutenberg-cache/spot-check-sample.json",
+    JSON.stringify(sample.map((r) => ({ id: r.c.book.id, title: r.row.title, authors: r.c.authors.map((p) => ({ name: p.agent.name, wikipedia: p.agent.wikipedia, year: p.year })), translators: r.c.translators.map((p) => ({ name: p.agent.name, wikipedia: p.agent.wikipedia, year: p.year })) })), null, 2)
+  );
+  console.log(`selected ${selected.length} (down to ${lastDownloads} downloads): ${fresh.length} new + ${linked.length} links in ${files.join(", ")}; unfit ${unfit.length}; excluded ${excluded.length}; network calls ${networkCalls}`);
+}
+
+// Every book already in the catalog by title key (see matchKey); the author
+// is checked by the caller. The database's books first, then
+// data/catalog-import.json's.
+type CatalogBook = { title: string; titleBangla: string | null; author: string; category: string };
+async function existingCatalog(): Promise<Map<string, CatalogBook[]>> {
+  const out = new Map<string, CatalogBook[]>();
+  const add = (b: CatalogBook) => {
+    for (const t of [b.title, b.titleBangla].filter((t): t is string => !!t)) {
+      const k = matchKey(t);
+      const list = out.get(k) ?? [];
+      if (!list.some((x) => x.title === b.title && x.author === b.author)) list.push(b);
+      out.set(k, list);
+    }
+  };
+  if (process.env.DATABASE_URL) {
+    const { PrismaClient } = await import("@prisma/client");
+    const prisma = new PrismaClient();
+    try {
+      for (const b of await prisma.book.findMany({ select: { title: true, titleBangla: true, author: true, category: { select: { slug: true } } } }))
+        add({ title: b.title, titleBangla: b.titleBangla, author: b.author, category: b.category.slug });
+    } finally {
+      await prisma.$disconnect();
+    }
+  }
+  if (existsSync("data/catalog-import.json"))
+    for (const b of JSON.parse(readFileSync("data/catalog-import.json", "utf8")) as { title: string; titleBangla?: string | null; author: string; category: string }[])
+      add({ title: b.title, titleBangla: b.titleBangla ?? null, author: b.author, category: b.category });
+  return out;
+}
+
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
