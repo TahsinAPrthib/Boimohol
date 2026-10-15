@@ -186,11 +186,20 @@ The local `.env` points only at the development side. Production values exist on
 **Why.** Real users' data and the test data should never be able to touch each other.
 
 ### A 568 ms server wait that was distance, not N+1
-**Problem.** Pages showed a server wait of about 568 ms. A wait that grows with the number of queries looks like an N+1 problem. But these pages make a handful of queries, not one per row. The cost was in each round trip: Vercel runs functions in Washington, D.C. (`iad1`) by default, and the Neon database is in Singapore. Every query crossed the Pacific and back.
+**Problem.** Before the first deployment, a production build ran on a laptop in Dhaka (`npm run build && npm start`) against the Neon database in Singapore. Chrome DevTools showed **568 ms** of "Waiting for server response". A wait that long often points to an N+1 query pattern, so the queries were audited. Each page made 3–6 batched queries, never one per row. So the time wasn't going on the number of queries but on round trips: every one of them went from Dhaka to Singapore and back.
 
-**What was done.** `vercel.json` pins the functions to Singapore (`sin1`), next to the database (commit `d6b7a3f`). No query code changed.
+**What was done.** For deployment, the Vercel functions were pinned to Singapore (`sin1`) in `vercel.json` (commit `d6b7a3f`), next to the database. Vercel's default region is Washington, D.C. (`iad1`). That would have sent every query across the Pacific, which is even further than Dhaka. No query code changed.
 
-**Why.** Moving the compute to the data fixed every page at once, without restructuring any queries. Measured from Dhaka in October 2026 on `/library`, a dynamic page, the time from the TLS handshake to the first byte is now about 150–280 ms, with a median around 190 ms. That figure includes the hop from Vercel's Mumbai edge to Singapore.
+**How each number was measured.**
+
+| | Where the server ran | Measurement | Result |
+|---|---|---|---|
+| Before | Production build on a laptop in Dhaka, database in Singapore | Chrome DevTools, "Waiting for server response": from the request being sent to the first byte back, excluding connection setup. Pages didn't stream yet, so the first byte waited for every query. | 568 ms |
+| After | Live site, measured from Dhaka on 15 October 2026. Requests go through Vercel's Mumbai edge to the functions in Singapore. | Chrome's network timing, signed out, cache disabled, median of 8 warm loads on each of six public pages: from the request being sent to the **last** byte of the HTML, excluding connection setup | 160–253 ms per page |
+
+The live site's own "Waiting for server response" is 35–78 ms, but that isn't comparable. Since 9 October most pages stream a loading skeleton first, so the first byte arrives before the queries finish. The time to the last byte of the HTML covers all of the server's work. It also includes the network path from Dhaka through Mumbai to Singapore and the transfer of the page itself, none of which the local measurement had to pay.
+
+**Why.** Moving the compute next to the data fixed every page at once, without restructuring a single query.
 
 ---
 
