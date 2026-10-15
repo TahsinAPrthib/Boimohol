@@ -8,3 +8,6 @@ next-env.d.ts
 
 # Public-domain PDFs prepared for the library upload; never committed.
 /library-uploads/
+
+# Cached Wikidata/Wikisource API responses for scripts/wikisource-import.ts.
+/data/.wikisource-cache/
