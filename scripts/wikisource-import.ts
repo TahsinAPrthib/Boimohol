@@ -5,10 +5,12 @@
 //   npx tsx --env-file=.env scripts/wikisource-import.ts [--limit N]
 //
 // Writes
-//   data/wikisource-import.json        rows for the six existing categories
-//   data/wikisource-pending.json       rows whose form needs a new category
+//   data/wikisource-import.json        rows for the admin import: new books, then
+//                                      links for books already in the catalog
+//                                      (-1, -2 ... if over 500 rows)
+//   data/wikisource-unclassified.json  works with no confirmed form, for later
 //   data/wikisource-excluded.json      everything left out, with the reason
-//   data/wikisource-report.md          counts, proposed categories, spot-check
+//   data/wikisource-report.md          counts, category decisions, spot-check
 //
 // The rules, step by step:
 //   1. Scans: every index on bn.wikisource in "১০০% মুদ্রণ সংশোধিত" or
@@ -27,11 +29,11 @@
 //      after the cutoff year (protected for 60 years from publication).
 //
 // Then run scripts/wikisource-spot-check.ts for the live spot-check.
-import { readFileSync, writeFileSync } from "node:fs";
+import { readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { fetchCompleteIndexes } from "./wikisource/indexes";
 import { buildCandidates, PD_CUTOFF, type Candidate, type Person } from "./wikisource/candidates";
 import { verifyWork, type Verification } from "./wikisource/verify";
-import { classify, FORM_BY_HAND, formByKey, PROPOSED_FORMS, type Form } from "./wikisource/classify";
+import { classify, FORM_BY_HAND, formByKey, type Form } from "./wikisource/classify";
 import { romanize } from "./wikisource/romanize";
 import { describe, KNOWN } from "./wikisource/descriptions";
 import { networkCalls } from "./wikisource/http";
@@ -59,6 +61,26 @@ type Included = {
   romanized: boolean;
   scans: string[];
 };
+
+type CatalogBook = { title: string; titleBangla: string | null; author: string; category: string };
+type Linked = { c: Candidate; v: Verification; scans: string[]; row: Row; catalog: CatalogBook };
+
+// Same limit as the admin import (src/actions/admin-books.ts).
+const MAX_IMPORT_ROWS = 500;
+
+// Which category each form goes to, as decided on 2026-10-15: five new
+// categories (created by migration 20261015085903) for plays, short stories,
+// essays, travel writing and children's books; religion, science, language
+// and letters fold into essays, and the songbook into poetry. Every other
+// form keeps the category its rule gives.
+const CATEGORY_FOR_FORM: Record<string, string> = {
+  religion: "probondho",
+  science: "probondho",
+  education: "probondho",
+  letters: "probondho",
+  songs: "kobita",
+};
+const categoryFor = (form: Form | null): string | null => (form ? (CATEGORY_FOR_FORM[form.key] ?? form.category) : null);
 
 const bnDigits = (n: number) => String(n).replace(/\d/g, (d) => "০১২৩৪৫৬৭৮৯"[Number(d)]);
 // Wikidata's Bangla label is sometimes a writer's legal name rather than the
@@ -99,24 +121,31 @@ function rightsBasis(c: Candidate): string {
   return `${who} মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: বাংলা উইকিসংকলন`;
 }
 
-async function existingCatalog(): Promise<Set<string>> {
-  const keys = new Set<string>();
-  const file = JSON.parse(readFileSync("data/catalog-import.json", "utf8")) as { title: string; titleBangla?: string; author: string }[];
-  for (const b of file) for (const k of keysOf(b)) keys.add(k);
+// Every book already in the catalog, by loose key: the database's (the seed
+// plus anything imported), then data/catalog-import.json for any that aren't
+// there. Exact titles and author are kept, so a link-only row can name the
+// book exactly as the catalog does.
+async function existingCatalog(): Promise<Map<string, CatalogBook>> {
+  const books = new Map<string, CatalogBook>();
+  const add = (b: CatalogBook) => {
+    for (const k of keysOf(b)) if (!books.has(k)) books.set(k, b);
+  };
   let fromDb = 0;
   if (process.env.DATABASE_URL) {
     const { PrismaClient } = await import("@prisma/client");
     const prisma = new PrismaClient();
     try {
-      const books = await prisma.book.findMany({ select: { title: true, titleBangla: true, author: true } });
-      fromDb = books.length;
-      for (const b of books) for (const k of keysOf(b)) keys.add(k);
+      const rows = await prisma.book.findMany({ select: { title: true, titleBangla: true, author: true, category: { select: { slug: true } } } });
+      fromDb = rows.length;
+      for (const b of rows) add({ title: b.title, titleBangla: b.titleBangla, author: b.author, category: b.category.slug });
     } finally {
       await prisma.$disconnect();
     }
   }
-  console.log(`catalog to de-duplicate against: ${file.length} rows in data/catalog-import.json + ${fromDb} books in the database`);
-  return keys;
+  const file = JSON.parse(readFileSync("data/catalog-import.json", "utf8")) as CatalogBook[];
+  for (const b of file) add({ title: b.title, titleBangla: b.titleBangla ?? null, author: b.author, category: b.category });
+  console.log(`catalog to match against: ${fromDb} books in the database + ${file.length} rows in data/catalog-import.json`);
+  return books;
 }
 
 // "?", "#" and "%" in a page title must be escaped, or "ভারত কোন্ পথে?" would
@@ -173,14 +202,15 @@ async function main() {
 
   // One row per work: the edition with the most validated pages, then the
   // older printing.
-  const catalogKeys = await existingCatalog();
+  const catalog = await existingCatalog();
   const yearOf = (c: Candidate) => c.editionYear ?? 9999;
   const byWork = new Map<string, { c: Candidate; v: Verification; scans: string[] }[]>();
   for (const x of verified) {
     const key = x.c.workId ?? `${loose(x.c.authors.map(nameOf).join())}|${loose(x.c.titleBn ?? x.c.mainPage!)}`;
     byWork.set(key, [...(byWork.get(key) ?? []), x]);
   }
-  const included: Included[] = [];
+  const included: Included[] = []; // new books
+  const linked: Linked[] = []; // links for books already in the catalog
   const seenKeys = new Set<string>();
   for (const group of byWork.values()) {
     group.sort((a, b) => b.v.validatedPages / (b.v.textPages || 1) - a.v.validatedPages / (a.v.textPages || 1) || yearOf(a.c) - yearOf(b.c));
@@ -217,9 +247,26 @@ async function main() {
       exclude(c, `first publication date unknown, and the scanned edition was printed in ${earliestEdition}, after the death of its ${role} (${lastDeath}): check that it was published in their lifetime (a posthumous work is protected for 60 years from publication)`);
       continue;
     }
+
+    const byHand = FORM_BY_HAND[`${titleBangla}|${author}`];
+    const form = byHand ? formByKey(byHand) : classify([...c.index.categories, ...best.v.categories], c.wikidataTypes);
+    const base = {
+      description: describe({ titleBangla, authors: c.authors.map(nameOf), translators: c.translators.map(nameOf), form }),
+      language: "bn" as const,
+      publishYear: c.publishYear,
+      authorDeathYear: Math.max(...c.authors.map((a) => a.deathYear!)),
+      isPublicDomain: true as const,
+      sources: [{ url: wikisourceUrl(c.mainPage!), rightsBasis: rightsBasis(c) }],
+    };
+
+    // Already in the catalog: the row carries the catalog book's exact title,
+    // Bangla title and author, so the admin import (which matches exactly,
+    // ignoring only case and spacing) finds that book and adds the link to it
+    // rather than creating a second copy.
     const keys = keysOf({ title, titleBangla, author });
-    if (keys.some((k) => catalogKeys.has(k))) {
-      exclude(c, "already in our catalog (add this Wikisource link to the existing book instead)");
+    const hit = keys.map((k) => catalog.get(k)).find((b) => b !== undefined);
+    if (hit) {
+      linked.push({ c, v: best.v, scans: best.scans, catalog: hit, row: { ...base, title: hit.title, titleBangla: hit.titleBangla ?? titleBangla, author: hit.author, category: hit.category } });
       continue;
     }
     if (keys.some((k) => seenKeys.has(k))) {
@@ -228,34 +275,13 @@ async function main() {
     }
     for (const k of keys) seenKeys.add(k);
 
-    const byHand = FORM_BY_HAND[`${titleBangla}|${author}`];
-    const form = byHand ? formByKey(byHand) : classify([...c.index.categories, ...best.v.categories], c.wikidataTypes);
-    const url = wikisourceUrl(c.mainPage!);
-    included.push({
-      c,
-      v: best.v,
-      form,
-      romanized,
-      scans: best.scans,
-      row: {
-        title,
-        titleBangla,
-        author,
-        category: form?.category ?? "",
-        description: describe({ titleBangla, authors: c.authors.map(nameOf), translators: c.translators.map(nameOf), form }),
-        language: "bn",
-        publishYear: c.publishYear,
-        authorDeathYear: Math.max(...c.authors.map((a) => a.deathYear!)),
-        isPublicDomain: true,
-        sources: [{ url, rightsBasis: rightsBasis(c) }],
-      },
-    });
+    included.push({ c, v: best.v, form, romanized, scans: best.scans, row: { ...base, title, titleBangla, author, category: categoryFor(form) ?? "" } });
   }
 
   // Every row must pass the admin import's own validation, so the file can't
-  // fail on upload. (Pending rows are checked with a stand-in category.)
-  for (const x of included) {
-    const check = bookImportRowSchema.safeParse({ ...x.row, category: x.row.category || "pending" });
+  // fail on upload. (Unclassified rows are checked with a stand-in category.)
+  for (const x of [...included, ...linked]) {
+    const check = bookImportRowSchema.safeParse({ ...x.row, category: x.row.category || "unclassified" });
     if (!check.success) throw new Error(`row "${x.row.titleBangla}" fails the import schema: ${check.error.issues.map((i) => i.message).join("; ")}`);
     // ...and every link must lead to exactly the page that was verified.
     const link = new URL(x.row.sources[0].url);
@@ -264,17 +290,22 @@ async function main() {
     }
   }
 
-  const ready = included.filter((x) => x.form && !x.form.proposed);
-  const pending = included.filter((x) => !x.form || x.form.proposed);
-  const sortRows = (xs: Included[]) => [...xs].sort((a, b) => a.row.author.localeCompare(b.row.author, "bn") || a.row.titleBangla.localeCompare(b.row.titleBangla, "bn"));
-  writeFileSync("data/wikisource-import.json", JSON.stringify(sortRows(ready).map((x) => x.row), null, 2) + "\n");
+  const ready = included.filter((x) => x.row.category);
+  const unclassified = included.filter((x) => !x.row.category);
+  const sortRows = <T extends { row: Row }>(xs: T[]) =>
+    [...xs].sort((a, b) => a.row.author.localeCompare(b.row.author, "bn") || a.row.titleBangla.localeCompare(b.row.titleBangla, "bn"));
+  // New books first, then the rows that only add a link to a catalog book.
+  const importRows = [...sortRows(ready), ...sortRows(linked)].map((x) => x.row);
+
+  // The admin import takes at most MAX_IMPORT_ROWS rows per file.
+  for (const f of readdirSync("data").filter((f) => /^wikisource-(import(-\d+)?|pending)\.json$/.test(f))) rmSync(`data/${f}`);
+  const chunks: Row[][] = [];
+  for (let i = 0; i < importRows.length; i += MAX_IMPORT_ROWS) chunks.push(importRows.slice(i, i + MAX_IMPORT_ROWS));
+  const importFiles = chunks.map((_, i) => (chunks.length === 1 ? "data/wikisource-import.json" : `data/wikisource-import-${i + 1}.json`));
+  chunks.forEach((rows, i) => writeFileSync(importFiles[i], JSON.stringify(rows, null, 2) + "\n"));
   writeFileSync(
-    "data/wikisource-pending.json",
-    JSON.stringify(
-      sortRows(pending).map((x) => ({ ...x.row, category: x.form?.category ?? null, proposedCategory: x.form?.proposed?.nameBangla ?? "(form unknown — choose a category)" })),
-      null,
-      2
-    ) + "\n"
+    "data/wikisource-unclassified.json",
+    JSON.stringify(sortRows(unclassified).map((x) => ({ ...x.row, category: null })), null, 2) + "\n"
   );
   excluded.sort((a, b) => a.reason.localeCompare(b.reason) || a.author.localeCompare(b.author, "bn"));
   writeFileSync("data/wikisource-excluded.json", JSON.stringify(excluded, null, 2) + "\n");
@@ -292,6 +323,8 @@ async function main() {
       .replace(/page \d+ of .+ is/, "a transcluded page is")
       .replace(/only \d+%/, "under 80%")
       .trim();
+  const cell = (s: string) => s.replace(/\|/g, "\\|");
+  const fileList = importFiles.map((f) => `\`${f}\``).join(", ");
   const sample = shuffleSeeded(included, 20261015).slice(0, 20);
   const lines: string[] = [];
   const L = (s = "") => lines.push(s);
@@ -304,48 +337,58 @@ async function main() {
   L(`| | Works |`);
   L(`|---|---|`);
   L(`| Fully proofread scans on bn.wikisource (start) | ${indexes.length} |`);
-  L(`| Ready to import now (\`data/wikisource-import.json\`) | ${ready.length} |`);
-  L(`| Need a new category first (\`data/wikisource-pending.json\`) | ${pending.length} |`);
+  L(`| New books to import (${fileList}) | ${ready.length} |`);
+  L(`| Links for books already in the catalog (same file${chunks.length > 1 ? "s" : ""}) | ${linked.length} |`);
+  L(`| Not imported yet: no confirmed form (\`data/wikisource-unclassified.json\`) | ${unclassified.length} |`);
   L(`| Left out, with reasons (\`data/wikisource-excluded.json\`) | ${excluded.length} |`);
   L();
-  const described = included.filter((x) => KNOWN[`${x.row.titleBangla}|${nameOf(x.c.authors[0])}`]);
-  L(`**Descriptions.** ${described.length} works that are well known got an original one-sentence description (written in \`scripts/wikisource/descriptions.ts\`; no plot detail beyond what any summary says). The other ${included.length - described.length} use a neutral line: form and author, e.g. “${included.find((x) => !described.includes(x))?.row.description ?? ""}”`);
+  L(`**Importing.** Upload ${fileList} on /admin/books. The five new categories are created by migration \`20261015085903_wikisource_categories\` on deploy. The preview lists the ${linked.length} catalog books under “ক্যাটালগের আগের বইয়ে লিংক যোগ হবে”: those rows add only the Wikisource link to the existing book, and nothing else about it changes.`);
+  L();
+  const described = [...included, ...linked].filter((x) => KNOWN[`${x.row.titleBangla}|${x.row.author.split(" ও ")[0]}`]);
+  L(`**Descriptions.** ${described.length} works that are well known got an original one-sentence description (written in \`scripts/wikisource/descriptions.ts\`; no plot detail beyond what any summary says). The rest use a neutral line: form and author, e.g. “${included.find((x) => !described.includes(x))?.row.description ?? ""}”. Rows that only add a link don't change the catalog book's own description.`);
   L();
   L("**Rules beyond the death year.** A work first published after its author's death (or a translation after its translator's) is protected in Bangladesh for 60 years from publication, so such a work first printed after " + PD_CUTOFF + " is excluded even when the author died earlier. Wikidata labels Manik Bandopadhyay by his legal name, প্রবোধকুমার বন্দ্যোপাধ্যায়; the import uses মানিক বন্দ্যোপাধ্যায়. A translation's Bangla title is taken from its Wikisource page, not from the original work's label.");
   L();
-  L("## Ready to import, by category");
+  L("## New books by category");
   L();
   L("| Category | Works |");
   L("|---|---|");
   for (const [k, v] of count(ready, (x) => x.row.category)) L(`| \`${k}\` | ${v} |`);
   L();
-  L("## Proposed new categories (not imported until you create them)");
+  L("## Category decisions (2026-10-15)");
   L();
-  L(`A work's form comes from Wikisource's own categories, else Wikidata's type. For ${included.filter((x) => FORM_BY_HAND[`${x.row.titleBangla}|${x.row.author}`]).length} works whose form those sources don't give (or get wrong) it was set by hand, only where certain: they're listed in \`FORM_BY_HAND\` in \`scripts/wikisource/classify.ts\`. Each row in \`data/wikisource-pending.json\` names its proposed category; create the category, set \`category\` to its slug and import.`);
+  L(`A work's form comes from Wikisource's own categories, else Wikidata's type; for ${included.filter((x) => FORM_BY_HAND[`${x.row.titleBangla}|${x.row.author}`]).length} works whose form those sources don't give (or get wrong) it was set by hand, only where certain (\`FORM_BY_HAND\` in \`scripts/wikisource/classify.ts\`). Forms go to categories like this:`);
   L();
-  L("| Proposed category | Slug | Works | Examples |");
-  L("|---|---|---|---|");
-  for (const f of PROPOSED_FORMS) {
-    const rows = pending.filter((x) => x.form?.key === f.key);
-    if (rows.length) L(`| ${f.proposed!.nameBangla} (${f.proposed!.name}) | \`${f.category}\` | ${rows.length} | ${rows.slice(0, 3).map((x) => x.row.titleBangla).join(", ")} |`);
+  L("| Form | Category | Works |");
+  L("|---|---|---|");
+  for (const [k, v] of count(ready, (x) => `${x.form!.noun}|${x.row.category}`)) {
+    const [noun, slug] = k.split("|");
+    L(`| ${noun} | \`${slug}\` | ${v} |`);
   }
-  const unknown = pending.filter((x) => !x.form);
-  // For tuning scripts/wikisource/classify.ts: what each unclassified work carries.
-  writeFileSync(
-    "data/.wikisource-cache/unknown-forms.json",
-    JSON.stringify(unknown.map((x) => ({ title: x.row.titleBangla, author: x.row.author, categories: [...new Set([...x.c.index.categories, ...x.v.categories])], types: x.c.wikidataTypes })), null, 1)
-  );
-  if (unknown.length) L(`| *Form unknown — needs a person to choose* | — | ${unknown.length} | ${unknown.slice(0, 3).map((x) => x.row.titleBangla).join(", ")} |`);
   L();
-  L("## Included works per author (ready + pending)");
+  L("## Per author");
   L();
-  L("| Author | Died | Ready | Pending |");
-  L("|---|---|---|---|");
-  const authors = count(included, (x) => x.row.author);
-  for (const [a] of authors) {
-    const d = included.find((x) => x.row.author === a)!.row.authorDeathYear;
-    L(`| ${a} | ${d} | ${ready.filter((x) => x.row.author === a).length} | ${pending.filter((x) => x.row.author === a).length} |`);
+  L("| Author | Died | New books | Links for catalog books | Unclassified |");
+  L("|---|---|---|---|---|");
+  for (const [a] of count([...included, ...linked], (x) => x.row.author)) {
+    const d = [...included, ...linked].find((x) => x.row.author === a)!.row.authorDeathYear;
+    const n = (xs: { row: Row }[]) => xs.filter((x) => x.row.author === a).length;
+    L(`| ${a} | ${d} | ${n(ready)} | ${n(linked)} | ${n(unclassified)} |`);
   }
+  L();
+  L("## Links for books already in the catalog");
+  L();
+  L("These rows match a catalog book exactly (title or Bangla title, and author), so the import adds the Wikisource link to that book instead of creating a second copy.");
+  L();
+  L("| Catalog book | Author | Category there | Wikisource |");
+  L("|---|---|---|---|");
+  for (const x of sortRows(linked)) L(`| ${cell(x.row.titleBangla)} (${cell(x.row.title)}) | ${cell(x.row.author)} | \`${x.row.category}\` | ${x.row.sources[0].url} |`);
+  L();
+  L("## Not imported yet: no confirmed form");
+  L();
+  L("Wikisource and Wikidata give no form for these and none was certain enough to set by hand. They are in `data/wikisource-unclassified.json` with `category: null`; set a category to import them.");
+  L();
+  for (const x of sortRows(unclassified)) L(`- ${x.row.titleBangla} — ${x.row.author} (${x.row.sources[0].url})`);
   L();
   L("## Excluded, by reason");
   L();
@@ -353,7 +396,7 @@ async function main() {
   L("|---|---|");
   for (const [r, v] of count(excluded, (x) => reasonKey(x.reason))) L(`| ${r} | ${v} |`);
   L();
-  L("Every excluded scan, with its exact reason, is in `data/wikisource-excluded.json`.");
+  L("Every excluded scan, with its exact reason, is listed at the end and in `data/wikisource-excluded.json`.");
   L();
   L("## Titles romanised by the script (please check)");
   L();
@@ -365,25 +408,15 @@ async function main() {
   L();
   L("SPOT_CHECK_PLACEHOLDER");
   L();
-  const inCatalog = excluded.filter((x) => x.reason.startsWith("already in our catalog"));
-  L("## Already in our catalog: add the link to the existing book");
-  L();
-  L("These passed every check but the book is already in the catalog, so they aren't in the import. Add the link on /admin/books (the book's \"বাইরের সাইটে বিনামূল্যের কপি\" box).");
-  L();
-  L("| Work | Author | Wikisource |");
-  L("|---|---|---|");
-  for (const x of inCatalog) L(`| ${x.title} | ${x.author} | ${x.wikisource} |`);
-  L();
   L("## Every excluded scan");
   L();
   L("| Work | Author | Scan | Reason |");
   L("|---|---|---|---|");
-  const cell = (s: string) => s.replace(/\|/g, "\\|");
   for (const x of excluded) L(`| ${cell(x.title)} | ${cell(x.author)} | ${cell(x.scan)} | ${cell(x.reason)} |`);
   writeFileSync("data/wikisource-report.md", lines.join("\n") + "\n");
   writeFileSync("data/.wikisource-cache/spot-check-sample.json", JSON.stringify(sample.map((x) => ({ row: x.row, authors: x.c.authors, translators: x.c.translators, editors: x.c.editors, scans: x.scans, mainPage: x.c.mainPage, v: x.v })), null, 2));
 
-  console.log(`\nready ${ready.length}, pending ${pending.length}, excluded ${excluded.length}; network calls: ${networkCalls}`);
+  console.log(`\nnew books ${ready.length} in ${importFiles.join(", ")}, links for catalog books ${linked.length}, unclassified ${unclassified.length}, excluded ${excluded.length}; network calls: ${networkCalls}`);
 }
 
 main().catch((err) => {
