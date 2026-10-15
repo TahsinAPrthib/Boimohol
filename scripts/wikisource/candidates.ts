@@ -1,8 +1,9 @@
 // Stage 2b: turn each complete scan into a candidate book, and decide on
 // Wikidata's evidence alone whether it can be public domain.
 import type { IndexPage } from "./indexes";
-import { earliestYear, getEntities, itemIds, label, latestYears, Q, strings, type Entity } from "./wikidata";
+import { deathOf, earliestYear, getEntities, itemIds, label, Q, strings, type Entity } from "./wikidata";
 import { toLatinDigits } from "./verify";
+import { CONFIRMED_DEATHS } from "./death-years";
 
 export const PD_CUTOFF = new Date().getUTCFullYear() - 61; // died in this year or earlier
 
@@ -14,6 +15,8 @@ export type Person = {
   human: boolean;
   // Languages they wrote in (P1412), when Wikidata records them.
   writes: string[];
+  era?: string; // set when the death year is an era from death-years.ts
+  deathText?: string; // "১৯৪১ সালে", "আনুমানিক ১২৪৫ সালে", "৭ম শতকে" (from Wikidata)
 };
 
 export type Candidate = {
@@ -46,13 +49,18 @@ const NOT_A_BOOK_TYPES = new Set([
 ]);
 const TRANSLATION_CATEGORIES = [/অনুবাদ সাহিত্য/, /অনূদিত/];
 
+// Wikidata's death year; failing that, one a person confirmed from another
+// source (death-years.ts), with the era the rights note should give.
 function person(e: Entity | undefined, id: string): Person {
-  const years = latestYears(e, "P570");
+  const death = deathOf(e);
+  const confirmed = death ? undefined : CONFIRMED_DEATHS[id];
   return {
     id,
     nameBn: label(e, "bn"),
     nameEn: label(e, "en"),
-    deathYear: years.length ? Math.max(...years) : null,
+    deathYear: death?.year ?? confirmed?.year ?? null,
+    deathText: death?.text,
+    era: confirmed?.era,
     human: itemIds(e, "P31").includes(Q.human),
     writes: itemIds(e, "P1412"),
   };

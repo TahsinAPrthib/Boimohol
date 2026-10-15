@@ -5,12 +5,16 @@
 //   - that the work's scan is still in a "100% proofread" category on
 //     bn.wikisource, and that the main page still transcludes it with every
 //     transcluded page proofread.
-// The results replace the spot-check section of data/wikisource-report.md.
+// An author with no Wikidata death year counts if death-years.ts confirms one
+// from another source; the table names that source.
 //
-//   npx tsx scripts/wikisource-spot-check.ts      (after wikisource-import.ts)
+//   npx tsx scripts/wikisource-spot-check.ts <batch>   (after wikisource-import.ts)
+//
+// Writes data/wikisource-spot-check-<batch>.md.
 import { readFileSync, writeFileSync } from "node:fs";
 import { mwQueryAll, networkCalls, askLiveOnly, WIKISOURCE_API } from "./wikisource/http";
-import { getEntities, latestYears } from "./wikisource/wikidata";
+import { deathOf, getEntities } from "./wikisource/wikidata";
+import { CONFIRMED_DEATHS } from "./wikisource/death-years";
 import { verifyWork, type Verification } from "./wikisource/verify";
 import { COMPLETE_CATEGORIES } from "./wikisource/indexes";
 import { PD_CUTOFF } from "./wikisource/candidates";
@@ -138,7 +142,9 @@ const pct = (x: number) => `${Math.round(x * 100)}%`;
 const bnName = (p: Person) => p.nameBn ?? p.nameEn ?? p.id;
 
 async function main() {
-  const sample = JSON.parse(readFileSync("data/.wikisource-cache/spot-check-sample.json", "utf8")) as Sample[];
+  const batch = Number(process.argv[2]);
+  if (!Number.isInteger(batch) || batch < 1) throw new Error("usage: wikisource-spot-check.ts <batch number>");
+  const sample = JSON.parse(readFileSync(`data/.wikisource-cache/spot-check-sample-${batch}.json`, "utf8")) as Sample[];
   const people = sample.flatMap((s) => [...s.authors, ...s.translators, ...s.editors]);
   const entities = await getEntities(people.map((p) => p.id));
 
@@ -149,14 +155,18 @@ async function main() {
     const problems: string[] = [];
 
     const deaths = [...s.authors, ...s.translators, ...s.editors].map((p) => {
-      const liveYears = latestYears(entities.get(p.id), "P570");
-      const liveYear = liveYears.length ? Math.max(...liveYears) : null;
+      const liveYear = deathOf(entities.get(p.id))?.year ?? null;
       const known = knownYear(p);
+      const confirmed = liveYear === null ? CONFIRMED_DEATHS[p.id] : undefined;
+      if (confirmed) {
+        if (confirmed.year > PD_CUTOFF) problems.push(`${bnName(p)} died after ${PD_CUTOFF}`);
+        return { p, liveYear: confirmed.year, known, via: new URL(confirmed.sources[0].url).hostname };
+      }
       if (liveYear === null) problems.push(`Wikidata no longer gives a death year for ${bnName(p)}`);
       else if (liveYear !== p.deathYear) problems.push(`${bnName(p)}: the import used ${p.deathYear}, Wikidata now says ${liveYear}`);
       if (liveYear !== null && liveYear > PD_CUTOFF) problems.push(`${bnName(p)} died after ${PD_CUTOFF}`);
       if (known !== null && liveYear !== null && known !== liveYear) problems.push(`${bnName(p)}: Wikidata says ${liveYear}, the independent list says ${known}`);
-      return { p, liveYear, known };
+      return { p, liveYear, known, via: null as string | null };
     });
 
     const all = { has: () => true } as unknown as Set<string>;
@@ -172,7 +182,11 @@ async function main() {
     else notes.push(`- **${s.row.titleBangla}**: ${problems.join("; ")}`);
 
     const died = deaths
-      .map(({ p, liveYear, known }) => `${bnName(p)}: ${liveYear ?? "?"}${known === null ? " (not on the independent list)" : known === liveYear ? " ✓" : ` ≠ ${known}`}`)
+      .map(({ p, liveYear, known, via }) =>
+        via
+          ? `${bnName(p)}: by ${liveYear} (${via}; not on Wikidata)`
+          : `${bnName(p)}: ${liveYear ?? "?"}${known === null ? " (not on the independent list)" : known === liveYear ? " ✓" : ` ≠ ${known}`}`
+      )
       .join("<br>");
     rows.push(
       `| ${i + 1} | [${s.row.titleBangla}](${s.row.sources[0].url}) | ${died} | ${complete.filter(([, c]) => c).length}/${complete.length} | ${v.textPages} / ${v.validatedPages} of ${v.pagesInScan} | ${pct(v.coverage)}${v.subpages ? `, ${v.subpages} subpages` : ""} | ${ok ? "✓ pass" : "✗ see below"} |`
@@ -197,11 +211,8 @@ async function main() {
     ...(notes.length ? ["Problems found:", "", ...notes] : ["No problems found."]),
   ].join("\n");
 
-  const report = readFileSync("data/wikisource-report.md", "utf8");
-  const start = report.indexOf("## Spot-check");
-  const bodyStart = report.indexOf("\n", start) + 1;
-  const next = report.indexOf("\n## ", bodyStart);
-  writeFileSync("data/wikisource-report.md", report.slice(0, bodyStart) + "\n" + section + "\n" + (next >= 0 ? report.slice(next) : ""));
+  const file = batch === 1 ? "data/wikisource-import.json" : `data/wikisource-import-${batch}.json`;
+  writeFileSync(`data/wikisource-spot-check-${batch}.md`, `# Spot-check, batch ${batch} (\`${file}\`)\n\n${section}\n`);
   console.log(`\n${passed}/${sample.length} passed; ${networkCalls} live requests`);
 }
 

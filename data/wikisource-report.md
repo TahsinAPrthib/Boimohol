@@ -7,62 +7,167 @@ Generated 2026-10-15 by `scripts/wikisource-import.ts`. Public-domain cutoff: th
 | | Works |
 |---|---|
 | Fully proofread scans on bn.wikisource (start) | 652 |
-| New books to import (`data/wikisource-import.json`) | 406 |
-| Links for books already in the catalog (same file) | 16 |
-| Not imported yet: no confirmed form (`data/wikisource-unclassified.json`) | 19 |
-| Left out, with reasons (`data/wikisource-excluded.json`) | 211 |
+| Batch 1, already prepared (`data/wikisource-import.json`, unchanged) | 422 |
+| Batch 2, new books (`data/wikisource-import-2.json`) | 13 |
+| Batch 2, links for books already in the catalog (same file) | 0 |
+| Not imported yet: no confirmed category (`data/wikisource-unclassified.json`) | 10 |
+| Left out, with reasons (`data/wikisource-excluded.json`) | 207 |
 
-**Importing.** Upload `data/wikisource-import.json` on /admin/books. The five new categories are created by migration `20261015085903_wikisource_categories` on deploy. The preview lists the 16 catalog books under “ক্যাটালগের আগের বইয়ে লিংক যোগ হবে”: those rows add only the Wikisource link to the existing book, and nothing else about it changes.
+Every batch 1 row still passes every check.
 
-**Descriptions.** 88 works that are well known got an original one-sentence description (written in `scripts/wikisource/descriptions.ts`; no plot detail beyond what any summary says). The rest use a neutral line: form and author, e.g. “রবীন্দ্রনাথ ঠাকুরের কাব্যগ্রন্থ।”. Rows that only add a link don't change the catalog book's own description.
+**Batch 1 rights notes corrected.** Three notes gave an approximate date as exact; see `data/wikisource-batch1-corrections.md`.
+
+**Importing.** Batch 1 is `data/wikisource-import.json` as before. Batch 2 is `data/wikisource-import-2.json`: 3 works whose author's death year was confirmed from another source (below), and 10 works whose category was settled by reading the text. Upload each on /admin/books.
 
 **Rules beyond the death year.** A work first published after its author's death (or a translation after its translator's) is protected in Bangladesh for 60 years from publication, so such a work first printed after 1965 is excluded even when the author died earlier. Wikidata labels Manik Bandopadhyay by his legal name, প্রবোধকুমার বন্দ্যোপাধ্যায়; the import uses মানিক বন্দ্যোপাধ্যায়. A translation's Bangla title is taken from its Wikisource page, not from the original work's label.
 
-## New books by category
+## Needs your decision
+
+1. **কুমুদিনী বসু (সাহিত্য-চিন্তা).** Left out: both Wikipedias put her death before 1965 (1943 / 1942) and bn Wikipedia lists the book among her works, but neither cites the year. Include it on that basis?
+2. **A category পুরাণ ও লোককথা (Mythology & folklore)** for the 8 epic, myth and folk-tale works still without one: অদ্ভুত রামায়ণ, কুরু পাণ্ডব, বত্রিশ সিংহাসন, ভয়ভাঙ্গা, মহাভারত (উপক্রমণিকাভাগ), মহাভারত, মেয়েলি ব্রত ও কথা, সতী.
+3. **পথে-বিপথে** (অবনীন্দ্রনাথ): humorous prose sketches — প্রবন্ধ or ছোটগল্প?
+4. **শরৎ-সাহিত্য-সংগ্রহ** (volume 13, mixed forms): suggested to leave out.
+
+## Batch 2
+
+| Work | Author | Category | Why it's new |
+|---|---|---|---|
+| গোচারণের মাঠ | অক্ষয়চন্দ্র সরকার | `kobita` | category settled by reading the text |
+| প্রেমিক সন্ন্যাসী | অনাথনাথ বসু | `uponnash` | category settled by reading the text |
+| বেল্লিক রামায়ণ | কালীপ্রসন্ন বিদ্যারত্ন | `kobita` | category settled by reading the text |
+| প্রাচীন ভারতে নারী | ক্ষিতিমোহন সেন | `probondho` | category settled by reading the text |
+| কাদম্বরী | বাণভট্ট ও ভূষণভট্ট | `uponnash` | death year confirmed (see below) |
+| নীলগঞ্জের ফালমন সাহেব | বিভূতিভূষণ বন্দ্যোপাধ্যায় | `chhotogolpo` | category settled by reading the text |
+| রসমঞ্জরী | ভানুদত্ত মিশ্র | `kobita` | death year confirmed (see below) |
+| মোহনলাল | যোগীন্দ্রনাথ সরকার | `shishu-sahitto` | category settled by reading the text |
+| সংকলন | রবীন্দ্রনাথ ঠাকুর | `probondho` | category settled by reading the text |
+| পাষাণের কথা | রাখালদাস বন্দ্যোপাধ্যায় | `itihash-jiboni` | category settled by reading the text |
+| গ্রাম্য উপাখ্যান | রাজনারায়ণ বসু | `itihash-jiboni` | category settled by reading the text |
+| মহারাজ কৃষ্ণচন্দ্র রায়স্য চরিত্রং | রাজীবলোচন মুখোপাধ্যায় | `itihash-jiboni` | death year confirmed (see below) |
+| গুরুদক্ষিণা | সতীশচন্দ্র রায় | `uponnash` | category settled by reading the text |
+
+Rights notes for the era-dated authors read, for example: “মূল লেখক বাণভট্ট ৬৫০ সালে মারা গেছেন; মূল লেখক ভূষণভট্ট সাত শতকের লেখক বাণভট্টের পুত্র; অনুবাদক তারাশঙ্কর তর্করত্ন ১৮৫৮ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: বাংলা উইকিসংকলন”
+
+## Authors without a Wikidata death year (researched 2026-10-16)
+
+Each was looked up on Wikidata (again, live), the Bangla and English Wikipedia (article linked from Wikidata, then a search by name), and Banglapedia. A work is included only when a source confirms the year and the year passes the rule. Where a source gives only an era, the year used is the latest it allows.
+
+| Author | Works | Decision | Source or reason |
+|---|---|---|---|
+| বাল্মীকি | অদ্ভুত রামায়ণ | **confirmed** — প্রাচীন ভারতের কবি (year used: 300) | https://en.wikipedia.org/wiki/Valmiki — “the earliest stage of the [Ramayana] text … 8th to 4th centuries BCE, and later stages extending up to the 3rd century CE (cites Goldman 1984; Brockington 1998)” |
+| ভানুদত্ত মিশ্র | রসমঞ্জরী | **confirmed** — পনেরো-ষোলো শতকের কবি (year used: 1600) | https://en.wikipedia.org/wiki/Bhanudatta_Misra — “a Sanskrit poet … dated to some time in the late 15th and early 16th century (cites Pollock 2009, NYU Press)” |
+| ভূষণভট্ট | কাদম্বরী | **confirmed** — সাত শতকের লেখক বাণভট্টের পুত্র (year used: 800) | https://en.wikipedia.org/wiki/Kadambari — “The novel was completed by Banabhatta's son Bhushanabhatta”; https://en.wikipedia.org/wiki/Banabhatta — “a 7th-century Sanskrit prose writer and poet (cites Upinder Singh)” |
+| রাজীবলোচন মুখোপাধ্যায় | মহারাজ কৃষ্ণচন্দ্র রায়স্য চরিত্রং | **confirmed** — আঠারো-উনিশ শতকের লেখক (year used: 1900) | https://bn.banglapedia.org/index.php/মুখোপাধ্যায়,_রাজীবলোচন — “মুখোপাধ্যায়, রাজীবলোচন (১৮শ-১৯শ শতক) … একমাত্র গ্রন্থ কৃষ্ণচন্দ্ররায়স্য চরিত্রম (১৮০৫)” |
+| অজিৎকুমার মুখোপাধ্যায় | জার্ম্মানীর যৌবন অভিযান | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| অনাথবন্ধু সেন | সচিত্র রেল অবতার | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| অভয়চরণ দাস | মনোরম্য ইতিহাস | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| আশিসরঞ্জন নাথ | এখানে দিনের রং বদলায় | left out | আশিসরঞ্জন নাথ: born 1960 (Wikidata); a recent author. |
+| আশুতোষ বিশ্বাস | বীরজয় উপাখ্যান | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| আশুতোষ মুখোপাধ্যায় | প্রমোদকামিনী কাব্য | left out | আশুতোষ মুখোপাধ্যায় (প্রমোদকামিনী কাব্য): Wikipedia has two writers of this name (1864–1924, 1920–1989); nothing ties either to this book. |
+| উদয়চাঁদ রায় | প্রাণের হিসাব | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| একাধিক লেখক | তীর্থরেণু, তীর্থ-সলিল, পঞ্চরত্ন, পূর্ব্ববঙ্গ-গীতিকা, পূর্ব্ববঙ্গ-গীতিকা, বাংলা বানানের নিয়ম, হাজার বছরের পুরাণ বাঙ্গালা ভাষায় বৌদ্ধগান ও দোহা, মৈমনসিংহ গীতিকা, হারামণি | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| এনামূল হক পলাশ | অন্ধ সময়ের ডানা, জল ও হিজল, পাপের শহরে, মেঘের সন্ন্যাস, লাবণ্য দাশ অ্যাণ্ড কোং | left out | এনামূল হক পলাশ: a living author (born 1977, Wikidata). |
+| কান্তিচন্দ্র সরকার | তামাকের দোষ গুণ ও ইতিহাস | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| কার্তিকচন্দ্র মিত্র | শিখগুরু | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| কালীকমল দত্ত | দুর্গাবতী | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| কুমুদিনী বসু | সাহিত্য-চিন্তা | left out | কুমুদিনী বসু: bn Wikipedia lists সাহিত্য-চিন্তা among her works and gives 1943 (citing only Wikisource); en Wikipedia gives 1942 marked 'citation needed'. Both before 1965, but no cited source — needs your decision. |
+| কৃষ্ণকিশোর বন্দ্যোপাধ্যায় | কবিতাকুসুমাঞ্জলি | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| কৃষ্ণদাস আচার্য চৌধুরী | ইঙ্গিত | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| কৃষ্ণদ্বৈপায়ন বেদব্যাস | কল্কি পুরাণ, মহাভারতীয় স্বপ্নপর্ব্ব | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| কেদারনাথ চক্রবর্তী | ভাওয়ালী কাণ্ড | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| কেশবচন্দ্র কুণ্ডু | কবিতা | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| কৈলাসবাসিনী দেবী | হিন্দু মহিলাগণের হীনাবস্থা | left out | কৈলাসবাসিনী দেবী: bn Wikipedia gives her death as '?' yet files her under 1895 deaths; nothing cited. |
+| গোপালচন্দ্র বন্দ্যোপাধ্যায় | মানসাঙ্ক | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| চণ্ডীদাস মুখোপাধ্যায় | মূর্চ্ছনা | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| চারুশীলা দেবী | বেহুলা | left out | চারুশীলা দেবী (বেহুলা): two articles of this name (1883–?, 1882–1979); nothing ties either to this book. |
+| জাতিসংঘ সাধারণ পরিষদ | অর্থনৈতিক, সামাজিক ও সাংস্কৃতিক অধিকার বিষয়ক আন্তর্জাতিক চুক্তি, নির্যাতন এবং অন্যান্য নিষ্ঠুর, অমানবিক অথবা মর্যাদাহানিকর আচরণ বা শাস্তির বিরুদ্ধে কনভেনশন, নারীর রাজনৈতিক অধিকার বিষয়ক চুক্তি, নারীর প্রতি সকল প্রকার বৈষম্য বিলোপ কনভেনশন, নাগরিক ও রাজনৈতিক অধিকার বিষয়ক আন্তর্জাতিক চুক্তি, নারীর রাজনৈতিক অধিকার বিষয়ক চুক্তি, মানবাধিকারের সার্বজনীন ঘোষণাপত্র | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| জীবনকৃষ্ণ ঘোষ | দুর্য্যোধন বধ কাব্য | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| জ্ঞানেন্দ্রমোহিনী দত্ত | ধূলিরাশি | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| তপোধীর ভট্টাচার্য | বাখতিন, সময় অসময় নিঃসময়, স্বপ্নের সোভিয়েতে | left out | তপোধীর ভট্টাচার্য: a living author (born 1949, bn Wikipedia). |
+| তারানাথ রায় | নব্য চীন, মুসোলিনী ও বর্ত্তমান ইটালী | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| তারাপদ বন্দ্যোপাধ্যায় | দার্জ্জিলিঙ্গ-প্রবাসীর পত্র | left out | তারাপদ বন্দ্যোপাধ্যায় (দার্জ্জিলিঙ্গ-প্রবাসীর পত্র): the article of this name is a photographer (1946–2024), not this author. |
+| দয়ালকৃষ্ণ ঘোষ | ম্যালেরিয়া | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| দীননাথ দাস চন্দ | ভারত দীধিতি | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| দেবেন্দ্রকিশোর আচার্য চৌধুরী | অহল্যা | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| নরেন্দ্রকৃষ্ণ চট্টোপাধ্যায় | শ্মশানের ফুল | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| নারায়ণচন্দ্র বিদ্যারত্ন | নীতিকণা | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| নিলমণি মুখোপাধ্যায় | ধারাপাত | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| নিশিকান্ত গঙ্গোপাধ্যায় | আমেরিকার স্বাধীনতা | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| পাঁচুলাল ঘোষ | আঙুর | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| পিনাকী ঘোষ | অলৌকিক নয়, লৌকিক | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| পিনাকী বিশ্বাস | সেই সব শহীদেরা | left out | পিনাকী বিশ্বাস: described on Wikidata as a Bangla Wikipedian; a contemporary author. |
+| পুলিনবিহারী রায় | বিষাদ | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| প্রবোধচন্দ্র মৈত্র | পথের বাঁশী | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| প্রমথনাথ দত্ত | জননী-জন্মভূমি | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| বঙ্কিমবিহারী দাস | কুসুম-যুগল | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| বড় বাস্কী | সাঁওতালি পুরাণকথায় পৃথিবী ও মানব সৃষ্টি কাহিনি | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| বিনয় কুমার সান্যাল | চিদ্বিলাস | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| বিপিন বিহারী শাহ | নিনিবি শহরের রিহাই, বেহেস্তের বয়ান | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| বিভাবতী দেবী চৌধুরাণী | খোঁজে | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| ভূপেন্দ্রনাথ রায় চৌধুরী | পরের-মেয়ে, লক্ষ্মী | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| মণীন্দ্রনাথ সিংহ | বাসন্তিকা | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| মানদা দেবী | শিক্ষিতা পতিতার আত্মচরিত | left out | মানদা দেবী: Wikidata gives her birth (1900) but no source gives a death year. |
+| যতীন্দ্রনাথ পাল | ধৰ্ম্মঘট | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| রণবীর পুরকায়স্থ | উনিশে মে: ভাষার সংকট | left out | রণবীর পুরকায়স্থ: born 1949 (Wikidata); a recent author. |
+| রবীন্দ্রনাথ সেন | ডিগবাজী খাঁ | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| রামচন্দ্র মুখোপাধ্যায় | দানবদলন কাব্য | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| রাহাতুন্নেছা খাতুন | দেবী রাবিয়া | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| রোহিণীকুমার সেনগুপ্ত | প্রমোদবালা | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| শম্ভুচন্দ্র বিদ্যারত্ন | বিদ্যাসাগর জীবনচরিত | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| শিবচন্দ্র শীল | আর্য্যজাতির আদি নিবাস | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| সঞ্জীব দেবলস্কর | ষষ্ঠীতৎপুরুষনামা | left out | সঞ্জীব দেবলস্কর: born 1957 (Wikidata); a recent author. |
+| সত্যচরণ মিত্র | বড়বউ | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| সত্যভূষণ বন্দ্যোপাধ্যায় | ১৫১৩ সাল | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| সরোজনাথ মুখোপাধ্যায় | শ্রীশ্রীকৃষ্ণকালী-পদাবলী | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| সারদাপ্রসাদ ঠাকুর | মুরলী | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| সুরঙ্গিণী দেবী | তারাচরিত | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| সুরেন্দ্রকৃষ্ণ গুপ্ত | ঝঙ্কার | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| সুরেন্দ্রনাথ বন্দ্যোপাধ্যায় | বিজ্ঞান বাবু | left out | সুরেন্দ্রনাথ বন্দ্যোপাধ্যায় (বিজ্ঞান বাবু): the only article of this name is the politician (1848–1925); nothing ties him to this book. |
+| সুরেশচন্দ্র ঘটক | ত্রিবেণী ও আরো দুটী গল্প | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| সৌদামিনী সিংহ | নারী-চরিত | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| হরচন্দ্র সেন | শিশূপদেশ | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| হরিনাথ ঘোষ | লাল সিংহ | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| হরিমোহন কর্মকার | ওঠ্ ছুঁড়ী তোর বিয়ে | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| হরিলাল সরকার | চতুরঙ্গ | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| হরিশ্চন্দ্র শর্মা | জীবনরক্ষক, ব্যায়াম শিক্ষা | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| হরিহর নন্দী | কলির বৌ ঘরভাঙ্গনী | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
+| হাসান ফকরী | দেশটা কি তোর বাপের | left out | হাসান ফকরী: a living author (born 1952, bn Wikipedia). |
+
+## Not imported yet: no confirmed category
+
+Re-checked 2026-10-16 by reading each text's contents and a passage. They are in `data/wikisource-unclassified.json` with `category: null` and the note below.
+
+- পথে-বিপথে — অবনীন্দ্রনাথ ঠাকুর: humorous first-person prose sketches, between essays and stories — your choice (প্রবন্ধ or ছোটগল্প) (https://bn.wikisource.org/wiki/পথে-বিপথে_(১৯১৮))
+- মহাভারত (উপক্রমণিকাভাগ) — ঈশ্বরচন্দ্র বিদ্যাসাগর: epic retelling (prose Mahabharata, introductory chapters) — proposed category পুরাণ ও লোককথা (https://bn.wikisource.org/wiki/মহাভারত_(উপক্রমণিকাভাগ))
+- ভয়ভাঙ্গা — দীনেশচন্দ্র সেন: Radha-Krishna episodes retold — proposed category পুরাণ ও লোককথা (https://bn.wikisource.org/wiki/ভয়ভাঙ্গা)
+- সতী — দীনেশচন্দ্র সেন: myth retold in prose (the Sati legend, twelve chapters) — proposed category পুরাণ ও লোককথা (https://bn.wikisource.org/wiki/সতী_(দীনেশচন্দ্র_সেন))
+- মেয়েলি ব্রত ও কথা — পরমেশপ্রসন্ন রায়: folk rituals of East Bengal and their tales — proposed category পুরাণ ও লোককথা (https://bn.wikisource.org/wiki/মেয়েলি_ব্রত_ও_কথা)
+- অদ্ভুত রামায়ণ — বাল্মীকি: a Ramayana variant, translated by সৌদামিনী দেবী (1890) — proposed category পুরাণ ও লোককথা (https://bn.wikisource.org/wiki/অদ্ভুত_রামায়ণ_(১৮৯০))
+- কুরু পাণ্ডব — রবীন্দ্রনাথ ঠাকুর: epic retelling (Mahabharata episodes) — proposed category পুরাণ ও লোককথা (https://bn.wikisource.org/wiki/কুরু_পাণ্ডব)
+- মহাভারত — রাজশেখর বসু: epic retelling (condensed Mahabharata) — proposed category পুরাণ ও লোককথা (https://bn.wikisource.org/wiki/মহাভারত_(রাজশেখর_বসু))
+- বত্রিশ সিংহাসন — লাল্লু লাল: story cycle of King Vikramaditya, translated from Hindi — proposed category পুরাণ ও লোককথা (https://bn.wikisource.org/wiki/বত্রিশ_সিংহাসন_(নীলমণি_বসাক))
+- শরৎ-সাহিত্য-সংগ্রহ — শরৎচন্দ্র চট্টোপাধ্যায়: omnibus volume 13 of collected works (mixed forms, including writings first published in it in 1960) — better left out (https://bn.wikisource.org/wiki/শরৎ-সাহিত্য-সংগ্রহ_(ত্রয়োদশ_সম্ভার))
+
+## All prepared books by category (batches 1 and 2)
 
 | Category | Works |
 |---|---|
-| `probondho` | 106 |
-| `kobita` | 76 |
-| `itihash-jiboni` | 54 |
-| `uponnash` | 48 |
+| `probondho` | 108 |
+| `kobita` | 79 |
+| `itihash-jiboni` | 57 |
+| `uponnash` | 51 |
 | `thriller-rohosso` | 42 |
-| `chhotogolpo` | 36 |
+| `chhotogolpo` | 37 |
 | `natok` | 20 |
 | `bhromon` | 13 |
-| `shishu-sahitto` | 9 |
+| `shishu-sahitto` | 10 |
 | `biggan-kolpokahini` | 2 |
 
-## Category decisions (2026-10-15)
-
-A work's form comes from Wikisource's own categories, else Wikidata's type; for 80 works whose form those sources don't give (or get wrong) it was set by hand, only where certain (`FORM_BY_HAND` in `scripts/wikisource/classify.ts`). Forms go to categories like this:
-
-| Form | Category | Works |
-|---|---|---|
-| প্রবন্ধের বই | `probondho` | 81 |
-| কাব্যগ্রন্থ | `kobita` | 75 |
-| উপন্যাস | `uponnash` | 48 |
-| রহস্য-রোমাঞ্চ কাহিনি | `thriller-rohosso` | 42 |
-| ছোটগল্পের বই | `chhotogolpo` | 36 |
-| জীবনী | `itihash-jiboni` | 21 |
-| নাটক | `natok` | 20 |
-| ইতিহাস বিষয়ক বই | `itihash-jiboni` | 18 |
-| ভ্রমণকাহিনি | `bhromon` | 13 |
-| শিশু-কিশোরদের বই | `shishu-sahitto` | 9 |
-| স্মৃতিকথা | `itihash-jiboni` | 9 |
-| ধর্ম ও দর্শন বিষয়ক বই | `probondho` | 8 |
-| বিজ্ঞান বিষয়ক বই | `probondho` | 7 |
-| আত্মজীবনী | `itihash-jiboni` | 6 |
-| চিঠিপত্রের সংকলন | `probondho` | 5 |
-| ভাষা ও শিক্ষা বিষয়ক বই | `probondho` | 5 |
-| বিজ্ঞান কল্পকাহিনী | `biggan-kolpokahini` | 2 |
-| গানের বই | `kobita` | 1 |
-
-## Per author
+## Per author (batches 1 and 2)
 
 | Author | Died | New books | Links for catalog books | Unclassified |
 |---|---|---|---|---|
-| রবীন্দ্রনাথ ঠাকুর | 1941 | 92 | 6 | 2 |
+| রবীন্দ্রনাথ ঠাকুর | 1941 | 93 | 6 | 1 |
 | প্রিয়নাথ মুখোপাধ্যায় | 1947 | 38 | 0 | 0 |
 | বঙ্কিমচন্দ্র চট্টোপাধ্যায় | 1894 | 18 | 2 | 0 |
 | ঈশ্বরচন্দ্র বিদ্যাসাগর | 1891 | 13 | 0 | 1 |
@@ -71,7 +176,7 @@ A work's form comes from Wikisource's own categories, else Wikidata's type; for 
 | শরৎচন্দ্র চট্টোপাধ্যায় | 1938 | 6 | 3 | 1 |
 | অবনীন্দ্রনাথ ঠাকুর | 1951 | 7 | 0 | 1 |
 | প্রসাদদাস রায় | 1963 | 7 | 0 | 0 |
-| বিভূতিভূষণ বন্দ্যোপাধ্যায় | 1950 | 4 | 0 | 1 |
+| বিভূতিভূষণ বন্দ্যোপাধ্যায় | 1950 | 5 | 0 | 0 |
 | ব্রজেন্দ্রনাথ বন্দ্যোপাধ্যায় | 1952 | 5 | 0 | 0 |
 | হেমচন্দ্র বন্দ্যোপাধ্যায় | 1903 | 5 | 0 | 0 |
 | দীনেশচন্দ্র সেন | 1939 | 2 | 0 | 2 |
@@ -82,8 +187,8 @@ A work's form comes from Wikisource's own categories, else Wikidata's type; for 
 | দেবেন্দ্রনাথ ঠাকুর | 1905 | 3 | 0 | 0 |
 | প্রফুল্লচন্দ্র রায় | 1944 | 3 | 0 | 0 |
 | রজনীকান্ত সেন | 1910 | 3 | 0 | 0 |
-| রাখালদাস বন্দ্যোপাধ্যায় | 1930 | 2 | 0 | 1 |
-| রাজনারায়ণ বসু | 1899 | 2 | 0 | 1 |
+| রাখালদাস বন্দ্যোপাধ্যায় | 1930 | 3 | 0 | 0 |
+| রাজনারায়ণ বসু | 1899 | 3 | 0 | 0 |
 | রামনাথ বিশ্বাস | 1955 | 3 | 0 | 0 |
 | সখারাম গণেশ দেউস্কর | 1912 | 3 | 0 | 0 |
 | হেমলতা দেবী | 1943 | 3 | 0 | 0 |
@@ -111,10 +216,10 @@ A work's form comes from Wikisource's own categories, else Wikidata's type; for 
 | সুকান্ত ভট্টাচার্য | 1947 | 1 | 1 | 0 |
 | সুনির্মল বসু | 1957 | 2 | 0 | 0 |
 | অক্ষয়কুমার দত্ত | 1886 | 1 | 0 | 0 |
-| অক্ষয়চন্দ্র সরকার | 1917 | 0 | 0 | 1 |
+| অক্ষয়চন্দ্র সরকার | 1917 | 1 | 0 | 0 |
 | অদ্বৈত মল্লবর্মণ | 1951 | 0 | 1 | 0 |
 | অধরলাল সেন | 1885 | 1 | 0 | 0 |
-| অনাথনাথ বসু | 1935 | 0 | 0 | 1 |
+| অনাথনাথ বসু | 1935 | 1 | 0 | 0 |
 | অমলেন্দু দাশগুপ্ত | 1955 | 1 | 0 | 0 |
 | অরবিন্দ ঘোষ | 1950 | 1 | 0 | 0 |
 | অশ্বঘোষ | 150 | 1 | 0 | 0 |
@@ -131,13 +236,13 @@ A work's form comes from Wikisource's own categories, else Wikidata's type; for 
 | ঔরঙ্গজেব | 1707 | 1 | 0 | 0 |
 | কনকভূষণ মুখোপাধ্যায় | 1945 | 1 | 0 | 0 |
 | কালীপ্রসন্ন ঘোষ | 1910 | 1 | 0 | 0 |
-| কালীপ্রসন্ন বিদ্যারত্ন | 1924 | 0 | 0 | 1 |
+| কালীপ্রসন্ন বিদ্যারত্ন | 1924 | 1 | 0 | 0 |
 | কালীপ্রসন্ন সিংহ | 1870 | 1 | 0 | 0 |
 | কালীময় ঘটক | 1900 | 1 | 0 | 0 |
 | কুমুদিনী মিত্র | 1943 | 1 | 0 | 0 |
 | কৃষ্ণপ্রসন্ন সেন | 1902 | 1 | 0 | 0 |
 | কৃষ্ণেন্দ্র রায় | 1898 | 1 | 0 | 0 |
-| ক্ষিতিমোহন সেন | 1960 | 0 | 0 | 1 |
+| ক্ষিতিমোহন সেন | 1960 | 1 | 0 | 0 |
 | গিরিশচন্দ্র ঘোষ | 1912 | 1 | 0 | 0 |
 | গিরীন্দ্রমোহিনী দাসী | 1924 | 1 | 0 | 0 |
 | গিরীন্দ্রশেখর বসু | 1953 | 1 | 0 | 0 |
@@ -168,7 +273,9 @@ A work's form comes from Wikisource's own categories, else Wikidata's type; for 
 | প্রফুল্লকুমার সরকার | 1944 | 1 | 0 | 0 |
 | প্রিয়দর্শন হালদার | 1928 | 1 | 0 | 0 |
 | প্রিয়নাথ চক্রবর্তী | 1908 | 1 | 0 | 0 |
+| বাণভট্ট ও ভূষণভট্ট | 800 | 1 | 0 | 0 |
 | বারীন্দ্রকুমার ঘোষ | 1959 | 1 | 0 | 0 |
+| বাল্মীকি | 300 | 0 | 0 | 1 |
 | বিজয়কৃষ্ণ গোস্বামী | 1899 | 1 | 0 | 0 |
 | বিজয়চন্দ্র মজুমদার | 1942 | 1 | 0 | 0 |
 | বিনোদিনী দাসী | 1941 | 1 | 0 | 0 |
@@ -176,6 +283,7 @@ A work's form comes from Wikisource's own categories, else Wikidata's type; for 
 | বিহারীলাল চক্রবর্তী | 1894 | 1 | 0 | 0 |
 | বুকার টালিয়াফেরো ওয়াশিংটন | 1915 | 1 | 0 | 0 |
 | ব্রহ্মবান্ধব উপাধ্যায় | 1907 | 1 | 0 | 0 |
+| ভানুদত্ত মিশ্র | 1600 | 1 | 0 | 0 |
 | ভারতচন্দ্র রায় | 1760 | 1 | 0 | 0 |
 | ভুজঙ্গধর রায়চৌধুরী | 1940 | 1 | 0 | 0 |
 | ভূদেব মুখোপাধ্যায় | 1894 | 1 | 0 | 0 |
@@ -186,19 +294,20 @@ A work's form comes from Wikisource's own categories, else Wikidata's type; for 
 | মাখনলাল রায়চৌধুরী | 1962 | 1 | 0 | 0 |
 | মার্কাস অরিলিয়স | 180 | 1 | 0 | 0 |
 | মুহম্মদ ইকবাল | 1938 | 1 | 0 | 0 |
-| মেগাস্থিনিস | -281 | 1 | 0 | 0 |
+| মেগাস্থিনিস | -290 | 1 | 0 | 0 |
 | মোহনদাস করমচাঁদ গান্ধী | 1948 | 1 | 0 | 0 |
 | মোহিতলাল মজুমদার | 1952 | 1 | 0 | 0 |
 | ম্যাক্সিম গোর্কি | 1936 | 1 | 0 | 0 |
 | যতীন্দ্রমোহন সেনগুপ্ত | 1952 | 1 | 0 | 0 |
 | যদুনাথ মজুমদার | 1932 | 1 | 0 | 0 |
-| যোগীন্দ্রনাথ সরকার | 1937 | 0 | 0 | 1 |
+| যোগীন্দ্রনাথ সরকার | 1937 | 1 | 0 | 0 |
 | যোগেন্দ্রনাথ বন্দ্যোপাধ্যায় | 1904 | 1 | 0 | 0 |
 | রঙ্গলাল বন্দ্যোপাধ্যায় | 1887 | 1 | 0 | 0 |
 | রবীন্দ্রনাথ মৈত্র | 1933 | 1 | 0 | 0 |
 | রমাপ্রসাদ চন্দ | 1942 | 1 | 0 | 0 |
 | রসময় লাহা | 1928 | 1 | 0 | 0 |
 | রাজমোহন নাথ | 1965 | 1 | 0 | 0 |
+| রাজীবলোচন মুখোপাধ্যায় | 1900 | 1 | 0 | 0 |
 | রাজেন্দ্রনাথ বিদ্যাভূষণ | 1935 | 1 | 0 | 0 |
 | রাধানাথ মিত্র | 1921 | 1 | 0 | 0 |
 | রামেন্দ্রসুন্দর ত্রিবেদী | 1919 | 1 | 0 | 0 |
@@ -207,7 +316,7 @@ A work's form comes from Wikisource's own categories, else Wikidata's type; for 
 | ল্যেভ তলস্তোয় | 1910 | 1 | 0 | 0 |
 | শ্যামাপ্রসাদ মুখোপাধ্যায় | 1953 | 1 | 0 | 0 |
 | সঞ্জীবচন্দ্র চট্টোপাধ্যায় | 1889 | 1 | 0 | 0 |
-| সতীশচন্দ্র রায় | 1904 | 0 | 0 | 1 |
+| সতীশচন্দ্র রায় | 1904 | 1 | 0 | 0 |
 | সত্যচরণ শাস্ত্রী | 1935 | 1 | 0 | 0 |
 | সত্যেন্দ্রনাথ ঠাকুর | 1923 | 1 | 0 | 0 |
 | সত্যেন্দ্রনাথ দত্ত | 1922 | 1 | 0 | 0 |
@@ -229,58 +338,11 @@ A work's form comes from Wikisource's own categories, else Wikidata's type; for 
 | হানা রোসেলি হিগেন্স | 1940 | 1 | 0 | 0 |
 | হেমেন্দ্রপ্রসাদ ঘোষ | 1962 | 1 | 0 | 0 |
 
-## Links for books already in the catalog
-
-These rows match a catalog book exactly (title or Bangla title, and author), so the import adds the Wikisource link to that book instead of creating a second copy.
-
-| Catalog book | Author | Category there | Wikisource |
-|---|---|---|---|
-| তিতাস একটি নদীর নাম (Titash Ekti Nadir Naam) | অদ্বৈত মল্লবর্মণ | `uponnash` | https://bn.wikisource.org/wiki/তিতাস_একটি_নদীর_নাম |
-| রূপসী বাংলা (Rupashi Bangla) | জীবনানন্দ দাশ | `kobita` | https://bn.wikisource.org/wiki/রূপসী_বাংলা |
-| আলালের ঘরের দুলাল (Alaler Gharer Dulal) | প্যারীচাঁদ মিত্র | `uponnash` | https://bn.wikisource.org/wiki/আলালের_ঘরের_দুলাল_(১৮৭০) |
-| আনন্দমঠ (Anandamath) | বঙ্কিমচন্দ্র চট্টোপাধ্যায় | `uponnash` | https://bn.wikisource.org/wiki/আনন্দমঠ_(১৯৩৮) |
-| কপালকুণ্ডলা (Kopalkundala) | বঙ্কিমচন্দ্র চট্টোপাধ্যায় | `uponnash` | https://bn.wikisource.org/wiki/কপালকুণ্ডলা_(বঙ্কিমচন্দ্র_চট্টোপাধ্যায়,_১৮৭০) |
-| পদ্মানদীর মাঝি (Padma Nadir Majhi) | মানিক বন্দ্যোপাধ্যায় | `uponnash` | https://bn.wikisource.org/wiki/পদ্মানদীর_মাঝি |
-| গীতাঞ্জলি (Gitanjali) | রবীন্দ্রনাথ ঠাকুর | `kobita` | https://bn.wikisource.org/wiki/গীতাঞ্জলি_(১৯১৩) |
-| গোরা (Gora) | রবীন্দ্রনাথ ঠাকুর | `uponnash` | https://bn.wikisource.org/wiki/গোরা_(রবীন্দ্রনাথ_ঠাকুর) |
-| চিত্রা (Chitra) | রবীন্দ্রনাথ ঠাকুর | `kobita` | https://bn.wikisource.org/wiki/চিত্রা |
-| জীবনস্মৃতি (Jibansmriti) | রবীন্দ্রনাথ ঠাকুর | `itihash-jiboni` | https://bn.wikisource.org/wiki/জীবন-স্মৃতি_(১৯৪১) |
-| শেষের কবিতা (Shesher Kobita) | রবীন্দ্রনাথ ঠাকুর | `uponnash` | https://bn.wikisource.org/wiki/শেষের_কবিতা_(রবীন্দ্রনাথ_ঠাকুর,_১৯২৯) |
-| সোনার তরী (Sonar Tori) | রবীন্দ্রনাথ ঠাকুর | `kobita` | https://bn.wikisource.org/wiki/সোনার_তরী_(১৮৯৩) |
-| দেবদাস (Devdas) | শরৎচন্দ্র চট্টোপাধ্যায় | `uponnash` | https://bn.wikisource.org/wiki/দেবদাস_(শরৎচন্দ্র_চট্টোপাধ্যায়) |
-| পথের দাবী (Pather Dabi) | শরৎচন্দ্র চট্টোপাধ্যায় | `uponnash` | https://bn.wikisource.org/wiki/পথের_দাবী_(শরৎচন্দ্র_চট্টোপাধ্যায়,_১৯৫৮) |
-| শ্রীকান্ত (Srikanta) | শরৎচন্দ্র চট্টোপাধ্যায় | `uponnash` | https://bn.wikisource.org/wiki/শ্রীকান্ত_(প্রথম_পর্ব) |
-| ছাড়পত্র (Chharpatra) | সুকান্ত ভট্টাচার্য | `kobita` | https://bn.wikisource.org/wiki/ছাড়পত্র |
-
-## Not imported yet: no confirmed form
-
-Wikisource and Wikidata give no form for these and none was certain enough to set by hand. They are in `data/wikisource-unclassified.json` with `category: null`; set a category to import them.
-
-- গোচারণের মাঠ — অক্ষয়চন্দ্র সরকার (https://bn.wikisource.org/wiki/গোচারণের_মাঠ)
-- প্রেমিক সন্ন্যাসী — অনাথনাথ বসু (https://bn.wikisource.org/wiki/প্রেমিক_সন্ন্যাসী)
-- পথে-বিপথে — অবনীন্দ্রনাথ ঠাকুর (https://bn.wikisource.org/wiki/পথে-বিপথে_(১৯১৮))
-- মহাভারত (উপক্রমণিকাভাগ) — ঈশ্বরচন্দ্র বিদ্যাসাগর (https://bn.wikisource.org/wiki/মহাভারত_(উপক্রমণিকাভাগ))
-- বেল্লিক রামায়ণ — কালীপ্রসন্ন বিদ্যারত্ন (https://bn.wikisource.org/wiki/বেল্লিক_রামায়ণ)
-- প্রাচীন ভারতে নারী — ক্ষিতিমোহন সেন (https://bn.wikisource.org/wiki/প্রাচীন_ভারতে_নারী)
-- ভয়ভাঙ্গা — দীনেশচন্দ্র সেন (https://bn.wikisource.org/wiki/ভয়ভাঙ্গা)
-- সতী — দীনেশচন্দ্র সেন (https://bn.wikisource.org/wiki/সতী_(দীনেশচন্দ্র_সেন))
-- মেয়েলি ব্রত ও কথা — পরমেশপ্রসন্ন রায় (https://bn.wikisource.org/wiki/মেয়েলি_ব্রত_ও_কথা)
-- নীলগঞ্জের ফালমন সাহেব — বিভূতিভূষণ বন্দ্যোপাধ্যায় (https://bn.wikisource.org/wiki/নীলগঞ্জের_ফালমন_সাহেব)
-- মোহনলাল — যোগীন্দ্রনাথ সরকার (https://bn.wikisource.org/wiki/মোহনলাল)
-- কুরু পাণ্ডব — রবীন্দ্রনাথ ঠাকুর (https://bn.wikisource.org/wiki/কুরু_পাণ্ডব)
-- সংকলন — রবীন্দ্রনাথ ঠাকুর (https://bn.wikisource.org/wiki/সংকলন)
-- পাষাণের কথা — রাখালদাস বন্দ্যোপাধ্যায় (https://bn.wikisource.org/wiki/পাষাণের_কথা)
-- গ্রাম্য উপাখ্যান — রাজনারায়ণ বসু (https://bn.wikisource.org/wiki/গ্রাম্য_উপাখ্যান)
-- মহাভারত — রাজশেখর বসু (https://bn.wikisource.org/wiki/মহাভারত_(রাজশেখর_বসু))
-- বত্রিশ সিংহাসন — লাল্লু লাল (https://bn.wikisource.org/wiki/বত্রিশ_সিংহাসন_(নীলমণি_বসাক))
-- শরৎ-সাহিত্য-সংগ্রহ — শরৎচন্দ্র চট্টোপাধ্যায় (https://bn.wikisource.org/wiki/শরৎ-সাহিত্য-সংগ্রহ_(ত্রয়োদশ_সম্ভার))
-- গুরুদক্ষিণা — সতীশচন্দ্র রায় (https://bn.wikisource.org/wiki/গুরুদক্ষিণা)
-
 ## Excluded, by reason
 
 | Reason | Works |
 |---|---|
-| author's death year is not on Wikidata | 84 |
+| author's death year is not on Wikidata | 80 |
 | not a literary book | 28 |
 | anonymous, or no author on Wikidata | 24 |
 | another edition of the same work | 19 |
@@ -296,94 +358,15 @@ Wikisource and Wikidata give no form for these and none was certain enough to se
 
 Every excluded scan, with its exact reason, is listed at the end and in `data/wikisource-excluded.json`.
 
-## Titles romanised by the script (please check)
+## Batch 2 titles romanised by the script (please check)
 
-Wikidata has no English title for these, so `title` was romanised by rule. The URL slug is made from it.
-
-- আঁধারে আলো → Andhare Alo
-- অণুকথা সপ্তক → Anukatha Saptak
-- ইংরেজ ডাকাত → Ingrej Dakat
-- শ্রীযুত ডাক্তর এম, জে, ব্রমলি সাহেবের বক্তৃতার দ্বারা সংক্ষেপ আবেদন → Shrijut Daktar Em, Je, Bramali Saheber Baktritar Dwara Sangkshep Abedan
-- ইরাণী উপকথা → Irani Upakatha
-- কদলী-রাজ্য → Kadali-Rajya
-- ইসলাম ও কমিউনিজ্‌ম্‌ → Isalam O Kamiunijm
-- গৌরী → Gouri
-- গুরুদক্ষিণা → Gurudakshina
-- কৃষক আন্দোলন ও মধ্যবিত্ত → Krishak Andolan O Madhyabitta
-- কালিদাস ও ভবভূতি → Kalidas O Bhababhuti
-- চোরকাঁটা → Chorakanta
-- চারণ → Charan
-- চিন্তাতরঙ্গিণী → Chintatarangini
-- ডমরু-চরিত → Damaru-Charit
-- থার্ডক্লাশ → Thardaklash
-- ঝাঁশীর রাজকুমার → Jhanshir Rajakumar
-- নব্য-বিজ্ঞান → Nabya-Bijnan
-- নাগপাশ → Nagapash
-- পসরা → Pasara
 - প্রেমিক সন্ন্যাসী → Premik Sannyasi
-- পুষ্পপাত্র → Pushpapatra
-- পুষ্পাঞ্জলি → Pushpanjali
-- প্রাণোচ্ছ্বাস → Pranochchhwas
-- পশ্চিম প্রদেশের দুর্ভিক্ষ উপশমে সাহায্য সংগ্রহার্থে ব্রাহ্মসমাজের বক্তৃতা → Pashchim Pradesher Durbhiksha Upashame Sahajya Sangraharthe Brahmasamajer Baktrita
-- বড়বাড়ী → Barabari
-- বিলাত ভ্রমণ → Bilat Bhraman
-- ভয়ভাঙ্গা → Bhayabhanga
-- ভবঘুরে → Bhabaghure
-- ভাবে অভাব → Bhabe Abhab
-- বিশ্বের উপাদান → Bishwer Upadan
-- ভারত ও চীন → Bharat O Chin
-- বীরবাহু কাব্য → Birabahu Kabya
-- ভূঁই-চাঁপা → Bhui-Chanpa
-- ভারতবর্ষের ইতিহাস → Bharatabarsher Itihas
-- রাজকাহিনী → Rajakahini
-- রামায়ণে রাক্ষস সভ্যতা → Ramayane Rakshas Sabhyata
-- রামচন্দ্র বিদ্যাবাগীশ ও হরিহরানন্দনাথ তীর্থস্বামী → Ramachandra Bidyabagish O Hariharanandanath Tirthaswami
 - মোহনলাল → Mohanalal
-- শরৎ-সাহিত্য-সংগ্রহ → Sharat-Sahitya-Sangrah
-- শিশির → Shishir
-- সদ্ভাব কুসুম → Sadbhab Kusum
-- লোকসাহিত্য → Lokasahitya
-- হানাষি → Hanashi
-- হিন্দু রসায়নী বিদ্যা → Hindu Rasayani Bidya
-- সাহানা → Sahana
-- স্বপ্ন → Swapna
-- সীতা-হরণ-পাঁচালী → Sita-Haran-Panchali
-- ‘পার্টিসন’-প্রহেলিকা → Partisan-Prahelika
-- ৺কৃত্তিবাসের পরিচয় সংগ্রহ → Krittibaser Parichay Sangrah
+- গুরুদক্ষিণা → Gurudakshina
 
-## Spot-check: 20 random entries
+## Spot-checks
 
-Checked 2026-10-15 by `scripts/wikisource-spot-check.ts`, live, not from the import's cache (150 requests). A seeded random sample of 20 of the included works (ready and pending).
-
-**20 of 20 passed.** For each work:
-- **Died:** the death year Wikidata gives now, for every author, translator and editor, compared with an independent list of death years written down by hand (✓ = they agree). 13 of the 21 people are on that list.
-- **Scans complete:** how many of the scans the main page transcludes are still in a 100% proofread category on bn.wikisource.
-- **Pages:** the scan's proofread pages / validated pages, of all its pages; and the share of its proofread pages that the main page (and its chapter subpages) transcludes. Every transcluded page was confirmed proofread or validated.
-
-| # | Work | Died (Wikidata now; independent list) | Scans complete | Pages proofread / validated | On the main page | Result |
-|---|---|---|---|---|---|---|
-| 1 | [ভারত কোন্ পথে?](https://bn.wikisource.org/wiki/ভারত_কোন্‌_পথে%3F) | বারীন্দ্রকুমার ঘোষ: 1959 (not on the independent list) | 1/1 | 111 / 0 of 114 | 96%, 4 subpages | ✓ pass |
-| 2 | [আত্মচরিত](https://bn.wikisource.org/wiki/আত্মচরিত_(প্রফুল্লচন্দ্র_রায়)) | প্রফুল্লচন্দ্র রায়: 1944 ✓ | 1/1 | 402 / 20 of 421 | 100%, 29 subpages | ✓ pass |
-| 3 | [হিন্দু অথবা প্রেসিডেন্সী কলেজের ইতিবৃত্ত](https://bn.wikisource.org/wiki/হিন্দু_অথবা_প্রেসিডেন্‌সী_কলেজের_ইতিবৃত্ত) | রাজনারায়ণ বসু: 1899 ✓ | 1/1 | 43 / 0 of 44 | 100% | ✓ pass |
-| 4 | [এই কি ব্রাহ্ম বিবাহ](https://bn.wikisource.org/wiki/এই_কি_ব্রাহ্ম_বিবাহ) | শিবনাথ শাস্ত্রী: 1919 ✓ | 1/1 | 29 / 8 of 31 | 100% | ✓ pass |
-| 5 | [বাগেশ্বরী শিল্প-প্রবন্ধাবলী](https://bn.wikisource.org/wiki/বাগেশ্বরী_শিল্প-প্রবন্ধাবলী_(১৯৪১)) | অবনীন্দ্রনাথ ঠাকুর: 1951 ✓ | 1/1 | 399 / 126 of 401 | 100%, 29 subpages | ✓ pass |
-| 6 | [চোরকাঁটা](https://bn.wikisource.org/wiki/চোরকাঁটা) | চারুচন্দ্র বন্দ্যোপাধ্যায়: 1938 (not on the independent list) | 1/1 | 166 / 1 of 167 | 100%, 17 subpages | ✓ pass |
-| 7 | [অদ্ভুত ফকির](https://bn.wikisource.org/wiki/অদ্ভুত_ফকির) | প্রিয়নাথ মুখোপাধ্যায়: 1947 (not on the independent list) | 1/1 | 42 / 1 of 42 | 100%, 9 subpages | ✓ pass |
-| 8 | [বিবিধ প্রসঙ্গ](https://bn.wikisource.org/wiki/বিবিধ_প্রসঙ্গ) | রবীন্দ্রনাথ ঠাকুর: 1941 ✓ | 1/1 | 152 / 0 of 154 | 100%, 38 subpages | ✓ pass |
-| 9 | [স্বপ্নলব্ধ ভারতবর্ষের ইতিহাস](https://bn.wikisource.org/wiki/স্বপ্নলব্ধ_ভারতবর্ষের_ইতিহাস) | ভূদেব মুখোপাধ্যায়: 1894 ✓ | 1/1 | 64 / 64 of 68 | 100%, 10 subpages | ✓ pass |
-| 10 | [আমার দেখা তুরষ্ক](https://bn.wikisource.org/wiki/আমার_দেখা_তুরষ্ক) | শামসুন নাহার মাহমুদ: 1964 (not on the independent list) | 1/1 | 280 / 2 of 286 | 100%, 6 subpages | ✓ pass |
-| 11 | [ভ্রান্তিবিলাস](https://bn.wikisource.org/wiki/ভ্রান্তিবিলাস_(১৮৮৬)) | ঈশ্বরচন্দ্র বিদ্যাসাগর: 1891 ✓ | 1/1 | 115 / 1 of 120 | 100%, 5 subpages | ✓ pass |
-| 12 | [ফুলমণি ও করুণার বিবরণ](https://bn.wikisource.org/wiki/ফুলমণি_ও_করুণার_বিবরণ) | হানা ক্যাথেরিন মুলেন্স: 1861 (not on the independent list) | 1/1 | 309 / 6 of 321 | 100%, 11 subpages | ✓ pass |
-| 13 | [শ্রীযুত ডাক্তর এম, জে, ব্রমলি সাহেবের বক্তৃতার দ্বারা সংক্ষেপ আবেদন](https://bn.wikisource.org/wiki/শ্রীযুত_ডাক্তর_এম,_জে,_ব্রমলি_সাহেবের_বক্তৃতার_দ্বারা_সংক্ষেপ_আবেদন) | মাউন্টফোর্ড জোসেফ ব্রমলি: 1837 (not on the independent list)<br>উদয়চন্দ্র আঢ্য: 1856 (not on the independent list) | 1/1 | 20 / 0 of 22 | 100% | ✓ pass |
-| 14 | [কজ্জলী](https://bn.wikisource.org/wiki/কজ্জলী) | রাজশেখর বসু: 1960 ✓ | 1/1 | 215 / 1 of 224 | 100%, 6 subpages | ✓ pass |
-| 15 | [কণিকা](https://bn.wikisource.org/wiki/কণিকা_(রবীন্দ্রনাথ_ঠাকুর)) | রবীন্দ্রনাথ ঠাকুর: 1941 ✓ | 1/1 | 123 / 123 of 137 | 100%, 110 subpages | ✓ pass |
-| 16 | [বৈকুণ্ঠের খাতা](https://bn.wikisource.org/wiki/বৈকুণ্ঠের_খাতা) | রবীন্দ্রনাথ ঠাকুর: 1941 ✓ | 1/1 | 57 / 0 of 59 | 100%, 3 subpages | ✓ pass |
-| 17 | [মিবাররাজ](https://bn.wikisource.org/wiki/মিবাররাজ) | স্বর্ণকুমারী দেবী: 1932 ✓ | 1/1 | 82 / 0 of 85 | 100%, 18 subpages | ✓ pass |
-| 18 | [ঔপনিষদ ব্রহ্ম](https://bn.wikisource.org/wiki/ঔপনিষদ_ব্রহ্ম) | রবীন্দ্রনাথ ঠাকুর: 1941 ✓ | 1/1 | 43 / 0 of 44 | 100% | ✓ pass |
-| 19 | [স্বদেশিনী](https://bn.wikisource.org/wiki/স্বদেশিনী) | গিরীন্দ্রমোহিনী দাসী: 1924 (not on the independent list) | 1/1 | 31 / 0 of 33 | 100%, 18 subpages | ✓ pass |
-| 20 | [চিঠিপত্র](https://bn.wikisource.org/wiki/চিঠিপত্র_(প্রথম_খণ্ড)) | রবীন্দ্রনাথ ঠাকুর: 1941 ✓ | 1/1 | 86 / 3 of 97 | 100%, 39 subpages | ✓ pass |
-
-No problems found.
+Live re-checks of a random sample, not from the import's cache: batch 1 in `data/wikisource-spot-check-1.md`, batch 2 in `data/wikisource-spot-check-2.md` (`scripts/wikisource-spot-check.ts 2`).
 
 ## Every excluded scan
 
@@ -504,21 +487,17 @@ No problems found.
 | জননী-জন্মভূমি | প্রমথনাথ দত্ত | জননী-জন্মভূমি - প্রমথনাথ দত্ত (১৯০৬).pdf | author's death year is not on Wikidata (প্রমথনাথ দত্ত) |
 | কুসুম-যুগল | বঙ্কিমবিহারী দাস | কুসুম-যুগল - বঙ্কিমবিহারী দাস (১৮৯৮).pdf | author's death year is not on Wikidata (বঙ্কিমবিহারী দাস) |
 | সাঁওতালি পুরাণকথায় পৃথিবী ও মানব সৃষ্টি কাহিনি | বড় বাস্কী | সাঁওতালি পুরাণকথায় পৃথিবী ও মানব সৃষ্টি কাহিনি - বড়ো বাস্কী (২০২১).pdf | author's death year is not on Wikidata (বড় বাস্কী) |
-| অদ্ভুত রামায়ণ | বাল্মীকি | অদ্ভুত রামায়ণ - সৌদামিনী দেবী.pdf | author's death year is not on Wikidata (বাল্মীকি) |
 | চিদ্বিলাস | বিনয় কুমার সান্যাল | চিদ্বিলাস - বিনয় কুমার সান্যাল.pdf | author's death year is not on Wikidata (বিনয় কুমার সান্যাল) |
 | নিনিবি শহরের রিহাই | বিপিন বিহারী শাহ | নিনিবি শহরের রিহাই - বিপিন বিহারী শাহ.pdf | author's death year is not on Wikidata (বিপিন বিহারী শাহ) |
 | বেহেস্তের বয়ান | বিপিন বিহারী শাহ | বেহেস্তের বয়ান - বিপিন বিহারী শাহ.pdf | author's death year is not on Wikidata (বিপিন বিহারী শাহ) |
 | খোঁজে | বিভাবতী দেবী চৌধুরাণী | খোঁজে - বিভাবতী দেবী চৌধুরাণী.pdf | author's death year is not on Wikidata (বিভাবতী দেবী চৌধুরাণী) |
-| রসমঞ্জরী | ভানুদত্ত মিশ্র | রসমঞ্জরী - ভারতচন্দ্র রায় (১৮৫৩).pdf | author's death year is not on Wikidata (ভানুদত্ত মিশ্র) |
 | পরের-মেয়ে | ভূপেন্দ্রনাথ রায় চৌধুরী | পরের-মেয়ে - ভূপেন্দ্রনাথ রায় চৌধুরী (১৯২০).pdf | author's death year is not on Wikidata (ভূপেন্দ্রনাথ রায় চৌধুরী) |
 | লক্ষ্মী | ভূপেন্দ্রনাথ রায় চৌধুরী | লক্ষ্মী - ভূপেন্দ্রনাথ রায় চৌধুরী (১৯২০).pdf | author's death year is not on Wikidata (ভূপেন্দ্রনাথ রায় চৌধুরী) |
-| কাদম্বরী | বাণভট্ট ও ভূষণভট্ট | কাদম্বরী.djvu | author's death year is not on Wikidata (ভূষণভট্ট) |
 | বাসন্তিকা | মণীন্দ্রনাথ সিংহ | বাসন্তিকা - মনীন্দ্রনাথ সিংহ.pdf | author's death year is not on Wikidata (মণীন্দ্রনাথ সিংহ) |
 | শিক্ষিতা পতিতার আত্মচরিত | মানদা দেবী | শিক্ষিতা পতিতার আত্মচরিত - মানদা দেবী.pdf | author's death year is not on Wikidata (মানদা দেবী) |
 | ধৰ্ম্মঘট | যতীন্দ্রনাথ পাল | ধৰ্ম্মঘট - যতীন্দ্রনাথ পাল (১৯২০).pdf | author's death year is not on Wikidata (যতীন্দ্রনাথ পাল) |
 | উনিশে মে: ভাষার সংকট | রণবীর পুরকায়স্থ | উনিশে মে- ভাষার সংকট - রণবীর পুরকায়স্থ (২০২১).pdf | author's death year is not on Wikidata (রণবীর পুরকায়স্থ) |
 | ডিগবাজী খাঁ | রবীন্দ্রনাথ সেন | ডিগবাজী খাঁ - রবীন্দ্রনাথ সেন (১৯২৯).pdf | author's death year is not on Wikidata (রবীন্দ্রনাথ সেন) |
-| মহারাজ কৃষ্ণচন্দ্র রায়স্য চরিত্রং | রাজীবলোচন মুখোপাধ্যায় | মহারাজ কৃষ্ণচন্দ্র রায়স্য চরিত্রং - রাজীবলোচন মুখোপাধ্যায়.pdf | author's death year is not on Wikidata (রাজীবলোচন মুখোপাধ্যায়) |
 | দানবদলন কাব্য | রামচন্দ্র মুখোপাধ্যায় | দানবদলন কাব্য.pdf | author's death year is not on Wikidata (রামচন্দ্র মুখোপাধ্যায়) |
 | দেবী রাবিয়া | রাহাতুন্নেছা খাতুন | দেবী রাবিয়া - রাহাতুন্নেছা খাতুন.pdf | author's death year is not on Wikidata (রাহাতুন্নেছা খাতুন) |
 | প্রমোদবালা | রোহিণীকুমার সেনগুপ্ত | প্রমোদবালা - রোহিণীকুমার সেনগুপ্ত (১৮৮৭).pdf | author's death year is not on Wikidata (রোহিণীকুমার সেনগুপ্ত) |

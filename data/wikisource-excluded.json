@@ -805,13 +805,6 @@
     "reason": "author's death year is not on Wikidata (বড় বাস্কী)"
   },
   {
-    "title": "অদ্ভুত রামায়ণ",
-    "author": "বাল্মীকি",
-    "scan": "অদ্ভুত রামায়ণ - সৌদামিনী দেবী.pdf",
-    "wikisource": "https://bn.wikisource.org/wiki/অদ্ভুত_রামায়ণ_(১৮৯০)",
-    "reason": "author's death year is not on Wikidata (বাল্মীকি)"
-  },
-  {
     "title": "চিদ্বিলাস",
     "author": "বিনয় কুমার সান্যাল",
     "scan": "চিদ্বিলাস - বিনয় কুমার সান্যাল.pdf",
@@ -840,13 +833,6 @@
     "reason": "author's death year is not on Wikidata (বিভাবতী দেবী চৌধুরাণী)"
   },
   {
-    "title": "রসমঞ্জরী",
-    "author": "ভানুদত্ত মিশ্র",
-    "scan": "রসমঞ্জরী - ভারতচন্দ্র রায় (১৮৫৩).pdf",
-    "wikisource": "https://bn.wikisource.org/wiki/রসমঞ্জরী",
-    "reason": "author's death year is not on Wikidata (ভানুদত্ত মিশ্র)"
-  },
-  {
     "title": "পরের-মেয়ে",
     "author": "ভূপেন্দ্রনাথ রায় চৌধুরী",
     "scan": "পরের-মেয়ে - ভূপেন্দ্রনাথ রায় চৌধুরী (১৯২০).pdf",
@@ -859,13 +845,6 @@
     "scan": "লক্ষ্মী - ভূপেন্দ্রনাথ রায় চৌধুরী (১৯২০).pdf",
     "wikisource": "https://bn.wikisource.org/wiki/লক্ষ্মী_(ভূপেন্দ্রনাথ_রায়_চৌধুরী)",
     "reason": "author's death year is not on Wikidata (ভূপেন্দ্রনাথ রায় চৌধুরী)"
-  },
-  {
-    "title": "কাদম্বরী",
-    "author": "বাণভট্ট ও ভূষণভট্ট",
-    "scan": "কাদম্বরী.djvu",
-    "wikisource": "https://bn.wikisource.org/wiki/কাদম্বরী_(তারাশঙ্কর_তর্করত্ন,_১৮৯২)",
-    "reason": "author's death year is not on Wikidata (ভূষণভট্ট)"
   },
   {
     "title": "বাসন্তিকা",
@@ -901,13 +880,6 @@
     "scan": "ডিগবাজী খাঁ - রবীন্দ্রনাথ সেন (১৯২৯).pdf",
     "wikisource": "https://bn.wikisource.org/wiki/ডিগবাজী_খাঁ",
     "reason": "author's death year is not on Wikidata (রবীন্দ্রনাথ সেন)"
-  },
-  {
-    "title": "মহারাজ কৃষ্ণচন্দ্র রায়স্য চরিত্রং",
-    "author": "রাজীবলোচন মুখোপাধ্যায়",
-    "scan": "মহারাজ কৃষ্ণচন্দ্র রায়স্য চরিত্রং - রাজীবলোচন মুখোপাধ্যায়.pdf",
-    "wikisource": "https://bn.wikisource.org/wiki/মহারাজ_কৃষ্ণচন্দ্র_রায়স্য_চরিত্রং",
-    "reason": "author's death year is not on Wikidata (রাজীবলোচন মুখোপাধ্যায়)"
   },
   {
     "title": "দানবদলন কাব্য",

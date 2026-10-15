@@ -87,6 +87,17 @@ export const PROPOSED_FORMS = RULES.map((r) => r.form).filter((f) => f.proposed)
 // (an adaptation of a play that is prose, say). Only where the form is known
 // for certain; anything else stays "form unknown" for a person to choose.
 export const FORM_BY_HAND: Record<string, string> = {
+  // Re-checked 2026-10-16 from the texts themselves (contents and a passage).
+  "প্রেমিক সন্ন্যাসী|অনাথনাথ বসু": "novel", // prose, eleven numbered chapters
+  "গুরুদক্ষিণা|সতীশচন্দ্র রায়": "novel", // prose, seven chapters and an epilogue
+  "নীলগঞ্জের ফালমন সাহেব|বিভূতিভূষণ বন্দ্যোপাধ্যায়": "stories", // twelve titled stories
+  "সংকলন|রবীন্দ্রনাথ ঠাকুর": "essays", // selected prose: essays, letters, travel pieces
+  "প্রাচীন ভারতে নারী|ক্ষিতিমোহন সেন": "essays", // a study of women's rights in ancient India
+  "গ্রাম্য উপাখ্যান|রাজনারায়ণ বসু": "biography", // sketches of named people of the author's village
+  "বেল্লিক রামায়ণ|কালীপ্রসন্ন বিদ্যারত্ন": "poetry", // satire in rhymed couplets
+  "গোচারণের মাঠ|অক্ষয়চন্দ্র সরকার": "poetry", // its preface calls it a 24-page কাব্য
+  "পাষাণের কথা|রাখালদাস বন্দ্যোপাধ্যায়": "history", // ancient history narrated by a stone
+  "মোহনলাল|যোগীন্দ্রনাথ সরকার": "children", // a moral tale of a schoolboy, by a children's author
   "চন্দ্রলোকে যাত্রা|জুল ভার্ন": "scifi",
   "বেলুনে পাঁচ সপ্তাহ|জুল ভার্ন": "scifi",
   "বিশ্ব-ইতিহাস প্রসঙ্গ|জওহরলাল নেহরু": "history",
@@ -174,3 +185,18 @@ export function formByKey(key: string): Form {
   if (!form) throw new Error(`unknown form "${key}"`);
   return form;
 }
+
+// Works still without a category, and what was found on re-checking them
+// (2026-10-16). Shown in the report and in data/wikisource-unclassified.json.
+export const UNCLASSIFIED_NOTES: Record<string, string> = {
+  "মহাভারত (উপক্রমণিকাভাগ)|ঈশ্বরচন্দ্র বিদ্যাসাগর": "epic retelling (prose Mahabharata, introductory chapters) — proposed category পুরাণ ও লোককথা",
+  "মহাভারত|রাজশেখর বসু": "epic retelling (condensed Mahabharata) — proposed category পুরাণ ও লোককথা",
+  "কুরু পাণ্ডব|রবীন্দ্রনাথ ঠাকুর": "epic retelling (Mahabharata episodes) — proposed category পুরাণ ও লোককথা",
+  "সতী|দীনেশচন্দ্র সেন": "myth retold in prose (the Sati legend, twelve chapters) — proposed category পুরাণ ও লোককথা",
+  "ভয়ভাঙ্গা|দীনেশচন্দ্র সেন": "Radha-Krishna episodes retold — proposed category পুরাণ ও লোককথা",
+  "মেয়েলি ব্রত ও কথা|পরমেশপ্রসন্ন রায়": "folk rituals of East Bengal and their tales — proposed category পুরাণ ও লোককথা",
+  "অদ্ভুত রামায়ণ|বাল্মীকি": "a Ramayana variant, translated by সৌদামিনী দেবী (1890) — proposed category পুরাণ ও লোককথা",
+  "বত্রিশ সিংহাসন|লাল্লু লাল": "story cycle of King Vikramaditya, translated from Hindi — proposed category পুরাণ ও লোককথা",
+  "পথে-বিপথে|অবনীন্দ্রনাথ ঠাকুর": "humorous first-person prose sketches, between essays and stories — your choice (প্রবন্ধ or ছোটগল্প)",
+  "শরৎ-সাহিত্য-সংগ্রহ|শরৎচন্দ্র চট্টোপাধ্যায়": "omnibus volume 13 of collected works (mixed forms, including writings first published in it in 1960) — better left out",
+};

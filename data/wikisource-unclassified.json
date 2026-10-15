@@ -1,39 +1,5 @@
 [
   {
-    "description": "অক্ষয়চন্দ্র সরকারের বই।",
-    "language": "bn",
-    "publishYear": null,
-    "authorDeathYear": 1917,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://bn.wikisource.org/wiki/গোচারণের_মাঠ",
-        "rightsBasis": "লেখক ১৯১৭ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: বাংলা উইকিসংকলন"
-      }
-    ],
-    "title": "Gocharaner maath",
-    "titleBangla": "গোচারণের মাঠ",
-    "author": "অক্ষয়চন্দ্র সরকার",
-    "category": null
-  },
-  {
-    "description": "অনাথনাথ বসুর বই।",
-    "language": "bn",
-    "publishYear": null,
-    "authorDeathYear": 1935,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://bn.wikisource.org/wiki/প্রেমিক_সন্ন্যাসী",
-        "rightsBasis": "লেখক ১৯৩৫ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: বাংলা উইকিসংকলন"
-      }
-    ],
-    "title": "Premik Sannyasi",
-    "titleBangla": "প্রেমিক সন্ন্যাসী",
-    "author": "অনাথনাথ বসু",
-    "category": null
-  },
-  {
     "description": "অবনীন্দ্রনাথ ঠাকুরের বই।",
     "language": "bn",
     "publishYear": null,
@@ -48,7 +14,8 @@
     "title": "Pathe-bipathe",
     "titleBangla": "পথে-বিপথে",
     "author": "অবনীন্দ্রনাথ ঠাকুর",
-    "category": null
+    "category": null,
+    "note": "humorous first-person prose sketches, between essays and stories — your choice (প্রবন্ধ or ছোটগল্প)"
   },
   {
     "description": "ঈশ্বরচন্দ্র বিদ্যাসাগরের বই।",
@@ -65,41 +32,8 @@
     "title": "Mahabhjarat (Upakramanikabhag)",
     "titleBangla": "মহাভারত (উপক্রমণিকাভাগ)",
     "author": "ঈশ্বরচন্দ্র বিদ্যাসাগর",
-    "category": null
-  },
-  {
-    "description": "কালীপ্রসন্ন বিদ্যারত্নের বই।",
-    "language": "bn",
-    "publishYear": null,
-    "authorDeathYear": 1924,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://bn.wikisource.org/wiki/বেল্লিক_রামায়ণ",
-        "rightsBasis": "লেখক ১৯২৪ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: বাংলা উইকিসংকলন"
-      }
-    ],
-    "title": "Bellik Ramayan",
-    "titleBangla": "বেল্লিক রামায়ণ",
-    "author": "কালীপ্রসন্ন বিদ্যারত্ন",
-    "category": null
-  },
-  {
-    "description": "ক্ষিতিমোহন সেনের বই।",
-    "language": "bn",
-    "publishYear": null,
-    "authorDeathYear": 1960,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://bn.wikisource.org/wiki/প্রাচীন_ভারতে_নারী",
-        "rightsBasis": "লেখক ১৯৬০ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: বাংলা উইকিসংকলন"
-      }
-    ],
-    "title": "Pracheen Bharate Naree",
-    "titleBangla": "প্রাচীন ভারতে নারী",
-    "author": "ক্ষিতিমোহন সেন",
-    "category": null
+    "category": null,
+    "note": "epic retelling (prose Mahabharata, introductory chapters) — proposed category পুরাণ ও লোককথা"
   },
   {
     "description": "দীনেশচন্দ্র সেনের বই।",
@@ -116,7 +50,8 @@
     "title": "Bhayabhanga",
     "titleBangla": "ভয়ভাঙ্গা",
     "author": "দীনেশচন্দ্র সেন",
-    "category": null
+    "category": null,
+    "note": "Radha-Krishna episodes retold — proposed category পুরাণ ও লোককথা"
   },
   {
     "description": "দীনেশচন্দ্র সেনের বই।",
@@ -133,7 +68,8 @@
     "title": "Sati",
     "titleBangla": "সতী",
     "author": "দীনেশচন্দ্র সেন",
-    "category": null
+    "category": null,
+    "note": "myth retold in prose (the Sati legend, twelve chapters) — proposed category পুরাণ ও লোককথা"
   },
   {
     "description": "পরমেশপ্রসন্ন রায়ের বই।",
@@ -150,41 +86,26 @@
     "title": "Meyeli brata o katha",
     "titleBangla": "মেয়েলি ব্রত ও কথা",
     "author": "পরমেশপ্রসন্ন রায়",
-    "category": null
+    "category": null,
+    "note": "folk rituals of East Bengal and their tales — proposed category পুরাণ ও লোককথা"
   },
   {
-    "description": "বিভূতিভূষণ বন্দ্যোপাধ্যায়ের বই।",
+    "description": "বাল্মীকির বই, সৌদামিনী দেবীর অনুবাদে।",
     "language": "bn",
     "publishYear": null,
-    "authorDeathYear": 1950,
+    "authorDeathYear": 300,
     "isPublicDomain": true,
     "sources": [
       {
-        "url": "https://bn.wikisource.org/wiki/নীলগঞ্জের_ফালমন_সাহেব",
-        "rightsBasis": "লেখক ১৯৫০ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: বাংলা উইকিসংকলন"
+        "url": "https://bn.wikisource.org/wiki/অদ্ভুত_রামায়ণ_(১৮৯০)",
+        "rightsBasis": "মূল লেখক বাল্মীকি প্রাচীন ভারতের কবি; অনুবাদক সৌদামিনী দেবী ১৯২০ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: বাংলা উইকিসংকলন"
       }
     ],
-    "title": "Neelganjer Falman Saheb",
-    "titleBangla": "নীলগঞ্জের ফালমন সাহেব",
-    "author": "বিভূতিভূষণ বন্দ্যোপাধ্যায়",
-    "category": null
-  },
-  {
-    "description": "যোগীন্দ্রনাথ সরকারের বই।",
-    "language": "bn",
-    "publishYear": null,
-    "authorDeathYear": 1937,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://bn.wikisource.org/wiki/মোহনলাল",
-        "rightsBasis": "লেখক ১৯৩৭ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: বাংলা উইকিসংকলন"
-      }
-    ],
-    "title": "Mohanalal",
-    "titleBangla": "মোহনলাল",
-    "author": "যোগীন্দ্রনাথ সরকার",
-    "category": null
+    "title": "Adbhuta Ramayana",
+    "titleBangla": "অদ্ভুত রামায়ণ",
+    "author": "বাল্মীকি",
+    "category": null,
+    "note": "a Ramayana variant, translated by সৌদামিনী দেবী (1890) — proposed category পুরাণ ও লোককথা"
   },
   {
     "description": "রবীন্দ্রনাথ ঠাকুরের বই।",
@@ -201,58 +122,8 @@
     "title": "Kuru Pandab",
     "titleBangla": "কুরু পাণ্ডব",
     "author": "রবীন্দ্রনাথ ঠাকুর",
-    "category": null
-  },
-  {
-    "description": "রবীন্দ্রনাথ ঠাকুরের বই।",
-    "language": "bn",
-    "publishYear": null,
-    "authorDeathYear": 1941,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://bn.wikisource.org/wiki/সংকলন",
-        "rightsBasis": "লেখক ১৯৪১ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: বাংলা উইকিসংকলন"
-      }
-    ],
-    "title": "Sangkalan",
-    "titleBangla": "সংকলন",
-    "author": "রবীন্দ্রনাথ ঠাকুর",
-    "category": null
-  },
-  {
-    "description": "একটি পাথরের মুখে বলা প্রাচীন ভারতের ইতিহাস নিয়ে রাখালদাস বন্দ্যোপাধ্যায়ের বই।",
-    "language": "bn",
-    "publishYear": null,
-    "authorDeathYear": 1930,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://bn.wikisource.org/wiki/পাষাণের_কথা",
-        "rightsBasis": "লেখক ১৯৩০ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: বাংলা উইকিসংকলন"
-      }
-    ],
-    "title": "Pashaner Katha",
-    "titleBangla": "পাষাণের কথা",
-    "author": "রাখালদাস বন্দ্যোপাধ্যায়",
-    "category": null
-  },
-  {
-    "description": "রাজনারায়ণ বসুর বই।",
-    "language": "bn",
-    "publishYear": null,
-    "authorDeathYear": 1899,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://bn.wikisource.org/wiki/গ্রাম্য_উপাখ্যান",
-        "rightsBasis": "লেখক ১৮৯৯ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: বাংলা উইকিসংকলন"
-      }
-    ],
-    "title": "Gramya Upakhyan",
-    "titleBangla": "গ্রাম্য উপাখ্যান",
-    "author": "রাজনারায়ণ বসু",
-    "category": null
+    "category": null,
+    "note": "epic retelling (Mahabharata episodes) — proposed category পুরাণ ও লোককথা"
   },
   {
     "description": "সংস্কৃত মহাভারতের রাজশেখর বসুকৃত সারানুবাদ।",
@@ -269,7 +140,8 @@
     "title": "Mahabharat",
     "titleBangla": "মহাভারত",
     "author": "রাজশেখর বসু",
-    "category": null
+    "category": null,
+    "note": "epic retelling (condensed Mahabharata) — proposed category পুরাণ ও লোককথা"
   },
   {
     "description": "লাল্লু লালের বই, নীলমণি বসাকের অনুবাদে।",
@@ -286,7 +158,8 @@
     "title": "Singhasan Battisi",
     "titleBangla": "বত্রিশ সিংহাসন",
     "author": "লাল্লু লাল",
-    "category": null
+    "category": null,
+    "note": "story cycle of King Vikramaditya, translated from Hindi — proposed category পুরাণ ও লোককথা"
   },
   {
     "description": "শরৎচন্দ্র চট্টোপাধ্যায়ের বই।",
@@ -303,23 +176,7 @@
     "title": "Sharat-Sahitya-Sangrah",
     "titleBangla": "শরৎ-সাহিত্য-সংগ্রহ",
     "author": "শরৎচন্দ্র চট্টোপাধ্যায়",
-    "category": null
-  },
-  {
-    "description": "সতীশচন্দ্র রায়ের বই।",
-    "language": "bn",
-    "publishYear": null,
-    "authorDeathYear": 1904,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://bn.wikisource.org/wiki/গুরুদক্ষিণা",
-        "rightsBasis": "লেখক ১৯০৪ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: বাংলা উইকিসংকলন"
-      }
-    ],
-    "title": "Gurudakshina",
-    "titleBangla": "গুরুদক্ষিণা",
-    "author": "সতীশচন্দ্র রায়",
-    "category": null
+    "category": null,
+    "note": "omnibus volume 13 of collected works (mixed forms, including writings first published in it in 1960) — better left out"
   }
 ]
