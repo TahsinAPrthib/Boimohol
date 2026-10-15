@@ -2,7 +2,7 @@
 
 import { Suspense, useState, type FormEvent } from "react";
 import Link from "next/link";
-import { signIn } from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { safeCallbackUrl, withCallbackUrl } from "@/lib/safe-redirect";
 import {
@@ -36,11 +36,21 @@ function LoginForm() {
     setError(null);
     setPending(true);
 
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
+    const attempt = () => signIn("credentials", { email, password, redirect: false });
+    // NextAuth answers a rejected CSRF token with ok and no error (it would
+    // redirect to its own sign-in page), which would send the reader on as if
+    // signed in when they aren't. So a sign-in counts only once a session
+    // exists; a second attempt fetches a fresh token.
+    const signedIn = async () => Boolean((await getSession())?.user);
+    let result = await attempt();
+    if (!result?.error && !(await signedIn())) {
+      result = await attempt();
+      if (!result?.error && !(await signedIn())) {
+        setPending(false);
+        setError(loginErrorMessage(SIGN_IN_SERVER_ERROR));
+        return;
+      }
+    }
 
     setPending(false);
 
