@@ -10,6 +10,8 @@ import ListingCard from "@/components/ListingCard";
 import RequestCard from "@/components/RequestCard";
 import SearchBox from "@/components/SearchBox";
 import NoResults from "@/components/NoResults";
+import LanguageChips from "@/components/LanguageChips";
+import { languageWhere, readLanguage } from "@/lib/book-language";
 
 export const metadata: Metadata = {
   title: "খুঁজুন — বই মহল",
@@ -33,9 +35,13 @@ function GroupHeading({ title, more }: { title: string; more?: { href: string; l
   );
 }
 
-export default async function SearchPage(props: { searchParams: Promise<{ q?: string | string[] }> }) {
-  const q = readQuery((await props.searchParams).q);
+export default async function SearchPage(props: { searchParams: Promise<{ q?: string | string[]; lang?: string | string[] }> }) {
+  const searchParams = await props.searchParams;
+  const q = readQuery(searchParams.q);
   const search = searchFilter(q);
+  // The language filter narrows the books; listings and requests aren't books
+  // in a language, so they stay as they are.
+  const lang = readLanguage(searchParams.lang);
 
   // On phones the navbar has only an icon, so the box lives here; from lg up
   // the navbar's own box drives this page.
@@ -69,7 +75,7 @@ export default async function SearchPage(props: { searchParams: Promise<{ q?: st
   const [books, listings, requests] = await Promise.all([
     // The whole catalog is small, so every match is fetched and ranked here.
     prisma.book.findMany({
-      where: search,
+      where: { ...search, ...languageWhere(lang) },
       include: { category: { select: { colorKey: true } }, reviews: { select: { rating: true } } },
       orderBy: { title: "asc" },
     }),
@@ -91,9 +97,10 @@ export default async function SearchPage(props: { searchParams: Promise<{ q?: st
     }),
   ]);
 
+  // Best matches first; among equally good ones, Bangla books first.
   const rankedBooks = books
     .map((book, i) => ({ book, rank: matchRank([book.title, book.titleBangla, book.author], q), i }))
-    .sort((a, b) => a.rank - b.rank || a.i - b.i)
+    .sort((a, b) => a.rank - b.rank || Number(a.book.language !== "bn") - Number(b.book.language !== "bn") || a.i - b.i)
     .map((x) => x.book);
 
   const nothing = books.length === 0 && listings.length === 0 && requests.length === 0;
@@ -102,6 +109,7 @@ export default async function SearchPage(props: { searchParams: Promise<{ q?: st
     <div className="mx-auto max-w-5xl px-4 py-10">
       <h1 className="mb-6 font-display text-3xl text-ink [overflow-wrap:anywhere]">“{q}” খোঁজার ফলাফল</h1>
       {box}
+      <LanguageChips path="/search" params={{ q }} active={lang} className="mb-8" />
 
       {nothing ? (
         <NoResults query={q} />

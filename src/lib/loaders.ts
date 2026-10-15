@@ -36,10 +36,7 @@ export const loadCategory = cache((slug: string) =>
   prisma.category.findUnique({
     where: { slug },
     include: {
-      books: {
-        include: { reviews: { select: { rating: true } } },
-        orderBy: { title: "asc" },
-      },
+      // The page loads its own books, a page at a time.
       starterPicks: {
         include: { book: { include: { reviews: { select: { rating: true } } } } },
         orderBy: { rank: "asc" },

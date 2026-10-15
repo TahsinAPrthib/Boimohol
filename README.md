@@ -52,6 +52,8 @@ All screenshots are of public pages on the live site, taken while signed out.
 ### Library
 - Public-domain books only, as a PDF hosted here or a link to a free copy on Wikisource (any language), Project Gutenberg or the Internet Archive. Links to any other site are refused. Each copy states publicly why it is free (for example, the author's death year and the source).
 - The library labels each book as hosted here or external. External links open in a new tab and send no referrer.
+- The library, category pages and search filter by language (বাংলা / ইংরেজি / সব). Bangla books are listed first, and long lists are paged, 48 books at a time.
+- The free catalogue is prepared offline by scripts that read Bangla Wikisource and Wikidata (complete, proofread texts whose authors died in 1965 or earlier) and Project Gutenberg's official catalog feed. They write files for the admin import plus a review report; nothing is written to the database.
 - Downloads are counted only in aggregate. Who downloaded what is never recorded, and clicks on external links aren't counted at all.
 
 ### Search
@@ -252,7 +254,7 @@ Environment variables (names only; `.env.example` explains each):
 
 ## Testing
 
-**Unit tests.** `npm test` runs 107 tests with Node's built-in test runner, through `tsx`. They cover the pure modules where the rules live:
+**Unit tests.** `npm test` runs 114 tests with Node's built-in test runner, through `tsx`. They cover the pure modules where the rules live:
 
 | Area | Tests |
 |---|---|
@@ -264,6 +266,7 @@ Environment variables (names only; `.env.example` explains each):
 | Duplicate detection, matching an import row to an existing book, and book IDs | 11 |
 | The public-domain rule, including the year boundary | 6 |
 | Links to free copies elsewhere: the three trusted sites, lookalikes, credentials, schemes, normalisation | 6 |
+| Language filter, Bangla-first ordering and paging | 7 |
 | Grapheme-safe text snippets (never cutting a Bangla conjunct) | 4 |
 | The signed connect-Google cookie (forgery, expiry, junk) | 4 |
 

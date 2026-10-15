@@ -68,6 +68,8 @@ export default function SearchBox({
     const params = new URLSearchParams(onTarget ? searchParams.toString() : "");
     if (q) params.set("q", q);
     else params.delete("q");
+    // A new query starts at its first page of results.
+    params.delete("page");
     const qs = params.toString();
     const url = qs ? `${target}?${qs}` : target;
     startTransition(() => {

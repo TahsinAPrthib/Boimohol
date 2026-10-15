@@ -5,16 +5,21 @@ import { SOURCE_LABEL } from "@/lib/book-sources";
 import BookCard from "@/components/BookCard";
 import SearchBox from "@/components/SearchBox";
 import NoResults from "@/components/NoResults";
+import LanguageChips from "@/components/LanguageChips";
+import Pager from "@/components/Pager";
 import { hrefWith, readQuery, searchFilter } from "@/lib/search";
+import { banglaFirst, languageParam, languageWhere, pageOf, readLanguage, readPage } from "@/lib/book-language";
 
 export default async function LibraryPage(props: {
-  searchParams: Promise<{ category?: string; q?: string | string[] }>;
+  searchParams: Promise<{ category?: string; q?: string | string[]; lang?: string | string[]; page?: string | string[] }>;
 }) {
   const searchParams = await props.searchParams;
   const categories = await prisma.category.findMany({ orderBy: { name: "asc" } });
   const selectedSlug = searchParams.category;
   const q = readQuery(searchParams.q);
   const search = searchFilter(q);
+  const lang = readLanguage(searchParams.lang);
+  const langParam = languageParam(lang);
 
   // Only books that actually carry a free copy: a PDF hosted here, or a link
   // to one on Wikisource, Project Gutenberg or the Internet Archive.
@@ -25,22 +30,29 @@ export default async function LibraryPage(props: {
   // so a copy left on a book that was wrongly flagged is no longer offered
   // while it waits to be removed.
   const freeFile = { type: "FREE", rightsVerified: true } as const;
-  const books = await prisma.book.findMany({
-    where: {
-      ...(selectedSlug ? { category: { slug: selectedSlug } } : {}),
-      OR: [{ files: { some: freeFile } }, { sources: { some: {} } }],
-      isPublicDomain: true,
-      authorDeathYear: { lte: publicDomainCutoffYear() },
-      ...search,
-    },
+  const where = {
+    ...(selectedSlug ? { category: { slug: selectedSlug } } : {}),
+    OR: [{ files: { some: freeFile } }, { sources: { some: {} } }],
+    isPublicDomain: true,
+    authorDeathYear: { lte: publicDomainCutoffYear() },
+    ...languageWhere(lang),
+    ...search,
+  };
+  // Order the whole list by its titles (Bangla books first), then load one
+  // page of it: the library runs to well over a thousand books.
+  const listed = await prisma.book.findMany({ where, select: { id: true, title: true, titleBangla: true, language: true } });
+  const { items: pageIds, page, pages } = pageOf(banglaFirst(listed).map((b) => b.id), readPage(searchParams.page));
+  const loaded = await prisma.book.findMany({
+    where: { id: { in: pageIds } },
     include: {
       category: { select: { colorKey: true } },
       reviews: { select: { rating: true } },
       files: { where: freeFile, select: { id: true }, take: 1 },
       sources: { select: { kind: true }, orderBy: [{ kind: "asc" }, { createdAt: "asc" }] },
     },
-    orderBy: { title: "asc" },
   });
+  const byId = new Map(loaded.map((b) => [b.id, b]));
+  const books = pageIds.map((id) => byId.get(id)).filter((b) => b !== undefined);
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
@@ -55,9 +67,11 @@ export default async function LibraryPage(props: {
 
       <SearchBox label="লাইব্রেরিতে খুঁজুন" placeholder="বইয়ের নাম বা লেখক" className="mb-4" />
 
+      <LanguageChips path="/library" params={{ category: selectedSlug, q }} active={lang} className="mb-4" />
+
       <div className="mb-6 flex flex-wrap gap-2 border-b-2 border-ink/10 pb-6">
         <Link
-          href={hrefWith("/library", { q })}
+          href={hrefWith("/library", { q, lang: langParam })}
           className={`rounded-book border-2 px-3 py-1.5 font-body text-sm font-semibold ${
             !selectedSlug
               ? "border-cloth bg-cloth text-paper"
@@ -69,7 +83,7 @@ export default async function LibraryPage(props: {
         {categories.map((cat) => (
           <Link
             key={cat.id}
-            href={hrefWith("/library", { category: cat.slug, q })}
+            href={hrefWith("/library", { category: cat.slug, q, lang: langParam })}
             className={`rounded-book border-2 px-3 py-1.5 font-body text-sm font-semibold ${
               selectedSlug === cat.slug
                 ? "border-cloth bg-cloth text-paper"
@@ -85,9 +99,11 @@ export default async function LibraryPage(props: {
         <NoResults query={q} where={selectedSlug ? "এই বিভাগে" : "লাইব্রেরিতে"} />
       ) : books.length === 0 ? (
         <p className="rounded-book border-2 border-dashed border-ink/15 px-4 py-6 text-center font-body text-ink/60">
-          {selectedSlug
-            ? "এই বিভাগে এখনো কোনো বিনামূল্যের বই নেই।"
-            : "লাইব্রেরিতে এখনো কোনো বই যোগ করা হয়নি। শিগগিরই আসছে।"}
+          {lang !== "all"
+            ? `${lang === "bn" ? "বাংলা" : "ইংরেজি"} ভাষার কোনো বিনামূল্যের বই ${selectedSlug ? "এই বিভাগে " : ""}এখনো নেই।`
+            : selectedSlug
+              ? "এই বিভাগে এখনো কোনো বিনামূল্যের বই নেই।"
+              : "লাইব্রেরিতে এখনো কোনো বই যোগ করা হয়নি। শিগগিরই আসছে।"}
         </p>
       ) : (
         <>
@@ -120,6 +136,7 @@ export default async function LibraryPage(props: {
               />
             ))}
           </div>
+          <Pager path="/library" params={{ category: selectedSlug, q, lang: langParam }} page={page} pages={pages} />
         </>
       )}
     </div>
