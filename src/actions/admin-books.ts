@@ -6,10 +6,11 @@ import { prisma } from "@/lib/prisma";
 import { getAdminUserId } from "@/lib/authz";
 import { bn } from "@/lib/bangla";
 import { describeDbError } from "@/lib/db-errors";
-import { bookIdFor, bookKeys, clashesWith, keySetOf } from "@/lib/book-catalog";
+import { bookIdFor, bookKeys, clashesWith, findExisting, indexByKeys, keySetOf } from "@/lib/book-catalog";
 import { bookFormSchema, bookImportRowSchema, fieldErrorsOf, type BookFieldErrors } from "@/lib/book-schema";
 import { bookSearchText } from "@/lib/search";
 import { parseSourceUrl, type SourceKind } from "@/lib/book-sources";
+import { canBePublicDomain, publicDomainCutoffYear } from "@/lib/public-domain";
 
 // Every action re-checks ADMIN against the database (getAdminUserId), never
 // the session's copy of the role -- the pages being hidden is not enough.
@@ -192,11 +193,22 @@ export type ImportPreview = {
   }[];
   invalid: { row: number; title: string; reasons: string[] }[];
   duplicates: { row: number; title: string; author: string; reason: string }[];
+  // Rows matching a book already in the catalog whose links are new: the
+  // links are added to that book; nothing else about it changes.
+  linked: { row: number; title: string; author: string; bookId: string; sources: SourceKind[] }[];
   inserted?: number;
   insertedSources?: number;
 };
 
-const emptyPreview = (message: string): ImportPreview => ({ ok: false, message, total: 0, valid: [], invalid: [], duplicates: [] });
+const emptyPreview = (message: string): ImportPreview => ({
+  ok: false,
+  message,
+  total: 0,
+  valid: [],
+  invalid: [],
+  duplicates: [],
+  linked: [],
+});
 
 type Analysis = {
   preview: ImportPreview;
@@ -204,8 +216,9 @@ type Analysis = {
   sources: Omit<Prisma.BookSourceCreateManyInput, "addedById">[];
 };
 
-// Validates a whole file without writing anything. Two queries in total
-// (categories, existing books) however many rows -- never one per row.
+// Validates a whole file without writing anything. Three queries in total
+// (categories, existing books, existing links) however many rows -- never one
+// per row.
 async function analyzeImport(jsonText: string): Promise<Analysis> {
   if (typeof jsonText !== "string" || jsonText.length > MAX_IMPORT_CHARS) {
     return { preview: emptyPreview("ফাইলটি অনেক বড়; ১ মেগাবাইটের কম রাখুন।"), rows: [], sources: [] };
@@ -231,16 +244,21 @@ async function analyzeImport(jsonText: string): Promise<Analysis> {
     };
   }
 
-  const [categories, existing] = await Promise.all([
+  const [categories, existing, existingLinks] = await Promise.all([
     prisma.category.findMany({ select: { id: true, slug: true } }),
-    allBookIdentities(),
+    prisma.book.findMany({
+      select: { id: true, title: true, titleBangla: true, author: true, isPublicDomain: true, authorDeathYear: true },
+    }),
+    prisma.bookSource.findMany({ select: { bookId: true, url: true } }),
   ]);
   const categoryBySlug = new Map(categories.map((c) => [c.slug, c]));
-  const existingKeys = keySetOf(existing);
+  const existingByKey = indexByKeys(existing);
   const takenIds = new Set(existing.map((b) => b.id));
   const seenInFile = new Map<string, number>(); // book key -> row number
+  const linkKey = (bookId: string, url: string) => `${bookId} ${url}`;
+  const haveLink = new Set(existingLinks.map((s) => linkKey(s.bookId, s.url)));
 
-  const preview: ImportPreview = { ok: true, total: list.length, valid: [], invalid: [], duplicates: [] };
+  const preview: ImportPreview = { ok: true, total: list.length, valid: [], invalid: [], duplicates: [], linked: [] };
   const rows: Prisma.BookCreateManyInput[] = [];
   const sources: Analysis["sources"] = [];
 
@@ -261,8 +279,36 @@ async function analyzeImport(jsonText: string): Promise<Analysis> {
       preview.invalid.push({ row, title: data.title, reasons: [`বিভাগ “${slug}” খুঁজে পাওয়া যায়নি।`] });
       return;
     }
-    if (clashesWith(data, existingKeys)) {
-      preview.duplicates.push({ row, title: data.title, author: data.author, reason: "আগে থেকেই ক্যাটালগে আছে" });
+    // Already in the catalog (same author, and either title): never a second
+    // copy of the book -- but its links can be added to the one that exists,
+    // as long as that book passes the public-domain rule itself.
+    const match = findExisting(data, existingByKey);
+    if (match) {
+      const shown = { row, title: match.titleBangla || match.title, author: match.author };
+      if (rowSources.length === 0) {
+        preview.duplicates.push({ ...shown, reason: "আগে থেকেই ক্যাটালগে আছে" });
+        return;
+      }
+      if (!match.isPublicDomain || !canBePublicDomain(match.authorDeathYear)) {
+        preview.duplicates.push({
+          ...shown,
+          reason: "আগে থেকেই ক্যাটালগে আছে; সেখানে বইটি পাবলিক ডোমেইন হিসেবে চিহ্নিত নয়, তাই লিংক যোগ করা হবে না",
+        });
+        return;
+      }
+      const fresh = rowSources
+        .map((s) => ({ link: parseSourceUrl(s.url), rightsBasis: s.rightsBasis }))
+        .filter((s): s is { link: { ok: true; kind: SourceKind; url: string }; rightsBasis: string } => s.link.ok)
+        .filter((s) => !haveLink.has(linkKey(match.id, s.link.url)));
+      if (fresh.length === 0) {
+        preview.duplicates.push({ ...shown, reason: "আগে থেকেই ক্যাটালগে আছে, লিংকসহ" });
+        return;
+      }
+      for (const s of fresh) {
+        haveLink.add(linkKey(match.id, s.link.url));
+        sources.push({ bookId: match.id, kind: s.link.kind, url: s.link.url, rightsBasis: s.rightsBasis });
+      }
+      preview.linked.push({ ...shown, bookId: match.id, sources: fresh.map((s) => s.link.kind) });
       return;
     }
     const keys = bookKeys(data);
@@ -309,22 +355,40 @@ export async function previewImport(jsonText: string): Promise<ImportPreview> {
 
 // Re-validates the file from scratch -- the preview the browser saw is never
 // trusted -- then writes every valid row in one createMany statement, and
-// their external links in a second within the same batch transaction. No
-// interactive transaction and no per-row queries, so Prisma's 5-second
-// transaction limit can't be hit on a slow connection.
+// all the links (for new books and existing ones) in a second within the same
+// batch transaction. No interactive transaction and no per-row queries, so
+// Prisma's 5-second transaction limit can't be hit on a slow connection.
 export async function importBooks(jsonText: string): Promise<ImportPreview> {
   const adminId = await getAdminUserId();
   if (!adminId) return emptyPreview(NOT_ADMIN);
   try {
     const { preview, rows, sources } = await analyzeImport(jsonText);
     if (!preview.ok) return preview;
-    if (rows.length === 0) return { ...preview, ok: false, message: "যোগ করার মতো কোনো সঠিক নতুন বই নেই।", inserted: 0 };
+    if (rows.length === 0 && preview.linked.length === 0) {
+      return { ...preview, ok: false, message: "যোগ করার মতো কোনো সঠিক নতুন বই বা লিংক নেই।", inserted: 0 };
+    }
 
     const [books, links] = await prisma.$transaction([
       prisma.book.createMany({ data: rows, skipDuplicates: true }),
       prisma.bookSource.createMany({ data: sources.map((s) => ({ ...s, addedById: adminId })), skipDuplicates: true }),
     ]);
+
+    // As in addBookSource: an existing book could have been un-marked
+    // between the check above and the insert. Take back any link that now
+    // sits on a book the rule doesn't clear.
+    const linkedIds = preview.linked.map((l) => l.bookId);
+    if (linkedIds.length > 0) {
+      await prisma.bookSource.deleteMany({
+        where: {
+          bookId: { in: linkedIds },
+          url: { in: sources.filter((s) => linkedIds.includes(s.bookId)).map((s) => s.url) },
+          book: { OR: [{ isPublicDomain: false }, { authorDeathYear: null }, { authorDeathYear: { gt: publicDomainCutoffYear() } }] },
+        },
+      });
+    }
+
     revalidateBookPages();
+    for (const id of linkedIds) revalidatePath(`/books/${id}`);
     const skipped = preview.duplicates.length + preview.invalid.length;
     return {
       ...preview,
@@ -332,7 +396,9 @@ export async function importBooks(jsonText: string): Promise<ImportPreview> {
       insertedSources: links.count,
       message:
         `${bn(books.count)}টি বই যোগ করা হয়েছে` +
-        (links.count > 0 ? `, সঙ্গে বাইরের সাইটে বিনামূল্যে পড়ার ${bn(links.count)}টি লিংক।` : "।") +
+        (links.count > 0 ? `, সঙ্গে বাইরের সাইটে বিনামূল্যে পড়ার ${bn(links.count)}টি লিংক` : "") +
+        (preview.linked.length > 0 ? ` (এর মধ্যে ${bn(preview.linked.length)}টি ক্যাটালগের আগের বইয়ে)` : "") +
+        "।" +
         (skipped > 0 ? ` ${bn(preview.duplicates.length)}টি ডুপ্লিকেট ও ${bn(preview.invalid.length)}টি ত্রুটিপূর্ণ সারি বাদ দেওয়া হয়েছে।` : ""),
     };
   } catch (err) {

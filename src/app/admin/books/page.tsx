@@ -87,7 +87,10 @@ export default async function AdminBooksPage(props: {
       </p>
       <p className="mb-6 border-b-2 border-ink/10 pb-6 font-body text-sm text-ink/50">
         মোট {bn(books.length)}টি বই · পাবলিক ডোমেইন {bn(markedPublicDomain.length)}টি · ফাইল আছে {bn(withFile)}টিতে · বাইরের কপির
-        লিংক আছে {bn(withSource)}টিতে
+        লিংক আছে {bn(withSource)}টিতে ·{" "}
+        <Link href="/admin/categories" className="font-semibold text-cloth hover:underline">
+          বিভাগের শুরুর বই →
+        </Link>
       </p>
 
       {ruleBreakers.length > 0 && (
@@ -137,6 +140,8 @@ export default async function AdminBooksPage(props: {
             পাবলিক ডোমেইনের বইয়ে ঐচ্ছিক <code>sources</code>: বাইরের সাইটে বিনামূল্যের কপির তালিকা, প্রতিটিতে{" "}
             <code>url</code> (শুধু wikisource.org, gutenberg.org বা archive.org) ও <code>rightsBasis</code>, যেমন{" "}
             <code>{`"sources": [{ "url": "https://bn.wikisource.org/wiki/...", "rightsBasis": "লেখক ১৯৪১ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ" }]`}</code>
+            । বইটি ক্যাটালগে আগে থেকেই থাকলে নতুন করে যোগ হবে না, তবে তার নতুন লিংকগুলো আগের বইটিতে যোগ হবে — যদি
+            সেটি পাবলিক ডোমেইন হিসেবে চিহ্নিত থাকে।
           </p>
           <AdminBookImport categoryNames={Object.fromEntries(categories.map((c) => [c.slug, c.nameBangla]))} />
         </div>

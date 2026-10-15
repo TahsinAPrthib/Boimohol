@@ -66,7 +66,8 @@ All screenshots are of public pages on the live site, taken while signed out.
 - A privacy page written to match the code: what is stored, who can see it, what deletion removes and keeps, and what Google sends.
 
 ### Admin
-- **Books:** add, edit and delete books, plus bulk JSON import with validation and duplicate detection. Import rows can carry links to free copies elsewhere.
+- **Books:** add, edit and delete books, plus bulk JSON import with validation and duplicate detection. Import rows can carry links to free copies elsewhere; a row matching a book already in the catalog adds its links to that book instead of creating a duplicate.
+- **Categories:** choose each category's "start here" book from its own books, with a note on why it's a good first read.
 - **Library files:** upload a PDF, or add, edit and remove links to free copies elsewhere, each with a required rights note. Books whose public-domain flag the rule no longer supports get a warning.
 - **Reports:** a queue where reported content can be removed, or its owner suspended, in one step.
 - **Users:** search users, open any user's page to remove listings and delete reviews or requests, suspend or delete the account, and see the moderation history.
@@ -251,7 +252,7 @@ Environment variables (names only; `.env.example` explains each):
 
 ## Testing
 
-**Unit tests.** `npm test` runs 104 tests with Node's built-in test runner, through `tsx`. They cover the pure modules where the rules live:
+**Unit tests.** `npm test` runs 107 tests with Node's built-in test runner, through `tsx`. They cover the pure modules where the rules live:
 
 | Area | Tests |
 |---|---|
@@ -260,7 +261,7 @@ Environment variables (names only; `.env.example` explains each):
 | Wishlist ↔ listing matching | 15 |
 | Account rules: sign-up validation, the password stamp, the last-admin rule, Google names and emails | 9 |
 | Book import rows (including links to free copies) and the admin book form | 13 |
-| Duplicate detection and book IDs | 8 |
+| Duplicate detection, matching an import row to an existing book, and book IDs | 11 |
 | The public-domain rule, including the year boundary | 6 |
 | Links to free copies elsewhere: the three trusted sites, lookalikes, credentials, schemes, normalisation | 6 |
 | Grapheme-safe text snippets (never cutting a Bangla conjunct) | 4 |

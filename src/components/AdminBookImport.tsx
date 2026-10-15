@@ -18,7 +18,11 @@ export default function AdminBookImport({ categoryNames }: { categoryNames: Reco
   const [preview, setPreview] = useState<ImportPreview | null>(null);
   const [result, setResult] = useState<ImportPreview | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [pending, startTransition] = useTransition();
+  // Separate, so the import button says "adding" only while adding -- not
+  // while a preview is still settling.
+  const [previewing, startPreview] = useTransition();
+  const [importing, startImport] = useTransition();
+  const pending = previewing || importing;
 
   async function onFile(file: File | undefined) {
     setPreview(null);
@@ -33,7 +37,7 @@ export default function AdminBookImport({ categoryNames }: { categoryNames: Reco
     }
     const text = await file.text();
     setFileText(text);
-    startTransition(async () => {
+    startPreview(async () => {
       setPreview(await previewImport(text));
     });
   }
@@ -41,7 +45,7 @@ export default function AdminBookImport({ categoryNames }: { categoryNames: Reco
   function runImport() {
     if (!fileText) return;
     setError(null);
-    startTransition(async () => {
+    startImport(async () => {
       const done = await importBooks(fileText);
       setResult(done);
       setPreview(null);
@@ -51,6 +55,8 @@ export default function AdminBookImport({ categoryNames }: { categoryNames: Reco
 
   const shown = result ?? preview;
   const linkCount = shown?.valid.reduce((n, r) => n + r.sources.length, 0) ?? 0;
+  const linkedCount = shown?.linked.length ?? 0;
+  const actionable = (shown?.valid.length ?? 0) + linkedCount;
 
   return (
     <div className="flex flex-col gap-4">
@@ -71,7 +77,7 @@ export default function AdminBookImport({ categoryNames }: { categoryNames: Reco
         </p>
       </div>
 
-      {pending && !shown && <p className="font-body text-sm text-ink/60">যাচাই করা হচ্ছে…</p>}
+      {previewing && !shown && <p className="font-body text-sm text-ink/60">যাচাই করা হচ্ছে…</p>}
       {error && <p className="field-error">{error}</p>}
 
       {shown && !shown.ok && shown.total === 0 && (
@@ -89,7 +95,8 @@ export default function AdminBookImport({ categoryNames }: { categoryNames: Reco
               <span className="font-semibold text-ink">{fileName}</span>: মোট {bn(shown.total)}টি সারি ·{" "}
               <span className="font-semibold text-sage">যোগ হবে {bn(shown.valid.length)}টি</span> · ডুপ্লিকেট বাদ যাবে{" "}
               {bn(shown.duplicates.length)}টি · ত্রুটিপূর্ণ {bn(shown.invalid.length)}টি
-              {linkCount > 0 && <> · বাইরের সাইটে বিনামূল্যে পড়ার লিংক {bn(linkCount)}টি</>}
+              {linkCount > 0 && <> · নতুন বইয়ে বাইরের সাইটে বিনামূল্যে পড়ার লিংক {bn(linkCount)}টি</>}
+              {linkedCount > 0 && <> · ক্যাটালগের আগের বইয়ে লিংক যোগ হবে {bn(linkedCount)}টিতে</>}
             </p>
           )}
 
@@ -97,10 +104,14 @@ export default function AdminBookImport({ categoryNames }: { categoryNames: Reco
             <button
               type="button"
               onClick={runImport}
-              disabled={pending || shown.valid.length === 0}
+              disabled={pending || actionable === 0}
               className="btn-primary self-start disabled:opacity-50"
             >
-              {pending ? "যোগ করা হচ্ছে..." : `${bn(shown.valid.length)}টি বই যোগ করুন`}
+              {importing
+                ? "যোগ করা হচ্ছে..."
+                : linkedCount > 0
+                  ? `${bn(shown.valid.length)}টি বই যোগ করুন, ${bn(linkedCount)}টি আগের বইয়ে লিংক দিন`
+                  : `${bn(shown.valid.length)}টি বই যোগ করুন`}
             </button>
           )}
 
@@ -114,6 +125,19 @@ export default function AdminBookImport({ categoryNames }: { categoryNames: Reco
                       <li key={reason}>{reason}</li>
                     ))}
                   </ul>
+                </li>
+              ))}
+            </ReportList>
+          )}
+
+          {linkedCount > 0 && (
+            <ReportList title={`ক্যাটালগের আগের বইয়ে লিংক ${result ? "যোগ হয়েছে" : "যোগ হবে"} (${bn(linkedCount)}টি) — বই নতুন করে যোগ হবে না`}>
+              {shown.linked.map((r) => (
+                <li key={r.row} className="flex flex-wrap justify-between gap-x-3 border-b border-ink/10 py-2" data-linked-row>
+                  <span>
+                    সারি {bn(r.row)}: <span className="font-semibold text-ink">{r.title}</span> — {r.author}
+                  </span>
+                  <span className="text-ink/60">লিংক যোগ: {r.sources.map((k) => SOURCE_LABEL[k]).join(", ")}</span>
                 </li>
               ))}
             </ReportList>

@@ -1,6 +1,6 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
-import { bookIdFor, clashesWith, keySetOf, normalizeForMatch } from "./book-catalog";
+import { bookIdFor, clashesWith, findExisting, indexByKeys, keySetOf, normalizeForMatch } from "./book-catalog";
 
 const existing = [
   { title: "Pather Panchali", titleBangla: "পথের পাঁচালী", author: "বিভূতিভূষণ বন্দ্যোপাধ্যায়" },
@@ -45,5 +45,25 @@ describe("book ids", () => {
 
   test("a title with no Latin letters still gets a usable id", () => {
     assert.equal(bookIdFor("kobita", "গীতাঞ্জলি", new Set()), "kobita-book");
+  });
+});
+
+describe("finding the existing book an import row means", () => {
+  const catalog = [
+    { id: "uponnash-gora", title: "Gora", titleBangla: "গোরা", author: "রবীন্দ্রনাথ ঠাকুর" },
+    { id: "kobita-sonar-tori", title: "Sonar Tori", titleBangla: "সোনার তরী", author: "রবীন্দ্রনাথ ঠাকুর" },
+  ];
+  const index = indexByKeys(catalog);
+
+  test("by the Bangla title and author, whatever the English title", () => {
+    assert.equal(findExisting({ title: "Gora (novel)", titleBangla: "গোরা", author: "রবীন্দ্রনাথ ঠাকুর" }, index)?.id, "uponnash-gora");
+  });
+
+  test("by the English title, ignoring case and spacing", () => {
+    assert.equal(findExisting({ title: "sonar  tori", titleBangla: null, author: " রবীন্দ্রনাথ ঠাকুর" }, index)?.id, "kobita-sonar-tori");
+  });
+
+  test("the same title by another author is a different book", () => {
+    assert.equal(findExisting({ title: "Gora", titleBangla: "গোরা", author: "অন্য লেখক" }, index), undefined);
   });
 });

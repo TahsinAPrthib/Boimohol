@@ -49,6 +49,43 @@ const categories = [
     description: "ইতিহাস ও জীবনীমূলক গ্রন্থ।",
     colorKey: "cloth-light",
   },
+  // Added for the Wikisource import by migration 20261015085903, which is
+  // what creates them in production; listed here so the seed agrees.
+  {
+    slug: "probondho",
+    name: "Essays",
+    nameBangla: "প্রবন্ধ",
+    description: "সমাজ, সাহিত্য, ধর্ম, বিজ্ঞান ও শিক্ষা নিয়ে প্রবন্ধ, বক্তৃতা আর চিঠিপত্র।",
+    colorKey: "ink",
+  },
+  {
+    slug: "chhotogolpo",
+    name: "Short Stories",
+    nameBangla: "ছোটগল্প",
+    description: "ছোটগল্প আর গল্পের সংকলন।",
+    colorKey: "cloth-light",
+  },
+  {
+    slug: "natok",
+    name: "Plays",
+    nameBangla: "নাটক",
+    description: "নাটক, প্রহসন ও কাব্যনাট্য।",
+    colorKey: "oxblood",
+  },
+  {
+    slug: "bhromon",
+    name: "Travel Writing",
+    nameBangla: "ভ্রমণকাহিনি",
+    description: "দেশ-বিদেশ ঘোরার অভিজ্ঞতা নিয়ে লেখা বই।",
+    colorKey: "sage",
+  },
+  {
+    slug: "shishu-sahitto",
+    name: "Children's Books",
+    nameBangla: "শিশুসাহিত্য",
+    description: "ছোটদের জন্য গল্প, ছড়া আর রূপকথা।",
+    colorKey: "turmeric",
+  },
 ];
 
 // Real, well-known books. Descriptions below are original one-line summaries

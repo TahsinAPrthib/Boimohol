@@ -29,6 +29,23 @@ export function clashesWith(book: Named, keys: Set<string>): boolean {
   return bookKeys(book).some((k) => keys.has(k));
 }
 
+// The same matching, but answering *which* existing book: for an import row
+// that only adds a link to a book already in the catalog. If two books share
+// a key the first one listed wins.
+export function indexByKeys<T extends Named>(books: T[]): Map<string, T> {
+  const index = new Map<string, T>();
+  for (const b of books) for (const k of bookKeys(b)) if (!index.has(k)) index.set(k, b);
+  return index;
+}
+
+export function findExisting<T extends Named>(book: Named, index: Map<string, T>): T | undefined {
+  for (const k of bookKeys(book)) {
+    const hit = index.get(k);
+    if (hit) return hit;
+  }
+  return undefined;
+}
+
 // Same shape as the seed's ids (category slug + title), but limited to URL-safe
 // characters. A clash with an existing id gets -2, -3, ...
 export function bookIdFor(categorySlug: string, title: string, taken: Set<string>): string {
