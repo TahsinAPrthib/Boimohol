@@ -105,7 +105,7 @@ export default function BookFileUploader({
   if (blocked) {
     return (
       <p className="rounded-book border-2 border-dashed border-ink/15 px-3 py-2 font-body text-xs text-ink/60">
-        এই বইটি পাবলিক ডোমেইনে নেই, তাই এর ফাইল যোগ করা যাবে না।
+        এই বইটি পাবলিক ডোমেইনে নেই, তাই এর ফাইল বা বাইরের সাইটের বিনামূল্যের কপির লিংক যোগ করা যাবে না।
       </p>
     );
   }

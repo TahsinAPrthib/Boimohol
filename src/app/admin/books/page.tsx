@@ -12,6 +12,7 @@ import AdminBookDeleteButton from "@/components/AdminBookDeleteButton";
 import BookFileUploader from "@/components/BookFileUploader";
 import BookFileDeleteButton from "@/components/BookFileDeleteButton";
 import BookFileRightsEditor from "@/components/BookFileRightsEditor";
+import BookSourcesEditor from "@/components/BookSourcesEditor";
 import SearchBox from "@/components/SearchBox";
 import NoResults from "@/components/NoResults";
 import { hrefWith, readQuery, searchFilter } from "@/lib/search";
@@ -42,6 +43,10 @@ export default async function AdminBooksPage(props: {
             uploadedBy: { select: { username: true } },
           },
         },
+        sources: {
+          select: { id: true, kind: true, url: true, rightsBasis: true, addedBy: { select: { username: true } } },
+          orderBy: { createdAt: "asc" },
+        },
       },
       orderBy: [{ isPublicDomain: "desc" }, { title: "asc" }],
     }),
@@ -65,8 +70,9 @@ export default async function AdminBooksPage(props: {
   const narrowed = Boolean(search) || needsPdf;
 
   const cutoff = publicDomainCutoffYear();
-  const eligible = books.filter((b) => b.isPublicDomain);
+  const markedPublicDomain = books.filter((b) => b.isPublicDomain);
   const withFile = books.filter((b) => b.files.length > 0).length;
+  const withSource = books.filter((b) => b.sources.length > 0).length;
   // Books whose stored flag the rule no longer backs up -- e.g. one fixed by
   // the migration everywhere except where a PDF was already attached.
   const ruleBreakers = books.filter((b) => breaksPublicDomainRule(b));
@@ -75,11 +81,13 @@ export default async function AdminBooksPage(props: {
     <div className="mx-auto max-w-4xl px-4 py-10">
       <h1 className="mb-2 font-display text-3xl text-ink">বই ও লাইব্রেরি</h1>
       <p className="mb-2 max-w-prose font-body text-ink/70">
-        ক্যাটালগে বই যোগ ও সম্পাদনা করুন। শুধু পাবলিক ডোমেইনের বইয়ের পিডিএফ লাইব্রেরিতে যোগ করা যায়, আর প্রতিটি
-        ফাইলের সাথে কেন সেটি বিনামূল্যে দেওয়া যাচ্ছে তার ব্যাখ্যা লেখা বাধ্যতামূলক।
+        ক্যাটালগে বই যোগ ও সম্পাদনা করুন। শুধু পাবলিক ডোমেইনের বইয়ের পিডিএফ লাইব্রেরিতে যোগ করা যায়, কিংবা
+        উইকিসংকলন, প্রজেক্ট গুটেনবার্গ বা ইন্টারনেট আর্কাইভে থাকা বিনামূল্যের কপির লিংক। প্রতিটির সাথে কেন সেটি
+        বিনামূল্যে দেওয়া যাচ্ছে তার ব্যাখ্যা লেখা বাধ্যতামূলক।
       </p>
       <p className="mb-6 border-b-2 border-ink/10 pb-6 font-body text-sm text-ink/50">
-        মোট {bn(books.length)}টি বই · পাবলিক ডোমেইন {bn(eligible.length)}টি · ফাইল আছে {bn(withFile)}টিতে
+        মোট {bn(books.length)}টি বই · পাবলিক ডোমেইন {bn(markedPublicDomain.length)}টি · ফাইল আছে {bn(withFile)}টিতে · বাইরের কপির
+        লিংক আছে {bn(withSource)}টিতে
       </p>
 
       {ruleBreakers.length > 0 && (
@@ -95,7 +103,9 @@ export default async function AdminBooksPage(props: {
                   {b.titleBangla || b.title}
                 </a>{" "}
                 — {b.authorDeathYear === null ? "লেখকের মৃত্যুর বছর দেওয়া নেই" : `লেখক মারা গেছেন ${bnYear(b.authorDeathYear)} সালে`}
-                {b.files.length > 0 ? "; আগে পিডিএফটি মুছে তারপর চিহ্ন তুলে দিন" : "; সম্পাদনা করে চিহ্ন তুলে দিন"}
+                {b.files.length + b.sources.length > 0
+                  ? "; আগে পিডিএফ ও বাইরের লিংক সরিয়ে তারপর চিহ্ন তুলে দিন"
+                  : "; সম্পাদনা করে চিহ্ন তুলে দিন"}
               </li>
             ))}
           </ul>
@@ -122,6 +132,11 @@ export default async function AdminBooksPage(props: {
             (বিভাগের slug: {categories.map((c) => c.slug).join(", ")}), <code>description</code>, <code>language</code>,{" "}
             <code>publishYear</code>, <code>authorDeathYear</code>, <code>isPublicDomain</code>। অজানা বছর{" "}
             <code>null</code>। একই লেখকের একই নামের বই (ইংরেজি বা বাংলা নামে) আগে থাকলে সেটি বাদ যাবে।
+          </p>
+          <p className="max-w-prose font-body text-sm text-ink/70">
+            পাবলিক ডোমেইনের বইয়ে ঐচ্ছিক <code>sources</code>: বাইরের সাইটে বিনামূল্যের কপির তালিকা, প্রতিটিতে{" "}
+            <code>url</code> (শুধু wikisource.org, gutenberg.org বা archive.org) ও <code>rightsBasis</code>, যেমন{" "}
+            <code>{`"sources": [{ "url": "https://bn.wikisource.org/wiki/...", "rightsBasis": "লেখক ১৯৪১ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ" }]`}</code>
           </p>
           <AdminBookImport categoryNames={Object.fromEntries(categories.map((c) => [c.slug, c.nameBangla]))} />
         </div>
@@ -161,6 +176,8 @@ export default async function AdminBooksPage(props: {
           {shown.map((book) => {
             const file = book.files[0];
             const breaksRule = breaksPublicDomainRule(book);
+            const hasFreeCopy = Boolean(file) || book.sources.length > 0;
+            const eligible = book.isPublicDomain && canBePublicDomain(book.authorDeathYear);
             return (
               <li
                 key={book.id}
@@ -195,6 +212,11 @@ export default async function AdminBooksPage(props: {
                         ফাইল আছে
                       </span>
                     )}
+                    {book.sources.length > 0 && (
+                      <span className="rounded-book bg-cloth/15 px-2 py-1 font-body text-xs font-semibold text-cloth">
+                        বাইরের কপি {bn(book.sources.length)}টি
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -204,8 +226,10 @@ export default async function AdminBooksPage(props: {
                     {book.authorDeathYear === null
                       ? "লেখকের মৃত্যুর বছর দেওয়া নেই"
                       : `লেখক মারা গেছেন ${bnYear(book.authorDeathYear)} সালে`}
-                    । {file ? "আগে পিডিএফটি মুছে ফেলুন, তারপর সম্পাদনা করে চিহ্ন তুলে দিন।" : "সম্পাদনা করে চিহ্ন তুলে দিন।"}
-                    {file && " পিডিএফটি এখন সাইটে দেখানো হচ্ছে না।"}
+                    ।{" "}
+                    {hasFreeCopy
+                      ? "আগে পিডিএফ ও বাইরের লিংক সরিয়ে ফেলুন, তারপর সম্পাদনা করে চিহ্ন তুলে দিন। এগুলো এখন সাইটে দেখানো হচ্ছে না।"
+                      : "সম্পাদনা করে চিহ্ন তুলে দিন।"}
                   </p>
                 )}
 
@@ -255,10 +279,22 @@ export default async function AdminBooksPage(props: {
                       </div>
                     </div>
                   ) : (
-                    <BookFileUploader
-                      bookId={book.id}
-                      isPublicDomain={book.isPublicDomain && canBePublicDomain(book.authorDeathYear)}
-                    />
+                    <BookFileUploader bookId={book.id} isPublicDomain={eligible} />
+                  )}
+                  {(eligible || book.sources.length > 0) && (
+                    <div className="mt-3 border-t-2 border-ink/10 pt-3">
+                      <BookSourcesEditor
+                        bookId={book.id}
+                        eligible={eligible}
+                        sources={book.sources.map((s) => ({
+                          id: s.id,
+                          kind: s.kind,
+                          url: s.url,
+                          rightsBasis: s.rightsBasis,
+                          addedBy: s.addedBy?.username ?? null,
+                        }))}
+                      />
+                    </div>
                   )}
                 </div>
               </li>

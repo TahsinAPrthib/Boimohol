@@ -8,7 +8,7 @@ free, and physical books can be passed on through a small marketplace with built
 screen is in Bangla, with Bangla digits and dates in Bangladesh time. Underneath are the details a
 Bangla product actually needs:
 - search treats differently encoded Bangla text as the same word;
-- the library refuses any PDF that the copyright rule doesn't clear;
+- the library refuses any PDF or reading link that the copyright rule doesn't clear;
 - moderation and the privacy policy describe what the code really does.
 
 **Live site:** https://boimohol-delta.vercel.app
@@ -50,8 +50,9 @@ All screenshots are of public pages on the live site, taken while signed out.
 - Reporting of listings, messages and users, plus blocking. A safety notice covers meeting in person.
 
 ### Library
-- Free PDFs of public-domain books only. Each file states publicly why it is free (for example, the author's death year and the source).
-- Downloads are counted only in aggregate. Who downloaded what is never recorded.
+- Public-domain books only, as a PDF hosted here or a link to a free copy on Wikisource (any language), Project Gutenberg or the Internet Archive. Links to any other site are refused. Each copy states publicly why it is free (for example, the author's death year and the source).
+- The library labels each book as hosted here or external. External links open in a new tab and send no referrer.
+- Downloads are counted only in aggregate. Who downloaded what is never recorded, and clicks on external links aren't counted at all.
 
 ### Search
 - Site-wide search at `/search`, grouping books, listings and requests. There are also search boxes on the category, library, marketplace and requests pages.
@@ -65,8 +66,8 @@ All screenshots are of public pages on the live site, taken while signed out.
 - A privacy page written to match the code: what is stored, who can see it, what deletion removes and keeps, and what Google sends.
 
 ### Admin
-- **Books:** add, edit and delete books, plus bulk JSON import with validation and duplicate detection.
-- **Library files:** upload a PDF with a required rights note, with warnings for books whose public-domain flag the rule no longer supports.
+- **Books:** add, edit and delete books, plus bulk JSON import with validation and duplicate detection. Import rows can carry links to free copies elsewhere.
+- **Library files:** upload a PDF, or add, edit and remove links to free copies elsewhere, each with a required rights note. Books whose public-domain flag the rule no longer supports get a warning.
 - **Reports:** a queue where reported content can be removed, or its owner suspended, in one step.
 - **Users:** search users, open any user's page to remove listings and delete reviews or requests, suspend or delete the account, and see the moderation history.
 - Every moderation step is logged with who did it and when. Admin pages return 404 to everyone else, and the admin role is re-read from the database on every request.
@@ -134,13 +135,14 @@ Books, listings and requests store a precomputed `searchText`. A migration backf
 **Why.** Someone typing on a different keyboard should still find the book. The 21 search tests pin each of these cases down.
 
 ### A copyright-safe library
-**Problem.** Offering free PDFs is only legitimate for books that are actually out of copyright. A wrong flag in the database should not be enough to publish one.
+**Problem.** Offering free PDFs, or pointing readers to free copies elsewhere, is only legitimate for books that are actually out of copyright. A wrong flag in the database should not be enough to publish one.
 
 **What was done.** Bangladeshi copyright lasts 60 years after the end of the author's death year. So in year *Y*, a book is public domain only if its author died in *Y* − 61 or earlier. That rule lives in one function, and the server enforces it:
 - **Book records:** creating, editing or importing a book cannot mark it public domain if the death year doesn't allow it.
 - **Uploads:** only admins can upload. The role is re-read from the database before an upload is signed. After upload, the server checks Cloudinary's own record of the file: the right folder, a `.pdf`, and 50 MB or less. Anything else is deleted.
-- **Rights note:** every file needs a written note explaining why it is free, and the book page shows it.
-- **Downloads:** pages offer a download only if the book passes the rule *today*. A stored flag can't outlive the rule.
+- **External copies:** a link is accepted only for an eligible book and only on wikisource.org, gutenberg.org or archive.org. The address is parsed, never pattern-matched, so lookalike hosts, embedded credentials, ports and non-web schemes are refused. Links are stored normalised, so the same copy can't be added twice. The same checks run in the admin form, the server actions and the JSON import.
+- **Rights note:** every file and every link needs a written note explaining why it is free, and the book page shows it.
+- **Downloads:** pages offer a free copy only if the book passes the rule *today*. A stored flag can't outlive the rule, and a book can't be un-marked while a PDF or link is still attached.
 
 There is deliberately no code path for paid files. The PDFs themselves were prepared from Bangla Wikisource exports. Where an edition carried a later publisher's front matter, such as a 1961 copyright notice, that front matter was removed.
 
@@ -249,7 +251,7 @@ Environment variables (names only; `.env.example` explains each):
 
 ## Testing
 
-**Unit tests.** `npm test` runs 93 tests with Node's built-in test runner, through `tsx`. They cover the pure modules where the rules live:
+**Unit tests.** `npm test` runs 104 tests with Node's built-in test runner, through `tsx`. They cover the pure modules where the rules live:
 
 | Area | Tests |
 |---|---|
@@ -257,9 +259,10 @@ Environment variables (names only; `.env.example` explains each):
 | Bangla numbers, prices and dates in Bangladesh time, with no Latin digits | 18 |
 | Wishlist ↔ listing matching | 15 |
 | Account rules: sign-up validation, the password stamp, the last-admin rule, Google names and emails | 9 |
-| Book import rows and the admin book form | 8 |
+| Book import rows (including links to free copies) and the admin book form | 13 |
 | Duplicate detection and book IDs | 8 |
 | The public-domain rule, including the year boundary | 6 |
+| Links to free copies elsewhere: the three trusted sites, lookalikes, credentials, schemes, normalisation | 6 |
 | Grapheme-safe text snippets (never cutting a Bangla conjunct) | 4 |
 | The signed connect-Google cookie (forgery, expiry, junk) | 4 |
 
@@ -280,4 +283,4 @@ These scripts were run during development and aren't part of the repository.
 
 - `BookFile.rightsVerified` is set only by the upload path, after every check has passed. There is no code path for paid files.
 - Book covers are always generated. No real cover art is copied or hotlinked.
-- Before adding a title to the library, check the author's death year against the rule above. Be especially careful with authors who died within about the last 60 years.
+- Before adding a title or a reading link to the library, check the author's death year against the rule above. Be especially careful with authors who died within about the last 60 years.

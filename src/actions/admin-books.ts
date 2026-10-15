@@ -9,6 +9,7 @@ import { describeDbError } from "@/lib/db-errors";
 import { bookIdFor, bookKeys, clashesWith, keySetOf } from "@/lib/book-catalog";
 import { bookFormSchema, bookImportRowSchema, fieldErrorsOf, type BookFieldErrors } from "@/lib/book-schema";
 import { bookSearchText } from "@/lib/search";
+import { parseSourceUrl, type SourceKind } from "@/lib/book-sources";
 
 // Every action re-checks ADMIN against the database (getAdminUserId), never
 // the session's copy of the role -- the pages being hidden is not enough.
@@ -24,7 +25,7 @@ const NOT_ADMIN = "শুধু অ্যাডমিন বই যোগ, স�
 const DUPLICATE = "এই লেখকের এই নামে একটি বই আগে থেকেই আছে।";
 const SERVER_PROBLEM = "সার্ভারে সাময়িক সমস্যা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।";
 const HAS_PDF =
-  "এই বইয়ের একটি পিডিএফ লাইব্রেরিতে আছে, তাই পাবলিক ডোমেইনের চিহ্ন তুলে দেওয়া যাবে না। আগে পিডিএফটি মুছে ফেলুন।";
+  "এই বইয়ের একটি বিনামূল্যের কপি (পিডিএফ বা বাইরের সাইটের লিংক) লাইব্রেরিতে আছে, তাই পাবলিক ডোমেইনের চিহ্ন তুলে দেওয়া যাবে না। আগে সেগুলো সরিয়ে ফেলুন।";
 
 function formInput(formData: FormData) {
   const field = (name: string) => formData.get(name);
@@ -93,23 +94,25 @@ export async function updateBook(bookId: string, _prev: BookFormState, formData:
 
   try {
     const [book, category, existing] = await Promise.all([
-      prisma.book.findUnique({ where: { id: bookId }, select: { id: true, _count: { select: { files: true } } } }),
+      prisma.book.findUnique({ where: { id: bookId }, select: { id: true, _count: { select: { files: true, sources: true } } } }),
       prisma.category.findUnique({ where: { id: categoryId }, select: { id: true } }),
       allBookIdentities(),
     ]);
     if (!book) return { success: false, message: "বইটি খুঁজে পাওয়া যায়নি।" };
     if (!category) return { success: false, fieldErrors: { categoryId: "বিভাগটি খুঁজে পাওয়া যায়নি।" } };
-    if (!data.isPublicDomain && book._count.files > 0) {
+    if (!data.isPublicDomain && book._count.files + book._count.sources > 0) {
       return { success: false, message: HAS_PDF, fieldErrors: { isPublicDomain: HAS_PDF } };
     }
     if (clashesWith(data, keySetOf(existing.filter((b) => b.id !== bookId)))) {
       return { success: false, message: DUPLICATE, fieldErrors: { title: DUPLICATE } };
     }
 
-    // Un-marking is conditioned on "still no PDF" in the same statement, so a
-    // PDF uploaded a moment ago can't end up on a book marked as copyrighted.
+    // Un-marking is conditioned on "still no free copy" in the same
+    // statement, so a PDF or link added a moment ago can't end up on a book
+    // marked as copyrighted. (A death year too recent for public domain is
+    // refused by the schema while the flag is on, so this is the only path.)
     const result = await prisma.book.updateMany({
-      where: { id: bookId, ...(data.isPublicDomain ? {} : { files: { none: {} } }) },
+      where: { id: bookId, ...(data.isPublicDomain ? {} : { files: { none: {} }, sources: { none: {} } }) },
       data: { ...data, categoryId: category.id, searchText: bookSearchText(data) },
     });
     if (result.count === 0) return { success: false, message: HAS_PDF, fieldErrors: { isPublicDomain: HAS_PDF } };
@@ -178,37 +181,53 @@ export type ImportPreview = {
   ok: boolean;
   message?: string;
   total: number;
-  valid: { row: number; title: string; titleBangla: string | null; author: string; category: string; isPublicDomain: boolean }[];
+  valid: {
+    row: number;
+    title: string;
+    titleBangla: string | null;
+    author: string;
+    category: string;
+    isPublicDomain: boolean;
+    sources: SourceKind[];
+  }[];
   invalid: { row: number; title: string; reasons: string[] }[];
   duplicates: { row: number; title: string; author: string; reason: string }[];
   inserted?: number;
+  insertedSources?: number;
 };
 
 const emptyPreview = (message: string): ImportPreview => ({ ok: false, message, total: 0, valid: [], invalid: [], duplicates: [] });
 
+type Analysis = {
+  preview: ImportPreview;
+  rows: Prisma.BookCreateManyInput[];
+  sources: Omit<Prisma.BookSourceCreateManyInput, "addedById">[];
+};
+
 // Validates a whole file without writing anything. Two queries in total
 // (categories, existing books) however many rows -- never one per row.
-async function analyzeImport(jsonText: string): Promise<{ preview: ImportPreview; rows: Prisma.BookCreateManyInput[] }> {
+async function analyzeImport(jsonText: string): Promise<Analysis> {
   if (typeof jsonText !== "string" || jsonText.length > MAX_IMPORT_CHARS) {
-    return { preview: emptyPreview("ফাইলটি অনেক বড়; ১ মেগাবাইটের কম রাখুন।"), rows: [] };
+    return { preview: emptyPreview("ফাইলটি অনেক বড়; ১ মেগাবাইটের কম রাখুন।"), rows: [], sources: [] };
   }
   let parsedJson: unknown;
   try {
     parsedJson = JSON.parse(jsonText);
   } catch {
-    return { preview: emptyPreview("ফাইলটি সঠিক JSON নয়।"), rows: [] };
+    return { preview: emptyPreview("ফাইলটি সঠিক JSON নয়।"), rows: [], sources: [] };
   }
   const list = Array.isArray(parsedJson)
     ? parsedJson
     : parsedJson && typeof parsedJson === "object" && Array.isArray((parsedJson as { books?: unknown }).books)
       ? (parsedJson as { books: unknown[] }).books
       : null;
-  if (!list) return { preview: emptyPreview("ফাইলে বইয়ের একটি তালিকা (JSON array) থাকতে হবে।"), rows: [] };
-  if (list.length === 0) return { preview: emptyPreview("ফাইলে কোনো বই নেই।"), rows: [] };
+  if (!list) return { preview: emptyPreview("ফাইলে বইয়ের একটি তালিকা (JSON array) থাকতে হবে।"), rows: [], sources: [] };
+  if (list.length === 0) return { preview: emptyPreview("ফাইলে কোনো বই নেই।"), rows: [], sources: [] };
   if (list.length > MAX_IMPORT_ROWS) {
     return {
       preview: emptyPreview(`একটি ফাইলে সর্বোচ্চ ${bn(MAX_IMPORT_ROWS)}টি বই দেওয়া যায়; এই ফাইলে আছে ${bn(list.length)}টি।`),
       rows: [],
+      sources: [],
     };
   }
 
@@ -223,6 +242,7 @@ async function analyzeImport(jsonText: string): Promise<{ preview: ImportPreview
 
   const preview: ImportPreview = { ok: true, total: list.length, valid: [], invalid: [], duplicates: [] };
   const rows: Prisma.BookCreateManyInput[] = [];
+  const sources: Analysis["sources"] = [];
 
   list.forEach((raw, index) => {
     const row = index + 1;
@@ -235,7 +255,7 @@ async function analyzeImport(jsonText: string): Promise<{ preview: ImportPreview
       preview.invalid.push({ row, title: rawTitle, reasons: [...new Set(reasons)] });
       return;
     }
-    const { category: slug, ...data } = parsed.data;
+    const { category: slug, sources: rowSources = [], ...data } = parsed.data;
     const category = categoryBySlug.get(slug);
     if (!category) {
       preview.invalid.push({ row, title: data.title, reasons: [`বিভাগ “${slug}” খুঁজে পাওয়া যায়নি।`] });
@@ -253,11 +273,28 @@ async function analyzeImport(jsonText: string): Promise<{ preview: ImportPreview
     }
     for (const k of keys) seenInFile.set(k, row);
 
-    rows.push({ ...data, id: bookIdFor(category.slug, data.title, takenIds), categoryId: category.id, searchText: bookSearchText(data) });
-    preview.valid.push({ row, title: data.title, titleBangla: data.titleBangla, author: data.author, category: slug, isPublicDomain: data.isPublicDomain });
+    const id = bookIdFor(category.slug, data.title, takenIds);
+    rows.push({ ...data, id, categoryId: category.id, searchText: bookSearchText(data) });
+    // The schema has already accepted every link, so this only normalises it.
+    const kinds: SourceKind[] = [];
+    for (const s of rowSources) {
+      const link = parseSourceUrl(s.url);
+      if (!link.ok) continue;
+      sources.push({ bookId: id, kind: link.kind, url: link.url, rightsBasis: s.rightsBasis });
+      kinds.push(link.kind);
+    }
+    preview.valid.push({
+      row,
+      title: data.title,
+      titleBangla: data.titleBangla,
+      author: data.author,
+      category: slug,
+      isPublicDomain: data.isPublicDomain,
+      sources: kinds,
+    });
   });
 
-  return { preview, rows };
+  return { preview, rows, sources };
 }
 
 export async function previewImport(jsonText: string): Promise<ImportPreview> {
@@ -271,23 +308,32 @@ export async function previewImport(jsonText: string): Promise<ImportPreview> {
 }
 
 // Re-validates the file from scratch -- the preview the browser saw is never
-// trusted -- then writes every valid row in one createMany statement. No
+// trusted -- then writes every valid row in one createMany statement, and
+// their external links in a second within the same batch transaction. No
 // interactive transaction and no per-row queries, so Prisma's 5-second
 // transaction limit can't be hit on a slow connection.
 export async function importBooks(jsonText: string): Promise<ImportPreview> {
-  if (!(await getAdminUserId())) return emptyPreview(NOT_ADMIN);
+  const adminId = await getAdminUserId();
+  if (!adminId) return emptyPreview(NOT_ADMIN);
   try {
-    const { preview, rows } = await analyzeImport(jsonText);
+    const { preview, rows, sources } = await analyzeImport(jsonText);
     if (!preview.ok) return preview;
     if (rows.length === 0) return { ...preview, ok: false, message: "যোগ করার মতো কোনো সঠিক নতুন বই নেই।", inserted: 0 };
 
-    const { count } = await prisma.book.createMany({ data: rows, skipDuplicates: true });
+    const [books, links] = await prisma.$transaction([
+      prisma.book.createMany({ data: rows, skipDuplicates: true }),
+      prisma.bookSource.createMany({ data: sources.map((s) => ({ ...s, addedById: adminId })), skipDuplicates: true }),
+    ]);
     revalidateBookPages();
     const skipped = preview.duplicates.length + preview.invalid.length;
     return {
       ...preview,
-      inserted: count,
-      message: `${bn(count)}টি বই যোগ করা হয়েছে।${skipped > 0 ? ` ${bn(preview.duplicates.length)}টি ডুপ্লিকেট ও ${bn(preview.invalid.length)}টি ত্রুটিপূর্ণ সারি বাদ দেওয়া হয়েছে।` : ""}`,
+      inserted: books.count,
+      insertedSources: links.count,
+      message:
+        `${bn(books.count)}টি বই যোগ করা হয়েছে` +
+        (links.count > 0 ? `, সঙ্গে বাইরের সাইটে বিনামূল্যে পড়ার ${bn(links.count)}টি লিংক।` : "।") +
+        (skipped > 0 ? ` ${bn(preview.duplicates.length)}টি ডুপ্লিকেট ও ${bn(preview.invalid.length)}টি ত্রুটিপূর্ণ সারি বাদ দেওয়া হয়েছে।` : ""),
     };
   } catch (err) {
     console.error(`[admin] database error importing books: ${describeDbError(err)}`);

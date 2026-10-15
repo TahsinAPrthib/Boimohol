@@ -11,6 +11,7 @@ export default function BookCard({
   colorKey = "cloth",
   averageRating = 0,
   reviewCount = 0,
+  tags = [],
 }: {
   id: string;
   title: string;
@@ -19,6 +20,8 @@ export default function BookCard({
   colorKey?: string;
   averageRating?: number;
   reviewCount?: number;
+  // Small labels under the rating, e.g. where a free copy is (the library).
+  tags?: { label: string; external?: boolean }[];
 }) {
   return (
     <Link href={`/books/${id}`} className="group flex flex-col">
@@ -31,6 +34,20 @@ export default function BookCard({
         <StarRating value={averageRating} readOnly size="sm" />
         {reviewCount > 0 && <span className="font-body text-xs text-ink/40">({bn(reviewCount)})</span>}
       </div>
+      {tags.length > 0 && (
+        <ul className="mt-1.5 flex flex-wrap gap-1">
+          {tags.map((t) => (
+            <li
+              key={t.label}
+              className={`rounded-book px-1.5 py-0.5 font-body text-xs font-semibold leading-tight ${
+                t.external ? "bg-ink/10 text-ink/70" : "bg-sage/15 text-sage"
+              }`}
+            >
+              {t.label}
+            </li>
+          ))}
+        </ul>
+      )}
     </Link>
   );
 }

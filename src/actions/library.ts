@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { canBePublicDomain } from "@/lib/public-domain";
 import { getAdminUserId } from "@/lib/authz";
+import { rightsBasisSchema } from "@/lib/rights";
 import { serverCloudinary } from "@/lib/cloudinary-server";
 import { MAX_PDF_BYTES, PDF_FOLDER, PDF_FORMAT } from "@/lib/cloudinary-url";
 
@@ -66,14 +67,6 @@ export async function getPdfUploadSignature(): Promise<PdfUploadSignature> {
     allowedFormats: params.allowed_formats,
   };
 }
-
-// Shared by upload and the later edit, so a note can never be saved by one
-// path that the other would have refused.
-const rightsBasisSchema = z
-  .string({ required_error: "কোন ভিত্তিতে ফাইলটি বিনামূল্যে দেওয়া যাচ্ছে তা লিখতে হবে।" })
-  .trim()
-  .min(1, "কোন ভিত্তিতে ফাইলটি বিনামূল্যে দেওয়া যাচ্ছে তা লিখতে হবে।")
-  .max(1000, "ব্যাখ্যাটি অনেক বড় হয়ে গেছে।");
 
 const createSchema = z.object({
   bookId: z.string().trim().min(1, "বই নির্বাচন করা হয়নি।"),

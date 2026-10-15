@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { publicDomainCutoffYear } from "@/lib/public-domain";
+import { SOURCE_LABEL } from "@/lib/book-sources";
 import BookCard from "@/components/BookCard";
 import SearchBox from "@/components/SearchBox";
 import NoResults from "@/components/NoResults";
@@ -15,16 +16,19 @@ export default async function LibraryPage(props: {
   const q = readQuery(searchParams.q);
   const search = searchFilter(q);
 
-  // Only books that actually carry a free file. rightsVerified is part of the
-  // filter as well as the type: a row is only ever written with it true after
-  // the public-domain gate passes, so this keeps the public list honest even if
-  // a row were ever created some other way. The book itself must also pass
-  // the public-domain rule today, so a PDF left on a book that was wrongly
-  // flagged is no longer offered while it waits to be removed.
+  // Only books that actually carry a free copy: a PDF hosted here, or a link
+  // to one on Wikisource, Project Gutenberg or the Internet Archive.
+  // rightsVerified is part of the filter as well as the type: a file row is
+  // only ever written with it true after the public-domain gate passes, so
+  // this keeps the public list honest even if a row were ever created some
+  // other way. The book itself must also pass the public-domain rule today,
+  // so a copy left on a book that was wrongly flagged is no longer offered
+  // while it waits to be removed.
+  const freeFile = { type: "FREE", rightsVerified: true } as const;
   const books = await prisma.book.findMany({
     where: {
       ...(selectedSlug ? { category: { slug: selectedSlug } } : {}),
-      files: { some: { type: "FREE", rightsVerified: true } },
+      OR: [{ files: { some: freeFile } }, { sources: { some: {} } }],
       isPublicDomain: true,
       authorDeathYear: { lte: publicDomainCutoffYear() },
       ...search,
@@ -32,6 +36,8 @@ export default async function LibraryPage(props: {
     include: {
       category: { select: { colorKey: true } },
       reviews: { select: { rating: true } },
+      files: { where: freeFile, select: { id: true }, take: 1 },
+      sources: { select: { kind: true }, orderBy: [{ kind: "asc" }, { createdAt: "asc" }] },
     },
     orderBy: { title: "asc" },
   });
@@ -42,7 +48,8 @@ export default async function LibraryPage(props: {
         <h1 className="font-display text-3xl text-ink">লাইব্রেরি</h1>
         <p className="mt-2 max-w-prose font-body text-ink/70">
           পাবলিক ডোমেইনের বই — যেগুলোর কপিরাইটের মেয়াদ শেষ হয়ে গেছে, তাই যে কেউ বিনামূল্যে পড়তে
-          ও নামাতে পারেন।
+          ও নামাতে পারেন। কিছু বইয়ের পিডিএফ এখানেই রাখা আছে; বাকিগুলো পড়া যায় উইকিসংকলন, প্রজেক্ট
+          গুটেনবার্গ বা ইন্টারনেট আর্কাইভের মতো বিশ্বস্ত সাইটে।
         </p>
       </div>
 
@@ -86,7 +93,7 @@ export default async function LibraryPage(props: {
         <>
           {/* No count here: with a small library, a low number makes it look empty. */}
           <p className="mb-4 font-body text-sm text-ink/50">
-            পছন্দের বইটি খুলে বিনামূল্যে পড়ুন, অথবা পিডিএফ নামিয়ে রাখুন।
+            পছন্দের বইটি খুলে বিনামূল্যে পড়ুন — এখানে রাখা পিডিএফ নামিয়ে, অথবা বাইরের সাইটে গিয়ে।
           </p>
           <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4">
             {books.map((book) => (
@@ -103,6 +110,13 @@ export default async function LibraryPage(props: {
                     : 0
                 }
                 reviewCount={book.reviews.length}
+                tags={[
+                  ...(book.files.length > 0 ? [{ label: "এখানেই · পিডিএফ", external: false }] : []),
+                  ...[...new Set(book.sources.map((s) => s.kind))].map((k) => ({
+                    label: `বাইরের সাইটে · ${SOURCE_LABEL[k]}`,
+                    external: true,
+                  })),
+                ]}
               />
             ))}
           </div>

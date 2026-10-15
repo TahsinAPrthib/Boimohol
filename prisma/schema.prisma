@@ -126,6 +126,7 @@ model User {
   bookRequests         BookRequest[]
   requestResponses     RequestResponse[]
   bookFilesUploaded    BookFile[]
+  bookSourcesAdded     BookSource[]       @relation("BookSourcesAdded")
 }
 
 model Category {
@@ -164,6 +165,7 @@ model Book {
   shelfItems      ShelfItem[]
   starterPicks    StarterPick[]
   files           BookFile[]
+  sources         BookSource[]
   wishlistItems   WishlistItem[]
 
   @@index([categoryId])
@@ -173,6 +175,34 @@ model Book {
 // rightsVerified must be true before a PAID file can be listed for sale,
 // and should only be true for FREE files that are genuinely public domain
 // or explicitly licensed — see README's copyright section.
+// Where a free, legal copy hosted elsewhere can be read. Only these three
+// sites are accepted (src/lib/book-sources.ts), and only for a book that
+// passes the public-domain rule -- the same gate as an uploaded PDF.
+enum SourceKind {
+  WIKISOURCE
+  GUTENBERG
+  INTERNET_ARCHIVE
+}
+
+model BookSource {
+  id          String     @id @default(cuid())
+  bookId      String
+  book        Book       @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  kind        SourceKind
+  // Normalised by parseSourceUrl: https, no credentials or port.
+  url         String
+  // Why the copy is free to read, shown with the link.
+  rightsBasis String
+  // SetNull like BookFile.uploadedById, so deleting an admin's account isn't
+  // blocked by the sources they added.
+  addedById   String?
+  addedBy     User?      @relation("BookSourcesAdded", fields: [addedById], references: [id], onDelete: SetNull)
+  createdAt   DateTime   @default(now())
+
+  @@unique([bookId, url])
+  @@index([bookId])
+}
+
 model BookFile {
   id             String   @id @default(cuid())
   bookId         String

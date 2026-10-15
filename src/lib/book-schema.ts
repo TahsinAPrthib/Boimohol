@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { bnYear } from "@/lib/bangla";
 import { canBePublicDomain, publicDomainCutoffYear } from "@/lib/public-domain";
+import { rightsBasisSchema } from "@/lib/rights";
+import { parseSourceUrl, SOURCE_KINDS } from "@/lib/book-sources";
 
 // Validation for a book, shared by the admin form and the JSON import. The
 // public-domain rule is part of the schema, so neither path can skip it.
@@ -74,6 +76,37 @@ export const bookFormSchema = base
   })
   .superRefine(publicDomainRule);
 
+// A free copy hosted elsewhere, in an import row: the link must be on one of
+// the trusted sites (src/lib/book-sources.ts); "kind" may be given, but must
+// then agree with the link.
+const importSourceSchema = z
+  .object({
+    url: z.string({ required_error: "বাইরের কপির লিংক (url) আবশ্যক।", invalid_type_error: "লিংক লেখা হিসেবে দিন।" }),
+    rightsBasis: rightsBasisSchema,
+    kind: z.enum(SOURCE_KINDS as [string, ...string[]]).optional(),
+  })
+  .strict("বাইরের কপিতে অজানা ঘর আছে; বানান দেখুন।");
+
+function sourcesRule(data: { isPublicDomain: boolean; sources?: { url: string; kind?: string }[] }, ctx: z.RefinementCtx) {
+  if (!data.sources?.length) return;
+  if (!data.isPublicDomain) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["sources"], message: "বাইরের বিনামূল্যের কপি শুধু পাবলিক ডোমেইনের বইয়ে যোগ করা যায়।" });
+  }
+  const seen = new Set<string>();
+  data.sources.forEach((s, i) => {
+    const parsed = parseSourceUrl(s.url);
+    if (!parsed.ok) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["sources", i, "url"], message: parsed.message });
+      return;
+    }
+    if (s.kind && s.kind !== parsed.kind) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["sources", i, "kind"], message: `লিংকটি ${parsed.kind}-এর, কিন্তু kind দেওয়া আছে ${s.kind}।` });
+    }
+    if (seen.has(parsed.url)) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["sources", i, "url"], message: "একই লিংক দুবার দেওয়া হয়েছে।" });
+    seen.add(parsed.url);
+  });
+}
+
 // One row of an import file. Stricter than the form: unknown fields are an
 // error (a misspelt "authorDeathYear" must not silently become null) and the
 // flag must be a real true/false.
@@ -85,9 +118,11 @@ export const bookImportRowSchema = base
       invalid_type_error: "isPublicDomain শুধু true বা false হতে পারে।",
     }),
     language: base.shape.language.default("bn"),
+    sources: z.array(importSourceSchema).max(10, "একটি বইয়ে সর্বোচ্চ ১০টি বাইরের কপি দেওয়া যায়।").optional(),
   })
   .strict("অজানা ঘর আছে; বানান দেখুন।")
-  .superRefine(publicDomainRule);
+  .superRefine(publicDomainRule)
+  .superRefine(sourcesRule);
 
 export type BookFormInput = z.infer<typeof bookFormSchema>;
 export type BookImportRow = z.infer<typeof bookImportRowSchema>;

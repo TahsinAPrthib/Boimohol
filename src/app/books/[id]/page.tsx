@@ -11,7 +11,7 @@ import StarRating from "@/components/StarRating";
 import ReviewForm from "@/components/ReviewForm";
 import ShelfButtons from "@/components/ShelfButtons";
 import WishlistButton from "@/components/WishlistButton";
-import BookDownloadButton from "@/components/BookDownloadButton";
+import BookFreeCopies from "@/components/BookFreeCopies";
 import ConfirmAction from "@/components/ConfirmAction";
 import { deleteReview } from "@/actions/reviews";
 
@@ -28,9 +28,11 @@ export default async function BookPage(props: { params: Promise<{ id: string }> 
     reviewCount > 0 ? book.reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount : 0;
 
   const myReview = userId ? book.reviews.find((r) => r.userId === userId) ?? null : null;
-  // As in the library: no download offered unless the book passes the
-  // public-domain rule today, whatever its stored flag says.
-  const freeFile = book.isPublicDomain && canBePublicDomain(book.authorDeathYear) ? book.files[0] ?? null : null;
+  // As in the library: no free copy offered -- PDF or link -- unless the book
+  // passes the public-domain rule today, whatever its stored flag says.
+  const free = book.isPublicDomain && canBePublicDomain(book.authorDeathYear);
+  const freeFile = free ? book.files.find((f) => f.publicId) ?? null : null;
+  const freeSources = free ? book.sources : [];
 
   let shelfStatus: "WANT" | "READING" | "FINISHED" | null = null;
   let wishlisted = false;
@@ -81,21 +83,10 @@ export default async function BookPage(props: { params: Promise<{ id: string }> 
 
           <p className="mt-4 max-w-prose font-body text-ink/80">{book.description}</p>
 
-          {freeFile && freeFile.publicId && (
-            <div className="mt-5 rounded-book border-2 border-sage/50 bg-sage/10 p-4">
-              <BookDownloadButton
-                fileId={freeFile.id}
-                publicId={freeFile.publicId}
-                fileSizeBytes={freeFile.fileSizeBytes}
-              />
-              {/* Being open about WHY a file is legally free is worth showing.
-                  Understated, but present rather than buried. */}
-              <p className="mt-3 max-w-prose font-body text-xs text-ink/60">
-                <span className="font-semibold text-ink/70">কেন বিনামূল্যে:</span>{" "}
-                {freeFile.rightsBasis}
-              </p>
-            </div>
-          )}
+          <BookFreeCopies
+            file={freeFile && freeFile.publicId ? { ...freeFile, publicId: freeFile.publicId } : null}
+            sources={freeSources}
+          />
 
           <div className="mt-5 flex flex-col items-start gap-3">
             {userId && <ShelfButtons bookId={book.id} initialStatus={shelfStatus} />}

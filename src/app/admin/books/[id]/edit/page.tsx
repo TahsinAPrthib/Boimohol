@@ -13,7 +13,7 @@ export default async function EditBookPage(props: { params: Promise<{ id: string
 
   const { id } = await props.params;
   const [book, categories] = await Promise.all([
-    prisma.book.findUnique({ where: { id }, include: { _count: { select: { files: true } } } }),
+    prisma.book.findUnique({ where: { id }, include: { _count: { select: { files: true, sources: true } } } }),
     prisma.category.findMany({ orderBy: { name: "asc" }, select: { id: true, nameBangla: true } }),
   ]);
   if (!book) notFound();
@@ -27,7 +27,7 @@ export default async function EditBookPage(props: { params: Promise<{ id: string
         mode="edit"
         cutoffYear={publicDomainCutoffYear()}
         categories={categories}
-        hasPdf={book._count.files > 0}
+        hasFreeCopy={book._count.files + book._count.sources > 0}
         initial={{
           title: book.title,
           titleBangla: book.titleBangla,

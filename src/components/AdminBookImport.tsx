@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { importBooks, previewImport, type ImportPreview } from "@/actions/admin-books";
 import { bn } from "@/lib/bangla";
+import { SOURCE_LABEL } from "@/lib/book-sources";
 
 const MAX_FILE_BYTES = 1_000_000;
 
@@ -49,6 +50,7 @@ export default function AdminBookImport({ categoryNames }: { categoryNames: Reco
   }
 
   const shown = result ?? preview;
+  const linkCount = shown?.valid.reduce((n, r) => n + r.sources.length, 0) ?? 0;
 
   return (
     <div className="flex flex-col gap-4">
@@ -87,6 +89,7 @@ export default function AdminBookImport({ categoryNames }: { categoryNames: Reco
               <span className="font-semibold text-ink">{fileName}</span>: মোট {bn(shown.total)}টি সারি ·{" "}
               <span className="font-semibold text-sage">যোগ হবে {bn(shown.valid.length)}টি</span> · ডুপ্লিকেট বাদ যাবে{" "}
               {bn(shown.duplicates.length)}টি · ত্রুটিপূর্ণ {bn(shown.invalid.length)}টি
+              {linkCount > 0 && <> · বাইরের সাইটে বিনামূল্যে পড়ার লিংক {bn(linkCount)}টি</>}
             </p>
           )}
 
@@ -136,6 +139,7 @@ export default function AdminBookImport({ categoryNames }: { categoryNames: Reco
                   <span className="text-ink/60">
                     {categoryNames[r.category] ?? r.category}
                     {r.isPublicDomain ? " · পাবলিক ডোমেইন" : ""}
+                    {r.sources.map((k) => ` · ${SOURCE_LABEL[k]}`).join("")}
                   </span>
                 </li>
               ))}

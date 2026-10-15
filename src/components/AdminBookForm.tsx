@@ -46,14 +46,14 @@ export default function AdminBookForm({
   initial,
   mode,
   cutoffYear,
-  hasPdf = false,
+  hasFreeCopy = false,
 }: {
   action: (prev: BookFormState, formData: FormData) => Promise<BookFormState>;
   categories: Category[];
   initial?: BookFormValues;
   mode: "create" | "edit";
   cutoffYear: number;
-  hasPdf?: boolean;
+  hasFreeCopy?: boolean;
 }) {
   const [state, formAction] = useActionState(action, initialState);
   const errors = state.fieldErrors ?? {};
@@ -138,17 +138,18 @@ export default function AdminBookForm({
               defaultChecked={initial?.isPublicDomain ?? false}
               className="mt-1 h-4 w-4 accent-[#5F7355]"
             />
-            পাবলিক ডোমেইন (বিনামূল্যে পিডিএফ দেওয়া যাবে)
+            পাবলিক ডোমেইন (বিনামূল্যে পিডিএফ বা বাইরের সাইটের লিংক দেওয়া যাবে)
           </label>
           <p className="mt-2 max-w-prose font-body text-xs leading-relaxed text-ink/70">
             বাংলাদেশের কপিরাইট আইনে লেখকের মৃত্যুর বছর শেষ হওয়ার পর ৬০ বছর পর্যন্ত বই সুরক্ষিত থাকে। তাই এখন কেবল{" "}
             {bnYear(cutoffYear)} বা তার আগে মারা যাওয়া লেখকের বই পাবলিক ডোমেইন হিসেবে চিহ্নিত করা যায়, আর সেজন্য
             মৃত্যুর বছর দেওয়া বাধ্যতামূলক। অনুবাদের ক্ষেত্রে এই চিহ্ন শুধু মূল বইয়ের জন্য; অনুবাদের নিজস্ব কপিরাইট পিডিএফ
-            যোগ করার সময় আলাদাভাবে যাচাই করতে হবে।
+            বা লিংক যোগ করার সময় আলাদাভাবে যাচাই করতে হবে।
           </p>
-          {hasPdf && (
+          {hasFreeCopy && (
             <p className="mt-2 font-body text-xs font-semibold text-oxblood">
-              এই বইয়ের পিডিএফ লাইব্রেরিতে আছে। চিহ্ন তুলে দিতে চাইলে আগে পিডিএফটি মুছে ফেলুন।
+              এই বইয়ের বিনামূল্যের কপি (পিডিএফ বা বাইরের সাইটের লিংক) লাইব্রেরিতে আছে। চিহ্ন তুলে দিতে চাইলে আগে
+              সেগুলো সরিয়ে ফেলুন।
             </p>
           )}
           {errors.isPublicDomain && <p className="field-error">{errors.isPublicDomain}</p>}

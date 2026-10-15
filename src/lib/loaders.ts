@@ -20,6 +20,10 @@ export const loadBook = cache((id: string) =>
         select: { id: true, publicId: true, fileSizeBytes: true, rightsBasis: true },
         take: 1,
       },
+      sources: {
+        select: { id: true, kind: true, url: true, rightsBasis: true },
+        orderBy: [{ kind: "asc" }, { createdAt: "asc" }],
+      },
       reviews: {
         include: { user: { select: { id: true, name: true, username: true } } },
         orderBy: { createdAt: "desc" },

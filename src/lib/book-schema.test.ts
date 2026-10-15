@@ -47,6 +47,41 @@ describe("book import rows", () => {
   });
 });
 
+describe("book import rows — free copies elsewhere", () => {
+  const source = { url: "https://bn.wikisource.org/wiki/গোরা", rightsBasis: "লেখক ১৯৪১ সালে মারা গেছেন।" };
+  const issuesAt = (r: ReturnType<typeof bookImportRowSchema.safeParse>, key: string) =>
+    r.success ? [] : r.error.issues.filter((i) => i.path[0] === key);
+
+  test("a public-domain row may carry links to trusted sites", () => {
+    const r = bookImportRowSchema.safeParse({
+      ...row,
+      sources: [source, { url: "https://archive.org/details/gora00tago", rightsBasis: "একই", kind: "INTERNET_ARCHIVE" }],
+    });
+    assert.ok(r.success);
+  });
+
+  test("a link to any other site is refused", () => {
+    const r = bookImportRowSchema.safeParse({ ...row, sources: [{ ...source, url: "https://example.com/gora.pdf" }] });
+    assert.equal(issuesAt(r, "sources").length, 1);
+  });
+
+  test("not public domain: no links at all", () => {
+    const r = bookImportRowSchema.safeParse({ ...row, authorDeathYear: 1976, isPublicDomain: false, sources: [source] });
+    assert.ok(issuesAt(r, "sources").length >= 1);
+  });
+
+  test("each link needs a reason, and a given kind must match the address", () => {
+    assert.equal(bookImportRowSchema.safeParse({ ...row, sources: [{ url: source.url }] }).success, false);
+    assert.equal(bookImportRowSchema.safeParse({ ...row, sources: [{ ...source, kind: "GUTENBERG" }] }).success, false);
+  });
+
+  test("the same link twice (even spelt differently) and unknown fields are refused", () => {
+    const twice = bookImportRowSchema.safeParse({ ...row, sources: [source, { ...source, url: "http://bn.wikisource.org/wiki/গোরা#x" }] });
+    assert.equal(issuesAt(twice, "sources").length, 1);
+    assert.equal(bookImportRowSchema.safeParse({ ...row, sources: [{ ...source, note: "x" }] }).success, false);
+  });
+});
+
 describe("book form", () => {
   const form = { title: "Gora", titleBangla: "", author: "রবীন্দ্রনাথ ঠাকুর", categoryId: "c1", description: "বই", language: "bn", publishYear: "", authorDeathYear: "1941", isPublicDomain: "on" };
 
