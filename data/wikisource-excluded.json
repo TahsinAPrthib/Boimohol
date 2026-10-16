@@ -588,13 +588,6 @@
     "reason": "author's death year is not on Wikidata (কালীকমল দত্ত)"
   },
   {
-    "title": "সাহিত্য-চিন্তা",
-    "author": "কুমুদিনী বসু",
-    "scan": "সাহিত্য-চিন্তা - কুমুদিনী বসু.pdf",
-    "wikisource": "https://bn.wikisource.org/wiki/সাহিত্য-চিন্তা_(কুমুদিনী_বসু)",
-    "reason": "author's death year is not on Wikidata (কুমুদিনী বসু)"
-  },
-  {
     "title": "কবিতাকুসুমাঞ্জলি",
     "author": "কৃষ্ণকিশোর বন্দ্যোপাধ্যায়",
     "scan": "কবিতাকুসুমাঞ্জলি.pdf",
@@ -1069,6 +1062,13 @@
     "scan": "আলোর ফুলকি.djvu",
     "wikisource": "https://bn.wikisource.org/wiki/আলোর_ফুলকি",
     "reason": "first publication date unknown, and the scanned edition was printed in 1979, after the death of its author (1951): check that it was published in their lifetime (a posthumous work is protected for 60 years from publication)"
+  },
+  {
+    "title": "শরৎ-সাহিত্য-সংগ্রহ",
+    "author": "শরৎচন্দ্র চট্টোপাধ্যায়",
+    "scan": "শরৎ-সাহিত্য-সংগ্রহ (ত্রয়োদশ সম্ভার) - শরৎচন্দ্র চট্টোপাধ্যায় (১৯৬০).pdf",
+    "wikisource": "https://bn.wikisource.org/wiki/শরৎ-সাহিত্য-সংগ্রহ_(ত্রয়োদশ_সম্ভার)",
+    "reason": "left out by decision (2026-10-16): volume 13 of an omnibus of collected works, mixed forms (novels, stories, essays, letters), not a book of its own"
   },
   {
     "title": "অগ্নিপরীক্ষা",

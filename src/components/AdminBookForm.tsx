@@ -19,6 +19,8 @@ export type BookFormValues = {
   publishYear: number | null;
   authorDeathYear: number | null;
   isPublicDomain: boolean;
+  translator: string | null;
+  searchAliases: string[];
 };
 
 // Original language of the work (ISO 639-1). Only used for records today.
@@ -93,6 +95,12 @@ export default function AdminBookForm({
         </Field>
         <Field id="author" label="লেখক *" error={errors.author}>
           <input id="author" name="author" type="text" className="field-input" defaultValue={initial?.author ?? ""} />
+        </Field>
+        <Field id="translator" label="অনুবাদক" error={errors.translator} hint="অনূদিত বা পুনর্কথিত বই হলে; বইয়ের পাতায় দেখানো হয়।">
+          <input id="translator" name="translator" type="text" className="field-input" defaultValue={initial?.translator ?? ""} />
+        </Field>
+        <Field id="searchAliases" label="খোঁজার বিকল্প নাম" error={errors.searchAliases} hint="প্রতি লাইনে একটি। দেখানো হয় না, শুধু খোঁজায় কাজে লাগে — যেমন ইংরেজি নামের বাংলা প্রতিবর্ণীকরণ।">
+          <textarea id="searchAliases" name="searchAliases" rows={2} className="field-input" defaultValue={(initial?.searchAliases ?? []).join("\n")} />
         </Field>
         <Field id="categoryId" label="বিভাগ *" error={errors.categoryId}>
           <select id="categoryId" name="categoryId" className="field-input" defaultValue={initial?.categoryId ?? ""}>

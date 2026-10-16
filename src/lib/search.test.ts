@@ -94,6 +94,18 @@ describe("search text for each kind of row", () => {
     assert.equal(bookSearchText({ title: "The Time Machine", titleBangla: null, author: "H. G. Wells" }), "the time machine\nh. g. wells");
   });
 
+  test("the translator and the hidden aliases are searchable", () => {
+    const text = bookSearchText({
+      title: "Pride and Prejudice",
+      titleBangla: null,
+      author: "Jane Austen",
+      translator: null,
+      searchAliases: ["প্রাইড অ্যান্ড প্রেজুডিস"],
+    });
+    assert.ok(text.includes("প্রাইড অ্যান্ড প্রেজুডিস"));
+    assert.ok(bookSearchText({ title: "War and Peace", author: "Leo Tolstoy", translator: "Louise Maude" }).includes("louise maude"));
+  });
+
   test("a listing includes its location; a request has its title and author", () => {
     assert.equal(listingSearchText({ title: "Devdas", author: "Sarat Chandra", location: "Mirpur, Dhaka" }), "devdas\nsarat chandra\nmirpur, dhaka");
     assert.equal(requestSearchText({ title: "Aranyak", author: "Bibhutibhushan" }), "aranyak\nbibhutibhushan");

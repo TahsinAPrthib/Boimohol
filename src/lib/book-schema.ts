@@ -27,6 +27,13 @@ const optionalText = (max: number, message: string) =>
     z.string().trim().max(max, message).nullable()
   );
 
+const searchAliasesSchema = z.preprocess(
+  (v) => (typeof v === "string" ? v.split(/\r?\n/).map((s) => s.trim()).filter(Boolean) : v ?? []),
+  z
+    .array(z.string().trim().min(1).max(200, "বিকল্প নামটি অনেক বড়।"), { invalid_type_error: "বিকল্প নাম একটি তালিকা হিসেবে দিন।" })
+    .max(10, "সর্বোচ্চ ১০টি বিকল্প নাম দেওয়া যায়।")
+);
+
 const base = z.object({
   title: z
     .string({ required_error: "বইয়ের নাম আবশ্যক।", invalid_type_error: "বইয়ের নাম লেখা হিসেবে দিন।" })
@@ -51,6 +58,11 @@ const base = z.object({
   publishYear: year("প্রকাশের বছর", 1),
   // Negative = BCE, for ancient authors.
   authorDeathYear: year("লেখকের মৃত্যুর বছর", -3000),
+  // Who wrote the text in this language, for a translation or retelling.
+  translator: optionalText(200, "অনুবাদকের নামটি অনেক বড়।"),
+  // Hidden names the book is also found by in search. In the form, one per
+  // line (a title can contain a comma).
+  searchAliases: searchAliasesSchema,
 });
 
 export function publicDomainRuleMessage(authorDeathYear: number | null): string {
@@ -124,11 +136,55 @@ export const bookImportRowSchema = base
   .superRefine(publicDomainRule)
   .superRefine(sourcesRule);
 
+// A correction to a book already in the catalog, in an import file: "match"
+// names the book (as duplicate detection does: author plus either title),
+// "set" changes the fields it lists -- a key left out stays as it is, null
+// clears it -- and "sources" adds links or rewrites the rights note of links
+// the book already has. Nothing else about the book changes.
+export const bookUpdateRowSchema = z
+  .object({
+    match: z
+      .object({
+        title: base.shape.title,
+        titleBangla: base.shape.titleBangla,
+        author: base.shape.author,
+      })
+      .strict("match-এ অজানা ঘর আছে; বানান দেখুন।"),
+    set: z
+      .object({
+        translator: base.shape.translator.optional(),
+        titleBangla: base.shape.titleBangla.optional(),
+        searchAliases: searchAliasesSchema.optional(),
+      })
+      .strict("set-এ অজানা ঘর আছে; শুধু translator, titleBangla ও searchAliases বদলানো যায়।")
+      .optional(),
+    sources: z.array(importSourceSchema).max(10, "একটি বইয়ে সর্বোচ্চ ১০টি বাইরের কপি দেওয়া যায়।").optional(),
+  })
+  .strict("অজানা ঘর আছে; বানান দেখুন।")
+  .superRefine((data, ctx) => {
+    if (!data.set && !data.sources?.length) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "হালনাগাদের সারিতে set বা sources থাকতে হবে।" });
+    sourcesRule({ isPublicDomain: true, sources: data.sources }, ctx);
+  });
+
+export type BookUpdateRow = z.infer<typeof bookUpdateRowSchema>;
 export type BookFormInput = z.infer<typeof bookFormSchema>;
 export type BookImportRow = z.infer<typeof bookImportRowSchema>;
 
 export type BookFieldErrors = Partial<
-  Record<"title" | "titleBangla" | "author" | "categoryId" | "description" | "language" | "publishYear" | "authorDeathYear" | "isPublicDomain", string>
+  Record<
+    | "title"
+    | "titleBangla"
+    | "author"
+    | "translator"
+    | "searchAliases"
+    | "categoryId"
+    | "description"
+    | "language"
+    | "publishYear"
+    | "authorDeathYear"
+    | "isPublicDomain",
+    string
+  >
 >;
 
 export function fieldErrorsOf(error: z.ZodError): BookFieldErrors {

@@ -11,7 +11,7 @@ import LanguageChips from "@/components/LanguageChips";
 import Pager from "@/components/Pager";
 import { prisma } from "@/lib/prisma";
 import { readQuery, searchFilter } from "@/lib/search";
-import { banglaFirst, languageParam, languageWhere, pageOf, readLanguage, readPage } from "@/lib/book-language";
+import { banglaFirst, inLanguage, languageParam, languagePhrase, languageWhere, pageOf, readLanguage, readPage } from "@/lib/book-language";
 
 export default async function CategoryPage(props: {
   params: Promise<{ slug: string }>;
@@ -32,7 +32,7 @@ export default async function CategoryPage(props: {
   // The starter pick leads the plain list when its language is being shown,
   // and then isn't repeated in it.
   const pick = category.starterPicks[0];
-  const showPick = !search && pick !== undefined && (lang === "all" || pick.book.language === lang);
+  const showPick = !search && pick !== undefined && inLanguage(pick.book.language, lang);
 
   const where = {
     categoryId: category.id,
@@ -124,7 +124,7 @@ export default async function CategoryPage(props: {
           {books.length === 0 ? (
             <p className="font-body text-ink/50">
               {lang !== "all"
-                ? `এই বিভাগে ${lang === "bn" ? "বাংলা" : "ইংরেজি"} ভাষার ${showPick ? "আর কোনো " : "কোনো "}বই এখনো নেই।`
+                ? `এই বিভাগে ${languagePhrase(lang)} ${showPick ? "আর কোনো " : "কোনো "}বই এখনো নেই।`
                 : showPick
                   ? "এই বিভাগে আর কোনো বই নেই।"
                   : "এই বিভাগে এখনো কোনো বই নেই।"}

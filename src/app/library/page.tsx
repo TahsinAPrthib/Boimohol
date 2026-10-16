@@ -8,7 +8,7 @@ import NoResults from "@/components/NoResults";
 import LanguageChips from "@/components/LanguageChips";
 import Pager from "@/components/Pager";
 import { hrefWith, readQuery, searchFilter } from "@/lib/search";
-import { banglaFirst, languageParam, languageWhere, pageOf, readLanguage, readPage } from "@/lib/book-language";
+import { banglaFirst, languageParam, languagePhrase, languageWhere, pageOf, readLanguage, readPage } from "@/lib/book-language";
 
 export default async function LibraryPage(props: {
   searchParams: Promise<{ category?: string; q?: string | string[]; lang?: string | string[]; page?: string | string[] }>;
@@ -100,7 +100,7 @@ export default async function LibraryPage(props: {
       ) : books.length === 0 ? (
         <p className="rounded-book border-2 border-dashed border-ink/15 px-4 py-6 text-center font-body text-ink/60">
           {lang !== "all"
-            ? `${lang === "bn" ? "বাংলা" : "ইংরেজি"} ভাষার কোনো বিনামূল্যের বই ${selectedSlug ? "এই বিভাগে " : ""}এখনো নেই।`
+            ? `${languagePhrase(lang)} কোনো বিনামূল্যের বই ${selectedSlug ? "এই বিভাগে " : ""}এখনো নেই।`
             : selectedSlug
               ? "এই বিভাগে এখনো কোনো বিনামূল্যের বই নেই।"
               : "লাইব্রেরিতে এখনো কোনো বই যোগ করা হয়নি। শিগগিরই আসছে।"}

@@ -48,8 +48,16 @@ function combine(parts: (string | null | undefined)[]): string {
   return parts.map(normalizeForSearch).filter(Boolean).join("\n");
 }
 
-export function bookSearchText(book: { title: string; titleBangla?: string | null; author: string }): string {
-  return combine([book.title, book.titleBangla, book.author]);
+// The translator and the hidden aliases are searchable too: a Bangla-script
+// search for "প্রাইড অ্যান্ড প্রেজুডিস" finds Pride and Prejudice.
+export function bookSearchText(book: {
+  title: string;
+  titleBangla?: string | null;
+  author: string;
+  translator?: string | null;
+  searchAliases?: string[] | null;
+}): string {
+  return combine([book.title, book.titleBangla, book.author, book.translator, ...(book.searchAliases ?? [])]);
 }
 
 export function listingSearchText(listing: { title: string; author: string; location: string }): string {

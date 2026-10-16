@@ -47,6 +47,17 @@ export const CONFIRMED_DEATHS: Record<string, DeathFinding> = {
       },
     ],
   },
+  // কুমুদিনী বসু — সাহিত্য-চিন্তা. Neither Wikipedia cites the year, but
+  // both put it in 1942–43; the year used is the later one, and even a
+  // decade's error would leave it before the cutoff (decided 2026-10-16).
+  Q141100605: {
+    year: 1943,
+    era: "আনুমানিক ১৯৪২–৪৩ সালে মারা গেছেন (সাল নিশ্চিত নয়, তবে দশ বছরের ভুল হলেও তা ১৯৬৫-র আগে)",
+    sources: [
+      { url: "https://bn.wikipedia.org/wiki/কুমুদিনী_বসু", says: "কুমুদিনী বসু (১৮৭৮ – ১৯৪৩) ছিলেন একজন সাহিত্যিক এবং সমাজসেবক। (lists সাহিত্য-চিন্তা among her works; cites only Wikisource)" },
+      { url: "https://en.wikipedia.org/wiki/Kumudini_Basu", says: "Kumudini Basu (née Mitra, 1873–1942) was a Bengali writer, social reformer … (death year marked 'citation needed')" },
+    ],
+  },
   // ভূষণভট্ট — কাদম্বরী (with his father বাণভট্ট; তারাশঙ্কর তর্করত্নের অনুবাদ)
   Q133386331: {
     year: 800,
@@ -61,8 +72,6 @@ export const CONFIRMED_DEATHS: Record<string, DeathFinding> = {
 // Why the others weren't confirmed, where there's more to say than "no
 // source found". The report lists every author.
 export const NOT_CONFIRMED: Record<string, string> = {
-  Q141100605:
-    "কুমুদিনী বসু: bn Wikipedia lists সাহিত্য-চিন্তা among her works and gives 1943 (citing only Wikisource); en Wikipedia gives 1942 marked 'citation needed'. Both before 1965, but no cited source — needs your decision.",
   Q33133756: "কৈলাসবাসিনী দেবী: bn Wikipedia gives her death as '?' yet files her under 1895 deaths; nothing cited.",
   Q28309662: "আশুতোষ মুখোপাধ্যায় (প্রমোদকামিনী কাব্য): Wikipedia has two writers of this name (1864–1924, 1920–1989); nothing ties either to this book.",
   Q139815811: "সুরেন্দ্রনাথ বন্দ্যোপাধ্যায় (বিজ্ঞান বাবু): the only article of this name is the politician (1848–1925); nothing ties him to this book.",

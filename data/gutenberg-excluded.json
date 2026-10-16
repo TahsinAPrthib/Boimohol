@@ -119,6 +119,20 @@
     "reason": "no named author (anonymous, or only an editor or translator credited)"
   },
   {
+    "id": 48320,
+    "title": "Adventures of Sherlock Holmes",
+    "author": "Doyle, Arthur Conan",
+    "downloads": 34713,
+    "reason": "another edition of the same work (kept #1661)"
+  },
+  {
+    "id": 78118,
+    "title": "Barry Locke, half-back",
+    "author": "Barbour, Ralph Henry",
+    "downloads": 33952,
+    "reason": "recent release (ebook #78118, 2026-03-05): in the top downloads on a 30-day spike"
+  },
+  {
     "id": 26471,
     "title": "Spoon River Anthology",
     "author": "Masters, Edgar Lee",
@@ -266,6 +280,13 @@
     "reason": "author died after 1965 (Gutenberg catalog)"
   },
   {
+    "id": 78009,
+    "title": "A guide to the history of physical education",
+    "author": "Leonard, Fred Eugene",
+    "downloads": 25383,
+    "reason": "recent release (ebook #78009, 2026-02-22): in the top downloads on a 30-day spike"
+  },
+  {
     "id": 78068,
     "title": "Los miserables - Tomo 2 (de 2)",
     "author": "Hugo, Victor",
@@ -294,11 +315,25 @@
     "reason": "one volume of a multi-volume work"
   },
   {
+    "id": 78105,
+    "title": "Tales grotesque and curious",
+    "author": "Akutagawa, Ryūnosuke",
+    "downloads": 25025,
+    "reason": "recent release (ebook #78105, 2026-03-04): in the top downloads on a 30-day spike"
+  },
+  {
     "id": 78119,
     "title": "Humanism and America : $b Essays on the outlook of modern civilisation",
     "author": "—",
     "downloads": 25003,
     "reason": "no named author (anonymous, or only an editor or translator credited)"
+  },
+  {
+    "id": 78025,
+    "title": "Main currents in American thought : $b An interpretation of American literature from the beginnings to 1920",
+    "author": "Parrington, Vernon Louis",
+    "downloads": 25000,
+    "reason": "recent release (ebook #78025, 2026-02-24): in the top downloads on a 30-day spike"
   },
   {
     "id": 863,
@@ -315,6 +350,20 @@
     "reason": "not in English or Bangla"
   },
   {
+    "id": 78022,
+    "title": "Præraphaelite diaries and letters",
+    "author": "Brown, Ford Madox; Rossetti, Dante Gabriel; Rossetti, Gabriele",
+    "downloads": 24920,
+    "reason": "recent release (ebook #78022, 2026-02-23): in the top downloads on a 30-day spike"
+  },
+  {
+    "id": 78013,
+    "title": "Arrian on coursing : $b the Cynegeticus of the younger Xenophon, translated from the Greek, with classical and practical annotations, and a brief sketch of the life and writings of the author. To which is added an appendix, containing some account of the Canes Venatici of classical antiquity",
+    "author": "Arrian",
+    "downloads": 24899,
+    "reason": "recent release (ebook #78013, 2026-02-23): in the top downloads on a 30-day spike"
+  },
+  {
     "id": 78124,
     "title": "1066 and all that : $b A memorable history of England, comprising all the parts you can remember, including 103 good things, 5 bad kings and 2 genuine dates",
     "author": "Sellar, Walter Carruthers; Yeatman, Robert Julian",
@@ -322,11 +371,32 @@
     "reason": "author died after 1965 (Gutenberg catalog)"
   },
   {
+    "id": 78120,
+    "title": "The marvellous land of Snergs",
+    "author": "Wyke-Smith, E. A. (Edward Augustine)",
+    "downloads": 24859,
+    "reason": "recent release (ebook #78120, 2026-03-05): in the top downloads on a 30-day spike"
+  },
+  {
+    "id": 78047,
+    "title": "The dogaressas of Venice (the wives of the doges)",
+    "author": "Staley, Edgcumbe",
+    "downloads": 24851,
+    "reason": "recent release (ebook #78047, 2026-02-26): in the top downloads on a 30-day spike"
+  },
+  {
     "id": 78079,
     "title": "Allgemeine Physiologie",
     "author": "Verworn, Max",
     "downloads": 24849,
     "reason": "not in English or Bangla"
+  },
+  {
+    "id": 78029,
+    "title": "The dangerous game",
+    "author": "Le Queux, William",
+    "downloads": 24835,
+    "reason": "recent release (ebook #78029, 2026-02-24): in the top downloads on a 30-day spike"
   },
   {
     "id": 78026,
@@ -341,6 +411,13 @@
     "author": "London, Jack",
     "downloads": 24825,
     "reason": "not in English or Bangla"
+  },
+  {
+    "id": 78011,
+    "title": "Three sevens : $b A detective story",
+    "author": "Sheehan, Perley Poore",
+    "downloads": 24815,
+    "reason": "recent release (ebook #78011, 2026-02-23): in the top downloads on a 30-day spike"
   },
   {
     "id": 78039,
@@ -362,6 +439,27 @@
     "author": "—",
     "downloads": 24756,
     "reason": "no named author (anonymous, or only an editor or translator credited)"
+  },
+  {
+    "id": 78020,
+    "title": "The cruise of the Nona : $b The story of a cruise from Holyhead to the Wash, with reflections and judgments on life and letters, men and manners",
+    "author": "Belloc, Hilaire",
+    "downloads": 24750,
+    "reason": "recent release (ebook #78020, 2026-02-23): in the top downloads on a 30-day spike"
+  },
+  {
+    "id": 78077,
+    "title": "Cartels : $b challenge to a free world",
+    "author": "Berge, Wendell",
+    "downloads": 24745,
+    "reason": "recent release (ebook #78077, 2026-03-01): in the top downloads on a 30-day spike"
+  },
+  {
+    "id": 78044,
+    "title": "Claribel : $b or, Rest at last",
+    "author": "Guernsey, Lucy Ellen",
+    "downloads": 24739,
+    "reason": "recent release (ebook #78044, 2026-02-26): in the top downloads on a 30-day spike"
   },
   {
     "id": 49008,
@@ -392,11 +490,39 @@
     "reason": "not in English or Bangla"
   },
   {
+    "id": 78087,
+    "title": "The black pearl",
+    "author": "Lion, Marie",
+    "downloads": 24659,
+    "reason": "recent release (ebook #78087, 2026-03-02): in the top downloads on a 30-day spike"
+  },
+  {
     "id": 42,
     "title": "The strange case of Dr. Jekyll and Mr. Hyde",
     "author": "Stevenson, Robert Louis",
     "downloads": 24650,
     "reason": "another edition of the same work (kept #43)"
+  },
+  {
+    "id": 78078,
+    "title": "The adventures of an ensign",
+    "author": "Williams, Valentine",
+    "downloads": 24633,
+    "reason": "recent release (ebook #78078, 2026-03-01): in the top downloads on a 30-day spike"
+  },
+  {
+    "id": 78046,
+    "title": "Joan and Co.",
+    "author": "Bartlett, Frederick Orin",
+    "downloads": 24630,
+    "reason": "recent release (ebook #78046, 2026-02-26): in the top downloads on a 30-day spike"
+  },
+  {
+    "id": 78107,
+    "title": "Body-build and its inheritance",
+    "author": "Davenport, Charles Benedict",
+    "downloads": 24615,
+    "reason": "recent release (ebook #78107, 2026-03-04): in the top downloads on a 30-day spike"
   },
   {
     "id": 78028,
@@ -406,6 +532,13 @@
     "reason": "author died after 1965 (Gutenberg catalog)"
   },
   {
+    "id": 78040,
+    "title": "Kate Mulhall : $b A romance of the Oregon Trail",
+    "author": "Meeker, Ezra",
+    "downloads": 24597,
+    "reason": "recent release (ebook #78040, 2026-02-25): in the top downloads on a 30-day spike"
+  },
+  {
     "id": 78104,
     "title": "An historical account of all the voyages round the world, performed by English navigators, vol. 4 of 4 : $b Including those lately undertaken by order of His present Majesty. The whole faithfully extracted from the journals of the voyagers",
     "author": "—",
@@ -413,11 +546,25 @@
     "reason": "no named author (anonymous, or only an editor or translator credited)"
   },
   {
+    "id": 78075,
+    "title": "The eclipse of Russia",
+    "author": "Dillon, Emile Joseph",
+    "downloads": 24586,
+    "reason": "recent release (ebook #78075, 2026-03-01): in the top downloads on a 30-day spike"
+  },
+  {
     "id": 78005,
     "title": "The Green Dolphin",
     "author": "Bassett, Sara Ware",
     "downloads": 24555,
     "reason": "author died after 1965 (Gutenberg catalog)"
+  },
+  {
+    "id": 78117,
+    "title": "Democracy—false or true? : $b A prologue and a dream",
+    "author": "Richmond, W. B. (William Blake), Sir",
+    "downloads": 24551,
+    "reason": "recent release (ebook #78117, 2026-03-05): in the top downloads on a 30-day spike"
   },
   {
     "id": 78095,
@@ -483,11 +630,32 @@
     "reason": "not in English or Bangla"
   },
   {
+    "id": 78103,
+    "title": "The trouble at Pinelands : $b A detective story",
+    "author": "Poate, Ernest M.",
+    "downloads": 24507,
+    "reason": "recent release (ebook #78103, 2026-03-04): in the top downloads on a 30-day spike"
+  },
+  {
+    "id": 78106,
+    "title": "Things near & far",
+    "author": "Machen, Arthur",
+    "downloads": 24505,
+    "reason": "recent release (ebook #78106, 2026-03-04): in the top downloads on a 30-day spike"
+  },
+  {
     "id": 78032,
     "title": "Twelve years in the army : $b or, The incidents of a soldier's life",
     "author": "Gollan, John G.",
     "downloads": 24501,
     "reason": "author's death year is unknown (John G. Gollan)"
+  },
+  {
+    "id": 78012,
+    "title": "Success",
+    "author": "Silberrad, Una L.",
+    "downloads": 24493,
+    "reason": "recent release (ebook #78012, 2026-02-23): in the top downloads on a 30-day spike"
   },
   {
     "id": 78069,
@@ -497,6 +665,13 @@
     "reason": "not in English or Bangla"
   },
   {
+    "id": 78112,
+    "title": "Astronomy for beginners",
+    "author": "Carrington, Hereward",
+    "downloads": 24489,
+    "reason": "recent release (ebook #78112, 2026-03-04): in the top downloads on a 30-day spike"
+  },
+  {
     "id": 78015,
     "title": "Khartoum, and the Blue and White Niles, Vol. 2 (of 2)",
     "author": "Melly, George",
@@ -504,11 +679,32 @@
     "reason": "one volume of a multi-volume work"
   },
   {
+    "id": 78094,
+    "title": "The haunting hand",
+    "author": "Roberts, Walter Adolphe",
+    "downloads": 24472,
+    "reason": "recent release (ebook #78094, 2026-03-02): in the top downloads on a 30-day spike"
+  },
+  {
     "id": 78024,
     "title": "The woman of Andros",
     "author": "Wilder, Thornton",
     "downloads": 24470,
     "reason": "author died after 1965 (Gutenberg catalog)"
+  },
+  {
+    "id": 78010,
+    "title": "The unknown seven : $b A detective story",
+    "author": "Landon, Herman",
+    "downloads": 24458,
+    "reason": "recent release (ebook #78010, 2026-02-22): in the top downloads on a 30-day spike"
+  },
+  {
+    "id": 78060,
+    "title": "A young man's story",
+    "author": "Doudney, Sarah",
+    "downloads": 24452,
+    "reason": "recent release (ebook #78060, 2026-02-27): in the top downloads on a 30-day spike"
   },
   {
     "id": 78021,
@@ -523,6 +719,27 @@
     "author": "Eckstein, Ernst",
     "downloads": 24437,
     "reason": "one volume of a multi-volume work"
+  },
+  {
+    "id": 78043,
+    "title": "Bushy : $b a romance founded on fact",
+    "author": "Alden, Cynthia May Westover",
+    "downloads": 24426,
+    "reason": "recent release (ebook #78043, 2026-02-26): in the top downloads on a 30-day spike"
+  },
+  {
+    "id": 78121,
+    "title": "The servant's behaviour book : $b or, Hints on manners and dress for maid servants in small households",
+    "author": "Patmore, Emily A. (Emily Augusta)",
+    "downloads": 24421,
+    "reason": "recent release (ebook #78121, 2026-03-05): in the top downloads on a 30-day spike"
+  },
+  {
+    "id": 78114,
+    "title": "Miniatures of French history",
+    "author": "Belloc, Hilaire",
+    "downloads": 24420,
+    "reason": "recent release (ebook #78114, 2026-03-04): in the top downloads on a 30-day spike"
   },
   {
     "id": 78076,
@@ -553,6 +770,13 @@
     "reason": "one volume of a multi-volume work"
   },
   {
+    "id": 78109,
+    "title": "Grateful Peter's new year's gift",
+    "author": "Lamb, Ruth",
+    "downloads": 24399,
+    "reason": "recent release (ebook #78109, 2026-03-04): in the top downloads on a 30-day spike"
+  },
+  {
     "id": 78031,
     "title": "How they loved him, Vol. 1 (of 3) : $b A novel",
     "author": "Marryat, Florence",
@@ -565,6 +789,13 @@
     "author": "—",
     "downloads": 24397,
     "reason": "no named author (anonymous, or only an editor or translator credited)"
+  },
+  {
+    "id": 78085,
+    "title": "The Catholic Church and history",
+    "author": "Belloc, Hilaire",
+    "downloads": 24395,
+    "reason": "recent release (ebook #78085, 2026-03-02): in the top downloads on a 30-day spike"
   },
   {
     "id": 78058,
@@ -616,6 +847,13 @@
     "reason": "not in English or Bangla"
   },
   {
+    "id": 78110,
+    "title": "Verses",
+    "author": "Jacob, Violet",
+    "downloads": 24321,
+    "reason": "recent release (ebook #78110, 2026-03-04): in the top downloads on a 30-day spike"
+  },
+  {
     "id": 78101,
     "title": "L'homme à l'Hispano : $b roman",
     "author": "Frondaie, Pierre",
@@ -644,11 +882,25 @@
     "reason": "not in English or Bangla"
   },
   {
+    "id": 78051,
+    "title": "Borrowed feathers",
+    "author": "Lamb, Ruth",
+    "downloads": 24310,
+    "reason": "recent release (ebook #78051, 2026-02-26): in the top downloads on a 30-day spike"
+  },
+  {
     "id": 78073,
     "title": "The winner and new...",
     "author": "Melchior, Ib",
     "downloads": 24308,
     "reason": "author died after 1965 (Gutenberg catalog)"
+  },
+  {
+    "id": 78023,
+    "title": "Ash-Wednesday",
+    "author": "Eliot, T. S. (Thomas Stearns)",
+    "downloads": 24304,
+    "reason": "recent release (ebook #78023, 2026-02-23): in the top downloads on a 30-day spike"
   },
   {
     "id": 78088,
@@ -686,6 +938,13 @@
     "reason": "one volume of a multi-volume work"
   },
   {
+    "id": 78045,
+    "title": "The happiness of Hazelbrook",
+    "author": "O'Brien, Charlotte Grace",
+    "downloads": 24214,
+    "reason": "recent release (ebook #78045, 2026-02-26): in the top downloads on a 30-day spike"
+  },
+  {
     "id": 78059,
     "title": "L'homme tout nu",
     "author": "Mendès, Catulle",
@@ -705,6 +964,13 @@
     "author": "Merwin, Sam, Jr.",
     "downloads": 24200,
     "reason": "author died after 1965 (Gutenberg catalog)"
+  },
+  {
+    "id": 78115,
+    "title": "The story of Nelson",
+    "author": "Sellar, Edmund Francis",
+    "downloads": 24200,
+    "reason": "recent release (ebook #78115, 2026-03-04): in the top downloads on a 30-day spike"
   },
   {
     "id": 78070,
@@ -805,6 +1071,13 @@
     "reason": "not in English or Bangla"
   },
   {
+    "id": 78086,
+    "title": "A municipal feud",
+    "author": "Haycox, Ernest",
+    "downloads": 24005,
+    "reason": "recent release (ebook #78086, 2026-03-02): in the top downloads on a 30-day spike"
+  },
+  {
     "id": 78054,
     "title": "Mallonga biografio de Henry Fawcett la blinda ĉefpoŝtestro de Anglujo : $b Por ĉiuj infanoj, ĉie",
     "author": "Holt, Winifred",
@@ -824,6 +1097,13 @@
     "author": "Feliú y Codina, José",
     "downloads": 23965,
     "reason": "not in English or Bangla"
+  },
+  {
+    "id": 78228,
+    "title": "Two happy years in Ceylon",
+    "author": "Gordon Cumming, C. F. (Constance Frederica)",
+    "downloads": 23949,
+    "reason": "recent release (ebook #78228, 2026-03-17): in the top downloads on a 30-day spike"
   },
   {
     "id": 78113,
@@ -1638,6 +1918,13 @@
     "reason": "one volume of a multi-volume work"
   },
   {
+    "id": 1001,
+    "title": "Divine Comedy, Longfellow's Translation, Hell",
+    "author": "Dante Alighieri",
+    "downloads": 11049,
+    "reason": "another edition of the same work (kept #8800)"
+  },
+  {
     "id": 17396,
     "title": "The Secret Garden",
     "author": "Burnett, Frances Hodgson",
@@ -2063,6 +2350,13 @@
     "author": "Walters, H. B. (Henry Beauchamp); Birch, Samuel",
     "downloads": 8273,
     "reason": "one volume of a multi-volume work"
+  },
+  {
+    "id": 77092,
+    "title": "She who sleeps : $b A romance of New York and the Nile",
+    "author": "Rohmer, Sax",
+    "downloads": 8258,
+    "reason": "recent release (ebook #77092, 2025-10-20): in the top downloads on a 30-day spike"
   },
   {
     "id": 29765,
@@ -4039,6 +4333,13 @@
     "reason": "not a text (audio, image or data)"
   },
   {
+    "id": 77056,
+    "title": "The dream detective",
+    "author": "Rohmer, Sax",
+    "downloads": 4496,
+    "reason": "recent release (ebook #77056, 2025-10-14): in the top downloads on a 30-day spike"
+  },
+  {
     "id": 445,
     "title": "The crowd : $b A study of the popular mind",
     "author": "Le Bon, Gustave",
@@ -4249,6 +4550,13 @@
     "reason": "not a text (audio, image or data)"
   },
   {
+    "id": 77001,
+    "title": "Moon of madness",
+    "author": "Rohmer, Sax",
+    "downloads": 4361,
+    "reason": "recent release (ebook #77001, 2025-10-07): in the top downloads on a 30-day spike"
+  },
+  {
     "id": 21143,
     "title": "Las Fábulas de Esopo, Vol. 01",
     "author": "Townsend, George Fyler; Aesop",
@@ -4303,6 +4611,13 @@
     "author": "Appleton, Victor",
     "downloads": 4309,
     "reason": "not a text (audio, image or data)"
+  },
+  {
+    "id": 77022,
+    "title": "The porcelain mask : $b A detective story",
+    "author": "Chichester, John Jay",
+    "downloads": 4309,
+    "reason": "recent release (ebook #77022, 2025-10-10): in the top downloads on a 30-day spike"
   },
   {
     "id": 10715,
@@ -4401,6 +4716,13 @@
     "author": "Perrault, Charles",
     "downloads": 4258,
     "reason": "translator's death year is unknown (Robert Samber)"
+  },
+  {
+    "id": 1728,
+    "title": "The Odyssey of Homer",
+    "author": "Homer",
+    "downloads": 4255,
+    "reason": "another edition of the same work (kept #1727)"
   },
   {
     "id": 23936,
@@ -4611,6 +4933,13 @@
     "author": "Dillmont, Thérèse de",
     "downloads": 4139,
     "reason": "translation with no named translator (the author didn't write in English, per Wikidata)"
+  },
+  {
+    "id": 1004,
+    "title": "Divine Comedy, Longfellow's Translation, Complete",
+    "author": "Dante Alighieri",
+    "downloads": 4138,
+    "reason": "another edition of the same work (kept #8800)"
   },
   {
     "id": 26579,
@@ -5285,6 +5614,13 @@
     "reason": "not a text (audio, image or data)"
   },
   {
+    "id": 79363,
+    "title": "Poems",
+    "author": "Blake, William",
+    "downloads": 3696,
+    "reason": "recent release (ebook #79363, 2026-08-13): in the top downloads on a 30-day spike"
+  },
+  {
     "id": 79279,
     "title": "The Graveyard Rats",
     "author": "Kuttner, Henry",
@@ -5467,6 +5803,13 @@
     "reason": "not a text (audio, image or data)"
   },
   {
+    "id": 2945,
+    "title": "Essays — Second Series",
+    "author": "Emerson, Ralph Waldo",
+    "downloads": 3612,
+    "reason": "another edition of the same work (kept #2944)"
+  },
+  {
     "id": 28838,
     "title": "The Getting of Wisdom",
     "author": "Richardson, Henry Handel",
@@ -5479,6 +5822,13 @@
     "author": "Tod, James",
     "downloads": 3589,
     "reason": "one volume of a multi-volume work"
+  },
+  {
+    "id": 48895,
+    "title": "The Odysseys of Homer, together with the shorter poems",
+    "author": "Homer",
+    "downloads": 3588,
+    "reason": "another edition of the same work (kept #1727)"
   },
   {
     "id": 43579,
@@ -7049,24 +7399,430 @@
     "reason": "not a text (audio, image or data)"
   },
   {
-    "id": 48320,
-    "title": "Adventures of Sherlock Holmes",
-    "author": "Arthur Conan Doyle",
-    "downloads": 34713,
-    "reason": "another edition of the same work (same title and author as a more downloaded one)"
+    "id": 58804,
+    "title": "Die Deutschen Familiennamen, geschichtlich, geographisch, sprachlich",
+    "author": "Heintze, Albert",
+    "downloads": 2873,
+    "reason": "not in English or Bangla"
+  },
+  {
+    "id": 20039,
+    "title": "Ghost Stories of an Antiquary",
+    "author": "James, M. R. (Montague Rhodes)",
+    "downloads": 2871,
+    "reason": "not a text (audio, image or data)"
+  },
+  {
+    "id": 3333,
+    "title": "Os Lusíadas",
+    "author": "Camões, Luís de",
+    "downloads": 2869,
+    "reason": "not in English or Bangla"
+  },
+  {
+    "id": 40739,
+    "title": "Die Traumdeutung",
+    "author": "Freud, Sigmund",
+    "downloads": 2866,
+    "reason": "not in English or Bangla"
+  },
+  {
+    "id": 40868,
+    "title": "The World as Will and Idea (Vol. 3 of 3)",
+    "author": "Schopenhauer, Arthur",
+    "downloads": 2866,
+    "reason": "one volume of a multi-volume work"
+  },
+  {
+    "id": 27738,
+    "title": "José",
+    "author": "Palacio Valdés, Armando",
+    "downloads": 2860,
+    "reason": "not in English or Bangla"
+  },
+  {
+    "id": 43296,
+    "title": "A History of the Inquisition of Spain; vol. 1",
+    "author": "Lea, Henry Charles",
+    "downloads": 2859,
+    "reason": "one volume of a multi-volume work"
+  },
+  {
+    "id": 21161,
+    "title": "Sonnet 43",
+    "author": "Browning, Elizabeth Barrett",
+    "downloads": 2856,
+    "reason": "not a text (audio, image or data)"
+  },
+  {
+    "id": 22124,
+    "title": "The Golden Shoemaker",
+    "author": "Keyworth, J. W.",
+    "downloads": 2853,
+    "reason": "author's death year is unknown (J. W. Keyworth)"
+  },
+  {
+    "id": 26475,
+    "title": "The Boy Scouts Book of Campfire Stories",
+    "author": "—",
+    "downloads": 2853,
+    "reason": "no named author (anonymous, or only an editor or translator credited)"
+  },
+  {
+    "id": 30197,
+    "title": "Farthest North, Vol. I",
+    "author": "Nansen, Fridtjof",
+    "downloads": 2843,
+    "reason": "one volume of a multi-volume work"
+  },
+  {
+    "id": 55998,
+    "title": "London Labour and the London Poor, Vol. 1",
+    "author": "Mayhew, Henry",
+    "downloads": 2842,
+    "reason": "one volume of a multi-volume work"
+  },
+  {
+    "id": 28809,
+    "title": "Plague Ship",
+    "author": "Norton, Andre",
+    "downloads": 2840,
+    "reason": "not a text (audio, image or data)"
+  },
+  {
+    "id": 20028,
+    "title": "Fanny Hill: Memoirs of a Woman of Pleasure",
+    "author": "Cleland, John",
+    "downloads": 2838,
+    "reason": "not a text (audio, image or data)"
+  },
+  {
+    "id": 51470,
+    "title": "Narrative and Critical History of America, Vol. 5 (of 8)",
+    "author": "—",
+    "downloads": 2837,
+    "reason": "no named author (anonymous, or only an editor or translator credited)"
+  },
+  {
+    "id": 25179,
+    "title": "La carità del prossimo",
+    "author": "Bersezio, Vittorio",
+    "downloads": 2835,
+    "reason": "not in English or Bangla"
+  },
+  {
+    "id": 22447,
+    "title": "Poems of Gerard Manley Hopkins",
+    "author": "Hopkins, Gerard Manley",
+    "downloads": 2833,
+    "reason": "not a text (audio, image or data)"
+  },
+  {
+    "id": 8789,
+    "title": "The vision of hell.",
+    "author": "Dante Alighieri",
+    "downloads": 2828,
+    "reason": "the Inferno alone (Cary's translation): one part of The Divine Comedy, selected whole (#8800)"
+  },
+  {
+    "id": 26564,
+    "title": "Ivanhoe",
+    "author": "Scott, Walter",
+    "downloads": 2827,
+    "reason": "not in English or Bangla"
+  },
+  {
+    "id": 22968,
+    "title": "Nederlandsche Volkskunde",
+    "author": "Schrijnen, Jos.",
+    "downloads": 2823,
+    "reason": "not in English or Bangla"
+  },
+  {
+    "id": 52200,
+    "title": "金瓶梅",
+    "author": "Xiaoxiaosheng",
+    "downloads": 2823,
+    "reason": "not in English or Bangla"
+  },
+  {
+    "id": 16436,
+    "title": "Poems Every Child Should Know",
+    "author": "—",
+    "downloads": 2822,
+    "reason": "no named author (anonymous, or only an editor or translator credited)"
+  },
+  {
+    "id": 41424,
+    "title": "The Tribes and Castes of the Central Provinces of India, Volume 3",
+    "author": "Russell, R. V. (Robert Vane)",
+    "downloads": 2822,
+    "reason": "one volume of a multi-volume work"
+  },
+  {
+    "id": 1615,
+    "title": "Old English libraries : $b the making, collection, and use of books during the Middle Ages",
+    "author": "Savage, Ernest Albert",
+    "downloads": 2818,
+    "reason": "author died after 1965 (Gutenberg catalog)"
+  },
+  {
+    "id": 17147,
+    "title": "Theodicy",
+    "author": "Leibniz, Gottfried Wilhelm, Freiherr von",
+    "downloads": 2817,
+    "reason": "translator's death year is unknown (E. M. Huggard)"
+  },
+  {
+    "id": 53629,
+    "title": "The Life and Letters of Ogier Ghiselin de Busbecq, Vol. 1 (of 2)",
+    "author": "Busbecq, Ogier Ghislain de",
+    "downloads": 2816,
+    "reason": "one volume of a multi-volume work"
+  },
+  {
+    "id": 28732,
+    "title": "Fables de La Fontaine, livre second",
+    "author": "La Fontaine, Jean de",
+    "downloads": 2815,
+    "reason": "not a text (audio, image or data)"
+  },
+  {
+    "id": 65011,
+    "title": "U.S. Marine Operations in Korea, 1950-1953, Volume 5 (of 5)",
+    "author": "United States. Marine Corps; Meid, Pat; Yingling, James M.",
+    "downloads": 2815,
+    "reason": "one volume of a multi-volume work"
+  },
+  {
+    "id": 46848,
+    "title": "The Races of Man: An Outline of Anthropology and Ethnography",
+    "author": "Deniker, Joseph",
+    "downloads": 2814,
+    "reason": "translation with no named translator (the author didn't write in English, per Wikidata)"
+  },
+  {
+    "id": 26393,
+    "title": "The Medicinal Plants of the Philippines",
+    "author": "Pardo de Tavera, T. H. (Trinidad Hermenegildo)",
+    "downloads": 2810,
+    "reason": "translator's death year is unknown (Jerome Beers Thomas)"
+  },
+  {
+    "id": 16769,
+    "title": "Orthodoxy",
+    "author": "Chesterton, G. K. (Gilbert Keith)",
+    "downloads": 2809,
+    "reason": "another edition of the same work (kept #130)"
+  },
+  {
+    "id": 20689,
+    "title": "Ragged Dick",
+    "author": "Alger, Horatio, Jr.",
+    "downloads": 2807,
+    "reason": "not a text (audio, image or data)"
+  },
+  {
+    "id": 19685,
+    "title": "Country of the Pointed Firs",
+    "author": "Jewett, Sarah Orne",
+    "downloads": 2806,
+    "reason": "not a text (audio, image or data)"
+  },
+  {
+    "id": 11136,
+    "title": "A Discourse Upon the Origin and the Foundation of the Inequality Among Mankind",
+    "author": "Rousseau, Jean-Jacques",
+    "downloads": 2800,
+    "reason": "translation with no named translator (the author didn't write in English, per Wikidata)"
+  },
+  {
+    "id": 2759,
+    "title": "The Man in the Iron Mask",
+    "author": "Dumas, Alexandre",
+    "downloads": 2797,
+    "reason": "translation with no named translator (the author didn't write in English, per Wikidata)"
+  },
+  {
+    "id": 32190,
+    "title": "The Works of Alexander Pope, Volume 1",
+    "author": "Pope, Alexander",
+    "downloads": 2795,
+    "reason": "one volume of a multi-volume work"
+  },
+  {
+    "id": 22453,
+    "title": "How to Live on 24 Hours a Day",
+    "author": "Bennett, Arnold",
+    "downloads": 2794,
+    "reason": "not a text (audio, image or data)"
+  },
+  {
+    "id": 150,
+    "title": "The Republic",
+    "author": "Plato",
+    "downloads": 2793,
+    "reason": "another edition of the same work (kept #1497)"
+  },
+  {
+    "id": 26453,
+    "title": "La pianta dei sospiri",
+    "author": "Sacchi, Defendente",
+    "downloads": 2791,
+    "reason": "not in English or Bangla"
+  },
+  {
+    "id": 51291,
+    "title": "Narrative and Critical History of America, Vol. 4 (of 8)",
+    "author": "—",
+    "downloads": 2790,
+    "reason": "no named author (anonymous, or only an editor or translator credited)"
+  },
+  {
+    "id": 79401,
+    "title": "Pickman's model",
+    "author": "Lovecraft, H. P. (Howard Phillips)",
+    "downloads": 2788,
+    "reason": "recent release (ebook #79401, 2026-08-18): in the top downloads on a 30-day spike"
+  },
+  {
+    "id": 33936,
+    "title": "Clever Hans (The Horse of Mr. Von Osten)",
+    "author": "Pfungst, Oskar",
+    "downloads": 2785,
+    "reason": "translator's death year is unknown (Carl Leo Rahn)"
+  },
+  {
+    "id": 53276,
+    "title": "The Every-day Book and Table Book. v. 2 (of 3)",
+    "author": "Hone, William",
+    "downloads": 2783,
+    "reason": "one volume of a multi-volume work"
+  },
+  {
+    "id": 28845,
+    "title": "Good things to eat, as suggested by Rufus",
+    "author": "Estes, Rufus",
+    "downloads": 2782,
+    "reason": "not a text (audio, image or data)"
+  },
+  {
+    "id": 38699,
+    "title": "Chambers's Twentieth Century Dictionary (part 3 of 4: N-R)",
+    "author": "—",
+    "downloads": 2782,
+    "reason": "no named author (anonymous, or only an editor or translator credited)"
+  },
+  {
+    "id": 16501,
+    "title": "The Philippine Islands, 1493-1803 — Volume 05 of 55",
+    "author": "—",
+    "downloads": 2781,
+    "reason": "no named author (anonymous, or only an editor or translator credited)"
+  },
+  {
+    "id": 2800,
+    "title": "The Koran (Al-Qur'an)",
+    "author": "—",
+    "downloads": 2776,
+    "reason": "no named author (anonymous, or only an editor or translator credited)"
+  },
+  {
+    "id": 27695,
+    "title": "La cuerda del ahorcado",
+    "author": "Ponson du Terrail",
+    "downloads": 2776,
+    "reason": "not in English or Bangla"
+  },
+  {
+    "id": 28521,
+    "title": "The Power of Mesmerism",
+    "author": "Anonymous",
+    "downloads": 2774,
+    "reason": "anonymous"
+  },
+  {
+    "id": 67092,
+    "title": "El paraíso perdido",
+    "author": "Milton, John",
+    "downloads": 2770,
+    "reason": "not in English or Bangla"
+  },
+  {
+    "id": 6524,
+    "title": "Stray Birds",
+    "author": "Tagore, Rabindranath",
+    "downloads": 2763,
+    "reason": "translation with no named translator (subject: translations into English)"
+  },
+  {
+    "id": 28488,
+    "title": "Tartuffe; Or, The Hypocrite",
+    "author": "Molière",
+    "downloads": 2762,
+    "reason": "translator's death year is unknown (Jeffrey D. Hoeper)"
+  },
+  {
+    "id": 101,
+    "title": "The Hacker Crackdown: Law and Disorder on the Electronic Frontier",
+    "author": "Sterling, Bruce",
+    "downloads": 2759,
+    "reason": "author's death year is unknown (Bruce Sterling)"
+  },
+  {
+    "id": 44525,
+    "title": "Report on the Radiolaria Collected by H.M.S. Challenger During the Years 1873-1876, First Part: Porulosa (Spumellaria and Acantharia)",
+    "author": "Haeckel, Ernst",
+    "downloads": 2753,
+    "reason": "translation with no named translator (the author didn't write in English, per Wikidata)"
+  },
+  {
+    "id": 40438,
+    "title": "Plato and the Other Companions of Sokrates, 3rd ed. Volume 4",
+    "author": "Grote, George",
+    "downloads": 2752,
+    "reason": "one volume of a multi-volume work"
+  },
+  {
+    "id": 70458,
+    "title": "Primitive culture, vol. 1 (of 2) : $b Researches into the development of mythology, philosophy, religion, language, art, and custom",
+    "author": "Tylor, Edward B. (Edward Burnett)",
+    "downloads": 2751,
+    "reason": "one volume of a multi-volume work"
+  },
+  {
+    "id": 79268,
+    "title": "A cat book",
+    "author": "Lucas, E. V. (Edward Verrall)",
+    "downloads": 2746,
+    "reason": "recent release (ebook #79268, 2026-08-04): in the top downloads on a 30-day spike"
+  },
+  {
+    "id": 2,
+    "title": "The United States Bill of Rights",
+    "author": "United States",
+    "downloads": 2745,
+    "reason": "author's death year is unknown (United States)"
+  },
+  {
+    "id": 44070,
+    "title": "Le ménagier de Paris (v. 1 & 2)",
+    "author": "Anonymous",
+    "downloads": 2742,
+    "reason": "not in English or Bangla"
+  },
+  {
+    "id": 43097,
+    "title": "Chaucer's Works, Volume 6 — Introduction, Glossary, and Indexes",
+    "author": "Chaucer, Geoffrey",
+    "downloads": 2737,
+    "reason": "one volume of a multi-volume work"
   },
   {
     "id": 2944,
     "title": "Essays — First Series",
     "author": "Ralph Waldo Emerson",
     "downloads": 7487,
-    "reason": "another edition of the same work (same title and author as a more downloaded one)"
-  },
-  {
-    "id": 2945,
-    "title": "Essays — Second Series",
-    "author": "Ralph Waldo Emerson",
-    "downloads": 3612,
     "reason": "another edition of the same work (same title and author as a more downloaded one)"
   }
 ]

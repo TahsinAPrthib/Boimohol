@@ -71,6 +71,7 @@ export default async function BookPage(props: { params: Promise<{ id: string }> 
           <h1 className="mt-1 font-display text-3xl text-ink">{book.titleBangla || book.title}</h1>
           {book.titleBangla && <p className="font-body text-ink/50">{book.title}</p>}
           <p className="mt-1 font-body text-ink/70">{book.author}</p>
+          {book.translator && <p className="font-body text-sm text-ink/60">অনুবাদ: {book.translator}</p>}
 
           <div className="mt-3 flex items-center gap-2">
             <StarRating value={averageRating} readOnly />

@@ -35,7 +35,8 @@ async function main() {
       const firstWord = s.title.split(/\s+/).find((w) => w.length > 3) ?? s.title;
       pageNote = `${res.status}, “${pageTitle.slice(0, 60)}”`;
       if (!res.ok) problems.push(`page answered ${res.status}`);
-      else if (!pageTitle.toLowerCase().includes(firstWord.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 5))) problems.push(`page title doesn't look like “${s.title}”`);
+      // Both sides as letters and digits only ("Hero-Myths" is "heromyths").
+      else if (!pageTitle.toLowerCase().replace(/[^a-z0-9]/g, "").includes(firstWord.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 5))) problems.push(`page title doesn't look like “${s.title}”`);
     } catch (e) {
       problems.push(`page not reachable (${(e as Error).message})`);
     }

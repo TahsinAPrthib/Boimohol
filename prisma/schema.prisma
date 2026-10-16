@@ -157,8 +157,15 @@ model Book {
   // law a book can only be public domain once this is set and old enough --
   // see src/lib/public-domain.ts.
   authorDeathYear Int?
-  // Normalized title + Bangla title + author for site search; always written
-  // through bookSearchText() in src/lib/search.ts.
+  // Who wrote this text in its language, when the book is a translation or a
+  // retelling (a Bangla translation of a Sanskrit or foreign work; an English
+  // translation on Gutenberg). Shown on the book page.
+  translator      String?
+  // Other names the book can be found by in search but which are never shown,
+  // e.g. a Bangla transliteration of an English title ("প্রাইড অ্যান্ড প্রেজুডিস").
+  searchAliases   String[]       @default([])
+  // Normalized title + Bangla title + author (+ translator and aliases) for
+  // site search; always written through bookSearchText() in src/lib/search.ts.
   searchText      String         @default("")
   createdAt       DateTime       @default(now())
   reviews         Review[]

@@ -1,21 +1,36 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
-import { banglaFirst, languageParam, languageWhere, pageOf, readLanguage, readPage } from "./book-language";
+import { banglaFirst, inLanguage, LANGUAGE_FILTERS, languageParam, languageWhere, pageOf, readLanguage, readPage } from "./book-language";
 
 describe("language filter", () => {
-  test("only bn and en filter; anything else is all", () => {
+  test("bn and other filter; the old en links mean other; anything else is all", () => {
     assert.equal(readLanguage("bn"), "bn");
-    assert.equal(readLanguage(["en", "bn"]), "en");
+    assert.equal(readLanguage("other"), "other");
+    assert.equal(readLanguage(["en", "bn"]), "other");
     assert.equal(readLanguage(undefined), "all");
     assert.equal(readLanguage("fr"), "all");
     assert.equal(readLanguage("BN"), "all");
   });
 
-  test("all adds no condition and isn't written to the URL", () => {
+  test("the chips read বাংলা / অন্যান্য ভাষা / সব, in that order", () => {
+    assert.deepEqual(
+      LANGUAGE_FILTERS.map((f) => f.value),
+      ["bn", "other", "all"]
+    );
+  });
+
+  test("other means every language except Bangla; all adds no condition and isn't written to the URL", () => {
     assert.deepEqual(languageWhere("all"), {});
-    assert.deepEqual(languageWhere("en"), { language: "en" });
+    assert.deepEqual(languageWhere("bn"), { language: "bn" });
+    assert.deepEqual(languageWhere("other"), { language: { not: "bn" } });
     assert.equal(languageParam("all"), undefined);
-    assert.equal(languageParam("bn"), "bn");
+    assert.equal(languageParam("other"), "other");
+  });
+
+  test("inLanguage agrees with languageWhere", () => {
+    assert.ok(inLanguage("en", "other") && inLanguage("ru", "other") && !inLanguage("bn", "other"));
+    assert.ok(inLanguage("bn", "bn") && !inLanguage("en", "bn"));
+    assert.ok(inLanguage("bn", "all") && inLanguage("fr", "all"));
   });
 });
 

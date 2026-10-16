@@ -1,6 +1,6 @@
 # Bangla Wikisource import — review report
 
-Generated 2026-10-15 by `scripts/wikisource-import.ts`. Public-domain cutoff: the author (and any translator or editor) died in **1965 or earlier**.
+Generated 2026-10-16 by `scripts/wikisource-import.ts`. Public-domain cutoff: the author (and any translator or editor) died in **1965 or earlier**.
 
 ## Totals
 
@@ -8,25 +8,77 @@ Generated 2026-10-15 by `scripts/wikisource-import.ts`. Public-domain cutoff: th
 |---|---|
 | Fully proofread scans on bn.wikisource (start) | 652 |
 | Batch 1, already prepared (`data/wikisource-import.json`, unchanged) | 422 |
-| Batch 2, new books (`data/wikisource-import-2.json`) | 13 |
+| Batch 2, new books (`data/wikisource-import-2.json`) | 23 |
 | Batch 2, links for books already in the catalog (same file) | 0 |
-| Not imported yet: no confirmed category (`data/wikisource-unclassified.json`) | 10 |
+| Batch 1 corrections: translator credits and rights notes (`data/wikisource-batch1-corrections.json`, update rows) | 26 |
+| Not imported yet: no confirmed category (`data/wikisource-unclassified.json`) | 0 |
 | Left out, with reasons (`data/wikisource-excluded.json`) | 207 |
 
 Every batch 1 row still passes every check.
 
-**Batch 1 rights notes corrected.** Three notes gave an approximate date as exact; see `data/wikisource-batch1-corrections.md`.
+**Batch 1 corrections.** `data/wikisource-batch1-corrections.json` has 26 update rows for batch 1 books already imported: a translator credit for each of the 26 translations, and the rights note each link should carry — including the three notes corrected after batch 1 was handed over (`data/wikisource-batch1-corrections.md`). Upload it on /admin/books like any import: the preview lists every book it changes under “আগের বইয়ে হালনাগাদ হবে”, and a note that is already right shows no change.
 
-**Importing.** Batch 1 is `data/wikisource-import.json` as before. Batch 2 is `data/wikisource-import-2.json`: 3 works whose author's death year was confirmed from another source (below), and 10 works whose category was settled by reading the text. Upload each on /admin/books.
+**Importing.** Batch 1 is `data/wikisource-import.json` as before. Batch 2 is `data/wikisource-import-2.json`: 5 works whose author's death year was confirmed from another source (below), and 18 works whose category was settled by reading the text. Upload each on /admin/books.
 
 **Rules beyond the death year.** A work first published after its author's death (or a translation after its translator's) is protected in Bangladesh for 60 years from publication, so such a work first printed after 1965 is excluded even when the author died earlier. Wikidata labels Manik Bandopadhyay by his legal name, প্রবোধকুমার বন্দ্যোপাধ্যায়; the import uses মানিক বন্দ্যোপাধ্যায়. A translation's Bangla title is taken from its Wikisource page, not from the original work's label.
 
-## Needs your decision
+## Decisions applied (2026-10-16)
 
-1. **কুমুদিনী বসু (সাহিত্য-চিন্তা).** Left out: both Wikipedias put her death before 1965 (1943 / 1942) and bn Wikipedia lists the book among her works, but neither cites the year. Include it on that basis?
-2. **A category পুরাণ ও লোককথা (Mythology & folklore)** for the 8 epic, myth and folk-tale works still without one: অদ্ভুত রামায়ণ, কুরু পাণ্ডব, বত্রিশ সিংহাসন, ভয়ভাঙ্গা, মহাভারত (উপক্রমণিকাভাগ), মহাভারত, মেয়েলি ব্রত ও কথা, সতী.
-3. **পথে-বিপথে** (অবনীন্দ্রনাথ): humorous prose sketches — প্রবন্ধ or ছোটগল্প?
-4. **শরৎ-সাহিত্য-সংগ্রহ** (volume 13, mixed forms): suggested to leave out.
+1. **কুমুদিনী বসু (সাহিত্য-চিন্তা): included.** Both Wikipedias put her death in 1942–43; the year used is 1943. Rights note: “লেখক কুমুদিনী বসু আনুমানিক ১৯৪২–৪৩ সালে মারা গেছেন (সাল নিশ্চিত নয়, তবে দশ বছরের ভুল হলেও তা ১৯৬৫-র আগে); কপিরাইটের মেয়াদ শেষ। উৎস: বাংলা উইকিসংকলন”
+2. **পুরাণ ও লোককথা** (`puran-lokkotha`, migration 20261015203820): 8 works — অদ্ভুত রামায়ণ, কুরু পাণ্ডব, বত্রিশ সিংহাসন, ভয়ভাঙ্গা, মহাভারত (উপক্রমণিকাভাগ), মহাভারত, মেয়েলি ব্রত ও কথা, সতী.
+3. **পথে-বিপথে: chhotogolpo.** Of its 16 pieces, 12 are first-person stories on the Ganges ferry with the friend অবিন (মোহিনী, অস্থি, গুরুজী, টুপি, দোশালা, মাতু, শেমুষী, ইন্দু, অরোরা, পর্-ঈ-তাউস্, ছাই-ভস্ম, লুকি-বিদ্যে); 4 are travel sketches (গমনাগমন, নিষ্ক্রমণ, আরোহণ, বিচরণ).
+4. **শরৎ-সাহিত্য-সংগ্রহ: left out** (in `data/wikisource-excluded.json`).
+
+## Translators: who wrote the Bangla text
+
+Every prepared work whose original is in another language or older than Bangla prose (42): the person who wrote the Bangla text, and their death year, which must pass the same rule (1965 or earlier). A translator is credited on the book page (`translator`); for a retelling that Wikisource credits to the Bangla writer as author (রাজশেখর বসু's মহাভারত), that writer is the author shown, so there is no separate translator line. Re-checked live on Wikidata in `data/wikisource-translator-check.md` (`scripts/wikisource-translator-check.ts`).
+
+**Every batch 1 book passes this check.** None has an unnamed translator or one who died after the cutoff.
+
+| Batch | Work | Original | Bangla text by | Died | Passes |
+|---|---|---|---|---|---|
+| 1 | ৮০ দিনে ভূপ্রদক্ষিণ | জুল ভার্ন (১৯০৫ সালে) | রাজেন্দ্রলাল আচার্য (translator) | ১৯৬১ সালে | yes |
+| 1 | অশ্বঘোষের বুদ্ধচরিত | অশ্বঘোষ (১৫০ সালে) | রথীন্দ্রনাথ ঠাকুর (translator) | ১৯৬১ সালে | yes |
+| 1 | আলম্‌গীরের পত্রাবলী | ঔরঙ্গজেব (১৭০৭ সালে) | যামিনীকান্ত সোম (translator) | ১৯৬৪ সালে | yes |
+| 1 | ইংরাজ-বর্জ্জিত ভারতবর্ষ | পিয়ের লোতি (১৯২৩ সালে) | জ্যোতিরিন্দ্রনাথ ঠাকুর (translator) | ১৯২৫ সালে | yes |
+| 1 | ইয়ুরোপে তিন বৎসর | রমেশচন্দ্র দত্ত (১৯০৯ সালে) | রমেশচন্দ্র দত্ত (translator) | ১৯০৯ সালে | yes |
+| 1 | এনক আর্ডেন | আলফ্রেড টেনিসন (১৮৯২ সালে) | দুর্গাদাস লাহিড়ী (translator) | ১৯৩২ সালে | yes |
+| 1 | এপিক্‌টেটসের উপদেশ | আররিয়ানোস (১৮০ সালে) | জ্যোতিরিন্দ্রনাথ ঠাকুর (translator) | ১৯২৫ সালে | yes |
+| 1 | এরাও মানুষ | রেনে মারাঁ (১৯৬০ সালে) | নৃপেন্দ্রকৃষ্ণ চট্টোপাধ্যায় (translator) | ১৯৬৩ সালে | yes |
+| 1 | কথামালা | ঈসপ (আনুমানিক খ্রিস্টপূর্ব ৫৬৪ সালে) | ঈশ্বরচন্দ্র বিদ্যাসাগর (translator) | ১৮৯১ সালে | yes |
+| 1 | কারাকাহিনী | মোহনদাস করমচাঁদ গান্ধী (১৯৪৮ সালে) | অনাথনাথ বসু (translator) | ১৯৩৫ সালে | yes |
+| 1 | চন্দ্রলোকে যাত্রা | জুল ভার্ন (১৯০৫ সালে) | রাজেন্দ্রলাল আচার্য (translator) | ১৯৬১ সালে | yes |
+| 1 | চিত্রে জয়দেব ও গীতগোবিন্দ | জয়দেব (আনুমানিক ১২৪৫ সালে) | নৃপেন্দ্রকৃষ্ণ চট্টোপাধ্যায় (translator) | ১৯৬৩ সালে | yes |
+| 1 | টল্‌স্টয়ের গল্প | ল্যেভ তলস্তোয় (১৯১০ সালে) | দুর্গামোহন মুখোপাধ্যায় (translator) | ১৯৫৫ সালে | yes |
+| 1 | তবুও আমি তাঁহারই উপর নির্ভর করিব | হানা রোসেলি হিগেন্স (১৯৪০ সালে) | মথুরানাথ নন্দী (translator) | ১৯৪৬ সালে | yes |
+| 1 | নিগ্রোজাতির কর্ম্মবীর | বুকার টালিয়াফেরো ওয়াশিংটন (১৯১৫ সালে) | বিনয়কুমার সরকার (translator) | ১৯৪৯ সালে | yes |
+| 1 | বিশ্ব-ইতিহাস প্রসঙ্গ | জওহরলাল নেহরু (১৯৬৪ সালে) | সত্যেন্দ্রনাথ মজুমদার (translator) | ১৯৫৪ সালে | yes |
+| 1 | বেলুনে পাঁচ সপ্তাহ | জুল ভার্ন (১৯০৫ সালে) | রাজেন্দ্রলাল আচার্য (translator) | ১৯৬১ সালে | yes |
+| 1 | ভারতবর্ষে | আঁদ্রে শেভ্রিয়োঁ (১৯৫৭ সালে) | জ্যোতিরিন্দ্রনাথ ঠাকুর (translator) | ১৯২৫ সালে | yes |
+| 1 | ভ্রান্তিবিলাস | Shakespeare's The Comedy of Errors (English), adapted as Bangla prose | ঈশ্বরচন্দ্র বিদ্যাসাগর (Bangla writer, credited as author) | ১৮৯১ সালে | yes |
+| 1 | মা | ম্যাক্সিম গোর্কি (১৯৩৬ সালে) | বিমল সেন (translator) | ১৯৩৪ সালে | yes |
+| 1 | মানসিংহ | ভারতচন্দ্র রায় (১৭৬০ সালে) | ভারতচন্দ্র রায় (author) | ১৭৬০ সালে | yes |
+| 1 | মার্কাস্‌ অরিলিয়সের আত্মচিন্তা | মার্কাস অরিলিয়স (১৮০ সালে) | জ্যোতিরিন্দ্রনাথ ঠাকুর (translator) | ১৯২৫ সালে | yes |
+| 1 | মেগাস্থেনীসের ভারত-বিবরণ | মেগাস্থিনিস (খ্রিস্টপূর্ব ২৯০-এর দশকে) | রজনীকান্ত গুহ (translator) | ১৯৪৫ সালে | yes |
+| 1 | রাজমোহনের স্ত্রী | বঙ্কিমচন্দ্র চট্টোপাধ্যায় (১৮৯৪ সালে) | সজনীকান্ত দাস (translator) | ১৯৬২ সালে | yes |
+| 1 | রোবাইয়াৎ-ই-ওমর খৈয়াম | ওমর খৈয়াম (১১৩১ সালে) | কান্তিচন্দ্র ঘোষ (translator) | ১৯৪৯ সালে | yes |
+| 1 | শকুন্তলা | Kalidasa's Abhijnanasakuntalam (Sanskrit), retold for children | অবনীন্দ্রনাথ ঠাকুর (Bangla writer, credited as author) | ১৯৫১ সালে | yes |
+| 1 | শকুন্তলা | Kalidasa's Abhijnanasakuntalam (Sanskrit), retold as Bangla prose | ঈশ্বরচন্দ্র বিদ্যাসাগর (Bangla writer, credited as author) | ১৮৯১ সালে | yes |
+| 1 | শিক্‌ওয়া ও জবাব-ই-শিক্‌ওয়া | মুহম্মদ ইকবাল (১৯৩৮ সালে) | গোলাম মোস্তফা (translator) | ১৯৬৪ সালে | yes |
+| 1 | শ্রীযুত ডাক্তর এম, জে, ব্রমলি সাহেবের বক্তৃতার দ্বারা সংক্ষেপ আবেদন | মাউন্টফোর্ড জোসেফ ব্রমলি (১৮৩৭ সালে) | উদয়চন্দ্র আঢ্য (translator) | ১৮৫৬ সালে | yes |
+| 1 | সীতার বনবাস | Bhavabhuti's Uttararamacharita and the Ramayana (Sanskrit), retold | ঈশ্বরচন্দ্র বিদ্যাসাগর (Bangla writer, credited as author) | ১৮৯১ সালে | yes |
+| 1 | সেক্‌সপিয়র কৃত গ্রন্থ হইতে উদ্ধৃত অপূর্ব্বোপাখ্যান | চার্লস ল্যাম্ব (১৮৩৪ সালে), মেরী ল্যাম্ব (১৮৪৭ সালে) | মুক্তারাম বিদ্যাবাগীশ (translator) | ১৮৬০ সালে | yes |
+| 1 | হেক্‌টর বধ | Homer's Iliad (Greek), retold as Bangla prose | মাইকেল মধুসূদন দত্ত (Bangla writer, credited as author) | ১৮৭৩ সালে | yes |
+| 2 | অদ্ভুত রামায়ণ | বাল্মীকি (প্রাচীন ভারতের কবি) | সৌদামিনী দেবী (translator) | ১৯২০ সালে | yes |
+| 2 | কাদম্বরী | বাণভট্ট (৬৫০ সালে), ভূষণভট্ট (সাত শতকের লেখক বাণভট্টের পুত্র) | তারাশঙ্কর তর্করত্ন (translator) | ১৮৫৮ সালে | yes |
+| 2 | কুরু পাণ্ডব | the Mahabharata (Sanskrit), episodes retold | রবীন্দ্রনাথ ঠাকুর (Bangla writer, credited as author) | ১৯৪১ সালে | yes |
+| 2 | বত্রিশ সিংহাসন | লাল্লু লাল (১৮২৫ সালে) | নীলমণি বসাক (translator) | ১৮৬৪ সালে | yes |
+| 2 | ভয়ভাঙ্গা | Radha-Krishna legends, retold | দীনেশচন্দ্র সেন (Bangla writer, credited as author) | ১৯৩৯ সালে | yes |
+| 2 | মহাভারত | the Mahabharata (Sanskrit), condensed translation (সারানুবাদ) | রাজশেখর বসু (Bangla writer, credited as author) | ১৯৬০ সালে | yes |
+| 2 | মহাভারত (উপক্রমণিকাভাগ) | the Mahabharata (Sanskrit), opening chapters translated | ঈশ্বরচন্দ্র বিদ্যাসাগর (Bangla writer, credited as author) | ১৮৯১ সালে | yes |
+| 2 | মেয়েলি ব্রত ও কথা | oral folk tales and rituals of East Bengal, collected and written down | পরমেশপ্রসন্ন রায় (Bangla writer, credited as author) | ১৯২৭ সালে | yes |
+| 2 | রসমঞ্জরী | ভানুদত্ত মিশ্র (পনেরো-ষোলো শতকের কবি) | ভারতচন্দ্র রায় (translator) | ১৭৬০ সালে | yes |
+| 2 | সতী | the Puranic Sati legend, retold | দীনেশচন্দ্র সেন (Bangla writer, credited as author) | ১৯৩৯ সালে | yes |
 
 ## Batch 2
 
@@ -34,19 +86,29 @@ Every batch 1 row still passes every check.
 |---|---|---|---|
 | গোচারণের মাঠ | অক্ষয়চন্দ্র সরকার | `kobita` | category settled by reading the text |
 | প্রেমিক সন্ন্যাসী | অনাথনাথ বসু | `uponnash` | category settled by reading the text |
+| পথে-বিপথে | অবনীন্দ্রনাথ ঠাকুর | `chhotogolpo` | category settled by reading the text |
+| মহাভারত (উপক্রমণিকাভাগ) | ঈশ্বরচন্দ্র বিদ্যাসাগর | `puran-lokkotha` | category settled by reading the text |
 | বেল্লিক রামায়ণ | কালীপ্রসন্ন বিদ্যারত্ন | `kobita` | category settled by reading the text |
+| সাহিত্য-চিন্তা | কুমুদিনী বসু | `probondho` | death year confirmed (see below) |
 | প্রাচীন ভারতে নারী | ক্ষিতিমোহন সেন | `probondho` | category settled by reading the text |
+| ভয়ভাঙ্গা | দীনেশচন্দ্র সেন | `puran-lokkotha` | category settled by reading the text |
+| সতী | দীনেশচন্দ্র সেন | `puran-lokkotha` | category settled by reading the text |
+| মেয়েলি ব্রত ও কথা | পরমেশপ্রসন্ন রায় | `puran-lokkotha` | category settled by reading the text |
 | কাদম্বরী | বাণভট্ট ও ভূষণভট্ট | `uponnash` | death year confirmed (see below) |
+| অদ্ভুত রামায়ণ | বাল্মীকি | `puran-lokkotha` | death year confirmed (see below) |
 | নীলগঞ্জের ফালমন সাহেব | বিভূতিভূষণ বন্দ্যোপাধ্যায় | `chhotogolpo` | category settled by reading the text |
 | রসমঞ্জরী | ভানুদত্ত মিশ্র | `kobita` | death year confirmed (see below) |
 | মোহনলাল | যোগীন্দ্রনাথ সরকার | `shishu-sahitto` | category settled by reading the text |
+| কুরু পাণ্ডব | রবীন্দ্রনাথ ঠাকুর | `puran-lokkotha` | category settled by reading the text |
 | সংকলন | রবীন্দ্রনাথ ঠাকুর | `probondho` | category settled by reading the text |
 | পাষাণের কথা | রাখালদাস বন্দ্যোপাধ্যায় | `itihash-jiboni` | category settled by reading the text |
 | গ্রাম্য উপাখ্যান | রাজনারায়ণ বসু | `itihash-jiboni` | category settled by reading the text |
+| মহাভারত | রাজশেখর বসু | `puran-lokkotha` | category settled by reading the text |
 | মহারাজ কৃষ্ণচন্দ্র রায়স্য চরিত্রং | রাজীবলোচন মুখোপাধ্যায় | `itihash-jiboni` | death year confirmed (see below) |
+| বত্রিশ সিংহাসন | লাল্লু লাল | `puran-lokkotha` | category settled by reading the text |
 | গুরুদক্ষিণা | সতীশচন্দ্র রায় | `uponnash` | category settled by reading the text |
 
-Rights notes for the era-dated authors read, for example: “মূল লেখক বাণভট্ট ৬৫০ সালে মারা গেছেন; মূল লেখক ভূষণভট্ট সাত শতকের লেখক বাণভট্টের পুত্র; অনুবাদক তারাশঙ্কর তর্করত্ন ১৮৫৮ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: বাংলা উইকিসংকলন”
+Rights notes for the era-dated authors read, for example: “লেখক কুমুদিনী বসু আনুমানিক ১৯৪২–৪৩ সালে মারা গেছেন (সাল নিশ্চিত নয়, তবে দশ বছরের ভুল হলেও তা ১৯৬৫-র আগে); কপিরাইটের মেয়াদ শেষ। উৎস: বাংলা উইকিসংকলন”
 
 ## Authors without a Wikidata death year (researched 2026-10-16)
 
@@ -54,6 +116,7 @@ Each was looked up on Wikidata (again, live), the Bangla and English Wikipedia (
 
 | Author | Works | Decision | Source or reason |
 |---|---|---|---|
+| কুমুদিনী বসু | সাহিত্য-চিন্তা | **confirmed** — আনুমানিক ১৯৪২–৪৩ সালে মারা গেছেন (সাল নিশ্চিত নয়, তবে দশ বছরের ভুল হলেও তা ১৯৬৫-র আগে) (year used: 1943) | https://bn.wikipedia.org/wiki/কুমুদিনী_বসু — “কুমুদিনী বসু (১৮৭৮ – ১৯৪৩) ছিলেন একজন সাহিত্যিক এবং সমাজসেবক। (lists সাহিত্য-চিন্তা among her works; cites only Wikisource)”; https://en.wikipedia.org/wiki/Kumudini_Basu — “Kumudini Basu (née Mitra, 1873–1942) was a Bengali writer, social reformer … (death year marked 'citation needed')” |
 | বাল্মীকি | অদ্ভুত রামায়ণ | **confirmed** — প্রাচীন ভারতের কবি (year used: 300) | https://en.wikipedia.org/wiki/Valmiki — “the earliest stage of the [Ramayana] text … 8th to 4th centuries BCE, and later stages extending up to the 3rd century CE (cites Goldman 1984; Brockington 1998)” |
 | ভানুদত্ত মিশ্র | রসমঞ্জরী | **confirmed** — পনেরো-ষোলো শতকের কবি (year used: 1600) | https://en.wikipedia.org/wiki/Bhanudatta_Misra — “a Sanskrit poet … dated to some time in the late 15th and early 16th century (cites Pollock 2009, NYU Press)” |
 | ভূষণভট্ট | কাদম্বরী | **confirmed** — সাত শতকের লেখক বাণভট্টের পুত্র (year used: 800) | https://en.wikipedia.org/wiki/Kadambari — “The novel was completed by Banabhatta's son Bhushanabhatta”; https://en.wikipedia.org/wiki/Banabhatta — “a 7th-century Sanskrit prose writer and poet (cites Upinder Singh)” |
@@ -70,7 +133,6 @@ Each was looked up on Wikidata (again, live), the Bangla and English Wikipedia (
 | কান্তিচন্দ্র সরকার | তামাকের দোষ গুণ ও ইতিহাস | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
 | কার্তিকচন্দ্র মিত্র | শিখগুরু | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
 | কালীকমল দত্ত | দুর্গাবতী | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
-| কুমুদিনী বসু | সাহিত্য-চিন্তা | left out | কুমুদিনী বসু: bn Wikipedia lists সাহিত্য-চিন্তা among her works and gives 1943 (citing only Wikisource); en Wikipedia gives 1942 marked 'citation needed'. Both before 1965, but no cited source — needs your decision. |
 | কৃষ্ণকিশোর বন্দ্যোপাধ্যায় | কবিতাকুসুমাঞ্জলি | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
 | কৃষ্ণদাস আচার্য চৌধুরী | ইঙ্গিত | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
 | কৃষ্ণদ্বৈপায়ন বেদব্যাস | কল্কি পুরাণ, মহাভারতীয় স্বপ্নপর্ব্ব | left out | no death year in Wikidata, bn/en Wikipedia or Banglapedia |
@@ -135,51 +197,41 @@ Each was looked up on Wikidata (again, live), the Bangla and English Wikipedia (
 
 ## Not imported yet: no confirmed category
 
-Re-checked 2026-10-16 by reading each text's contents and a passage. They are in `data/wikisource-unclassified.json` with `category: null` and the note below.
-
-- পথে-বিপথে — অবনীন্দ্রনাথ ঠাকুর: humorous first-person prose sketches, between essays and stories — your choice (প্রবন্ধ or ছোটগল্প) (https://bn.wikisource.org/wiki/পথে-বিপথে_(১৯১৮))
-- মহাভারত (উপক্রমণিকাভাগ) — ঈশ্বরচন্দ্র বিদ্যাসাগর: epic retelling (prose Mahabharata, introductory chapters) — proposed category পুরাণ ও লোককথা (https://bn.wikisource.org/wiki/মহাভারত_(উপক্রমণিকাভাগ))
-- ভয়ভাঙ্গা — দীনেশচন্দ্র সেন: Radha-Krishna episodes retold — proposed category পুরাণ ও লোককথা (https://bn.wikisource.org/wiki/ভয়ভাঙ্গা)
-- সতী — দীনেশচন্দ্র সেন: myth retold in prose (the Sati legend, twelve chapters) — proposed category পুরাণ ও লোককথা (https://bn.wikisource.org/wiki/সতী_(দীনেশচন্দ্র_সেন))
-- মেয়েলি ব্রত ও কথা — পরমেশপ্রসন্ন রায়: folk rituals of East Bengal and their tales — proposed category পুরাণ ও লোককথা (https://bn.wikisource.org/wiki/মেয়েলি_ব্রত_ও_কথা)
-- অদ্ভুত রামায়ণ — বাল্মীকি: a Ramayana variant, translated by সৌদামিনী দেবী (1890) — proposed category পুরাণ ও লোককথা (https://bn.wikisource.org/wiki/অদ্ভুত_রামায়ণ_(১৮৯০))
-- কুরু পাণ্ডব — রবীন্দ্রনাথ ঠাকুর: epic retelling (Mahabharata episodes) — proposed category পুরাণ ও লোককথা (https://bn.wikisource.org/wiki/কুরু_পাণ্ডব)
-- মহাভারত — রাজশেখর বসু: epic retelling (condensed Mahabharata) — proposed category পুরাণ ও লোককথা (https://bn.wikisource.org/wiki/মহাভারত_(রাজশেখর_বসু))
-- বত্রিশ সিংহাসন — লাল্লু লাল: story cycle of King Vikramaditya, translated from Hindi — proposed category পুরাণ ও লোককথা (https://bn.wikisource.org/wiki/বত্রিশ_সিংহাসন_(নীলমণি_বসাক))
-- শরৎ-সাহিত্য-সংগ্রহ — শরৎচন্দ্র চট্টোপাধ্যায়: omnibus volume 13 of collected works (mixed forms, including writings first published in it in 1960) — better left out (https://bn.wikisource.org/wiki/শরৎ-সাহিত্য-সংগ্রহ_(ত্রয়োদশ_সম্ভার))
+None: every work now has a category or was left out by decision.
 
 ## All prepared books by category (batches 1 and 2)
 
 | Category | Works |
 |---|---|
-| `probondho` | 108 |
+| `probondho` | 109 |
 | `kobita` | 79 |
 | `itihash-jiboni` | 57 |
 | `uponnash` | 51 |
 | `thriller-rohosso` | 42 |
-| `chhotogolpo` | 37 |
+| `chhotogolpo` | 38 |
 | `natok` | 20 |
 | `bhromon` | 13 |
 | `shishu-sahitto` | 10 |
+| `puran-lokkotha` | 8 |
 | `biggan-kolpokahini` | 2 |
 
 ## Per author (batches 1 and 2)
 
 | Author | Died | New books | Links for catalog books | Unclassified |
 |---|---|---|---|---|
-| রবীন্দ্রনাথ ঠাকুর | 1941 | 93 | 6 | 1 |
+| রবীন্দ্রনাথ ঠাকুর | 1941 | 94 | 6 | 0 |
 | প্রিয়নাথ মুখোপাধ্যায় | 1947 | 38 | 0 | 0 |
 | বঙ্কিমচন্দ্র চট্টোপাধ্যায় | 1894 | 18 | 2 | 0 |
-| ঈশ্বরচন্দ্র বিদ্যাসাগর | 1891 | 13 | 0 | 1 |
-| রাজশেখর বসু | 1960 | 11 | 0 | 1 |
+| ঈশ্বরচন্দ্র বিদ্যাসাগর | 1891 | 14 | 0 | 0 |
+| রাজশেখর বসু | 1960 | 12 | 0 | 0 |
 | মাইকেল মধুসূদন দত্ত | 1873 | 10 | 0 | 0 |
-| শরৎচন্দ্র চট্টোপাধ্যায় | 1938 | 6 | 3 | 1 |
-| অবনীন্দ্রনাথ ঠাকুর | 1951 | 7 | 0 | 1 |
+| শরৎচন্দ্র চট্টোপাধ্যায় | 1938 | 6 | 3 | 0 |
+| অবনীন্দ্রনাথ ঠাকুর | 1951 | 8 | 0 | 0 |
 | প্রসাদদাস রায় | 1963 | 7 | 0 | 0 |
 | বিভূতিভূষণ বন্দ্যোপাধ্যায় | 1950 | 5 | 0 | 0 |
 | ব্রজেন্দ্রনাথ বন্দ্যোপাধ্যায় | 1952 | 5 | 0 | 0 |
 | হেমচন্দ্র বন্দ্যোপাধ্যায় | 1903 | 5 | 0 | 0 |
-| দীনেশচন্দ্র সেন | 1939 | 2 | 0 | 2 |
+| দীনেশচন্দ্র সেন | 1939 | 4 | 0 | 0 |
 | মানিক বন্দ্যোপাধ্যায় | 1956 | 3 | 1 | 0 |
 | স্বর্ণকুমারী দেবী | 1932 | 4 | 0 | 0 |
 | স্বামী বিবেকানন্দ | 1902 | 4 | 0 | 0 |
@@ -239,6 +291,7 @@ Re-checked 2026-10-16 by reading each text's contents and a passage. They are in
 | কালীপ্রসন্ন বিদ্যারত্ন | 1924 | 1 | 0 | 0 |
 | কালীপ্রসন্ন সিংহ | 1870 | 1 | 0 | 0 |
 | কালীময় ঘটক | 1900 | 1 | 0 | 0 |
+| কুমুদিনী বসু | 1943 | 1 | 0 | 0 |
 | কুমুদিনী মিত্র | 1943 | 1 | 0 | 0 |
 | কৃষ্ণপ্রসন্ন সেন | 1902 | 1 | 0 | 0 |
 | কৃষ্ণেন্দ্র রায় | 1898 | 1 | 0 | 0 |
@@ -268,14 +321,14 @@ Re-checked 2026-10-16 by reading each text's contents and a passage. They are in
 | নারায়ণচন্দ্র ভট্টাচার্য | 1927 | 1 | 0 | 0 |
 | নৃপেন্দ্রকৃষ্ণ চট্টোপাধ্যায় | 1963 | 1 | 0 | 0 |
 | পঞ্চানন ভট্টাচার্য | 1919 | 1 | 0 | 0 |
-| পরমেশপ্রসন্ন রায় | 1927 | 0 | 0 | 1 |
+| পরমেশপ্রসন্ন রায় | 1927 | 1 | 0 | 0 |
 | পিয়ের লোতি | 1923 | 1 | 0 | 0 |
 | প্রফুল্লকুমার সরকার | 1944 | 1 | 0 | 0 |
 | প্রিয়দর্শন হালদার | 1928 | 1 | 0 | 0 |
 | প্রিয়নাথ চক্রবর্তী | 1908 | 1 | 0 | 0 |
 | বাণভট্ট ও ভূষণভট্ট | 800 | 1 | 0 | 0 |
 | বারীন্দ্রকুমার ঘোষ | 1959 | 1 | 0 | 0 |
-| বাল্মীকি | 300 | 0 | 0 | 1 |
+| বাল্মীকি | 300 | 1 | 0 | 0 |
 | বিজয়কৃষ্ণ গোস্বামী | 1899 | 1 | 0 | 0 |
 | বিজয়চন্দ্র মজুমদার | 1942 | 1 | 0 | 0 |
 | বিনোদিনী দাসী | 1941 | 1 | 0 | 0 |
@@ -312,7 +365,7 @@ Re-checked 2026-10-16 by reading each text's contents and a passage. They are in
 | রাধানাথ মিত্র | 1921 | 1 | 0 | 0 |
 | রামেন্দ্রসুন্দর ত্রিবেদী | 1919 | 1 | 0 | 0 |
 | রেনে মারাঁ | 1960 | 1 | 0 | 0 |
-| লাল্লু লাল | 1825 | 0 | 0 | 1 |
+| লাল্লু লাল | 1825 | 1 | 0 | 0 |
 | ল্যেভ তলস্তোয় | 1910 | 1 | 0 | 0 |
 | শ্যামাপ্রসাদ মুখোপাধ্যায় | 1953 | 1 | 0 | 0 |
 | সঞ্জীবচন্দ্র চট্টোপাধ্যায় | 1889 | 1 | 0 | 0 |
@@ -342,7 +395,7 @@ Re-checked 2026-10-16 by reading each text's contents and a passage. They are in
 
 | Reason | Works |
 |---|---|
-| author's death year is not on Wikidata | 80 |
+| author's death year is not on Wikidata | 79 |
 | not a literary book | 28 |
 | anonymous, or no author on Wikidata | 24 |
 | another edition of the same work | 19 |
@@ -353,6 +406,7 @@ Re-checked 2026-10-16 by reading each text's contents and a passage. They are in
 | first publication date unknown, and the scanned edition was printed in YYYY, after the death of its author | 3 |
 | translator died in YYYY, after YYYY | 2 |
 | editor's death year is not on Wikidata | 1 |
+| left out by decision , not a book of its own | 1 |
 | not in Bangla | 1 |
 | the scan has no Wikidata item | 1 |
 
@@ -361,6 +415,7 @@ Every excluded scan, with its exact reason, is listed at the end and in `data/wi
 ## Batch 2 titles romanised by the script (please check)
 
 - প্রেমিক সন্ন্যাসী → Premik Sannyasi
+- ভয়ভাঙ্গা → Bhayabhanga
 - মোহনলাল → Mohanalal
 - গুরুদক্ষিণা → Gurudakshina
 
@@ -456,7 +511,6 @@ Live re-checks of a random sample, not from the import's cache: batch 1 in `data
 | তামাকের দোষ গুণ ও ইতিহাস | কান্তিচন্দ্র সরকার | তামাকের দোষ গুণ ও ইতিহাস.pdf | author's death year is not on Wikidata (কান্তিচন্দ্র সরকার) |
 | শিখগুরু | কার্তিকচন্দ্র মিত্র | শিখগুরু - কার্তিকচন্দ্র মিত্র (১৯২২).pdf | author's death year is not on Wikidata (কার্তিকচন্দ্র মিত্র) |
 | দুর্গাবতী | কালীকমল দত্ত | দুর্গাবতী - কালীকমল দত্ত (১৮৮৮).pdf | author's death year is not on Wikidata (কালীকমল দত্ত) |
-| সাহিত্য-চিন্তা | কুমুদিনী বসু | সাহিত্য-চিন্তা - কুমুদিনী বসু.pdf | author's death year is not on Wikidata (কুমুদিনী বসু) |
 | কবিতাকুসুমাঞ্জলি | কৃষ্ণকিশোর বন্দ্যোপাধ্যায় | কবিতাকুসুমাঞ্জলি.pdf | author's death year is not on Wikidata (কৃষ্ণকিশোর বন্দ্যোপাধ্যায়) |
 | ইঙ্গিত | কৃষ্ণদাস আচার্য চৌধুরী | ইঙ্গিত - কৃষ্ণদাস আচার্য্য চৌধুরী.pdf | author's death year is not on Wikidata (কৃষ্ণদাস আচার্য চৌধুরী) |
 | ভাওয়ালী কাণ্ড | কেদারনাথ চক্রবর্তী | ভাওয়ালী কাণ্ড - কেদারনাথ চক্রবর্তী (১৯২১).pdf | author's death year is not on Wikidata (কেদারনাথ চক্রবর্তী) |
@@ -525,6 +579,7 @@ Live re-checks of a random sample, not from the import's cache: batch 1 in `data
 | পূর্ব-বাংলার গল্প | রবীন্দ্রনাথ ঠাকুর | পূর্ব-বাংলার গল্প - রবীন্দ্রনাথ ঠাকুর.pdf | first publication date unknown, and the scanned edition was printed in 1972, after the death of its author (1941): check that it was published in their lifetime (a posthumous work is protected for 60 years from publication) |
 | ভারতপথিক রামমোহন রায় | রবীন্দ্রনাথ ঠাকুর | ভারতপথিক রামমোহন রায়-রবীন্দ্রনাথ ঠাকুর.pdf | first publication date unknown, and the scanned edition was printed in 1972, after the death of its author (1941): check that it was published in their lifetime (a posthumous work is protected for 60 years from publication) |
 | আলোর ফুলকি | অবনীন্দ্রনাথ ঠাকুর | আলোর ফুলকি.djvu | first publication date unknown, and the scanned edition was printed in 1979, after the death of its author (1951): check that it was published in their lifetime (a posthumous work is protected for 60 years from publication) |
+| শরৎ-সাহিত্য-সংগ্রহ | শরৎচন্দ্র চট্টোপাধ্যায় | শরৎ-সাহিত্য-সংগ্রহ (ত্রয়োদশ সম্ভার) - শরৎচন্দ্র চট্টোপাধ্যায় (১৯৬০).pdf | left out by decision (2026-10-16): volume 13 of an omnibus of collected works, mixed forms (novels, stories, essays, letters), not a book of its own |
 | অগ্নিপরীক্ষা | — | অগ্নিপরীক্ষা - প্রচার পুস্তিকা (১৯৫৪).pdf | not a literary book (gazette, legal or UN document, film booklet or periodical) |
 | ওরা থাকে ওধারে | — | ওরা থাকে ওধারে - প্রচার পুস্তিকা (১৯৫৪).pdf | not a literary book (gazette, legal or UN document, film booklet or periodical) |
 | গোপাল ভাঁড় | — | গোপাল ভাঁড় - প্রচার পুস্তিকা (১৯৫৩).pdf | not a literary book (gazette, legal or UN document, film booklet or periodical) |

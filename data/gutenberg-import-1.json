@@ -1,8 +1,11 @@
 [
   {
     "title": "Pride and Prejudice",
-    "titleBangla": "প্রাইড অ্যান্ড প্রেজুডিস",
+    "titleBangla": null,
     "author": "Jane Austen",
+    "searchAliases": [
+      "প্রাইড অ্যান্ড প্রেজুডিস"
+    ],
     "category": "uponnash",
     "description": "উনিশ শতকের ইংল্যান্ডে বেনেট পরিবারের মেয়ে এলিজাবেথ আর অহংকারী মিস্টার ডার্সির সম্পর্ক নিয়ে জেন অস্টেনের উপন্যাস।",
     "language": "en",
@@ -18,8 +21,11 @@
   },
   {
     "title": "Moby-Dick",
-    "titleBangla": "মবি-ডিক",
+    "titleBangla": null,
     "author": "Herman Melville",
+    "searchAliases": [
+      "মবি-ডিক"
+    ],
     "category": "uponnash",
     "description": "সাদা তিমি মবি-ডিককে ধাওয়া করা ক্যাপ্টেন আহাবের জাহাজের অভিযান নিয়ে হারমান মেলভিলের উপন্যাস, নাবিক ইসমায়েলের জবানিতে বলা।",
     "language": "en",
@@ -35,8 +41,11 @@
   },
   {
     "title": "Alice's Adventures in Wonderland",
-    "titleBangla": "অ্যালিস ইন ওয়ান্ডারল্যান্ড",
+    "titleBangla": null,
     "author": "Lewis Carroll",
+    "searchAliases": [
+      "অ্যালিস ইন ওয়ান্ডারল্যান্ড"
+    ],
     "category": "shishu-sahitto",
     "description": "খরগোশের গর্তে পড়ে এক আজব দেশে পৌঁছে যাওয়া ছোট্ট অ্যালিসের অভিযান নিয়ে লুইস ক্যারলের বই।",
     "language": "en",
@@ -52,8 +61,11 @@
   },
   {
     "title": "Romeo and Juliet",
-    "titleBangla": "রোমিও অ্যান্ড জুলিয়েট",
+    "titleBangla": null,
     "author": "William Shakespeare",
+    "searchAliases": [
+      "রোমিও অ্যান্ড জুলিয়েট"
+    ],
     "category": "natok",
     "description": "ভেরোনার দুই শত্রু পরিবারের ছেলেমেয়ে রোমিও আর জুলিয়েটের প্রেম নিয়ে শেকসপিয়রের ট্র্যাজেডি।",
     "language": "en",
@@ -69,8 +81,11 @@
   },
   {
     "title": "Dracula",
-    "titleBangla": "ড্রাকুলা",
+    "titleBangla": null,
     "author": "Bram Stoker",
+    "searchAliases": [
+      "ড্রাকুলা"
+    ],
     "category": "thriller-rohosso",
     "description": "ট্রান্সিলভেনিয়ার রক্তচোষা কাউন্ট ড্রাকুলার ইংল্যান্ডে আসা আর তাকে রুখতে একদল মানুষের লড়াই নিয়ে ব্রাম স্টোকারের উপন্যাস, চিঠি আর ডায়েরির আকারে লেখা।",
     "language": "en",
@@ -103,8 +118,11 @@
   },
   {
     "title": "Strange Case of Dr Jekyll and Mr Hyde",
-    "titleBangla": "স্ট্রেঞ্জ কেস অব ডক্টর জেকিল অ্যান্ড মিস্টার হাইড",
+    "titleBangla": null,
     "author": "Robert Louis Stevenson",
+    "searchAliases": [
+      "স্ট্রেঞ্জ কেস অব ডক্টর জেকিল অ্যান্ড মিস্টার হাইড"
+    ],
     "category": "thriller-rohosso",
     "description": "এক ওষুধে ভদ্র ডাক্তার জেকিলের নিষ্ঠুর মিস্টার হাইডে বদলে যাওয়া নিয়ে রবার্ট লুইস স্টিভেনসনের ছোট উপন্যাস।",
     "language": "en",
@@ -137,9 +155,13 @@
   },
   {
     "title": "Odyssey",
-    "titleBangla": "ওডিসি",
+    "titleBangla": null,
     "author": "Homer",
-    "category": "kobita",
+    "translator": "Samuel Butler",
+    "searchAliases": [
+      "ওডিসি"
+    ],
+    "category": "puran-lokkotha",
     "description": "ট্রয়ের যুদ্ধের পর রাজা অডিসিউসের দশ বছর ধরে ঘরে ফেরার কাহিনি নিয়ে হোমারের মহাকাব্য, স্যামুয়েল বাটলারের ইংরেজি গদ্য অনুবাদে।",
     "language": "en",
     "publishYear": null,
@@ -171,8 +193,11 @@
   },
   {
     "title": "Jane Eyre",
-    "titleBangla": "জেন আয়ার",
+    "titleBangla": null,
     "author": "Charlotte Brontë",
+    "searchAliases": [
+      "জেন আয়ার"
+    ],
     "category": "uponnash",
     "description": "অনাথ শিশু থেকে গভর্নেস হয়ে ওঠা জেন আয়ারের জীবন আর মিস্টার রচেস্টারের সঙ্গে তার সম্পর্ক নিয়ে শার্লট ব্রন্টির উপন্যাস।",
     "language": "en",
@@ -188,8 +213,11 @@
   },
   {
     "title": "Little Women",
-    "titleBangla": "লিটল উইমেন",
+    "titleBangla": null,
     "author": "Louisa May Alcott",
+    "searchAliases": [
+      "লিটল উইমেন"
+    ],
     "category": "uponnash",
     "description": "মার্চ পরিবারের চার বোন মেগ, জো, বেথ আর অ্যামির বেড়ে ওঠা নিয়ে লুইসা মে অলকটের উপন্যাস।",
     "language": "en",
@@ -205,8 +233,11 @@
   },
   {
     "title": "The Picture of Dorian Gray",
-    "titleBangla": "দ্য পিকচার অফ ডোরিয়ান গ্রে",
+    "titleBangla": null,
     "author": "Oscar Wilde",
+    "searchAliases": [
+      "দ্য পিকচার অফ ডোরিয়ান গ্রে"
+    ],
     "category": "uponnash",
     "description": "নিজের প্রতিকৃতি বুড়িয়ে যায় অথচ নিজে চিরতরুণ থেকে যান ডোরিয়ান গ্রে — এই কল্পনা নিয়ে অস্কার ওয়াইল্ডের একমাত্র উপন্যাস।",
     "language": "en",
@@ -222,8 +253,11 @@
   },
   {
     "title": "A Tale of Two Cities",
-    "titleBangla": "এ টেল অব টু সিটিজ",
+    "titleBangla": null,
     "author": "Charles Dickens",
+    "searchAliases": [
+      "এ টেল অব টু সিটিজ"
+    ],
     "category": "uponnash",
     "description": "ফরাসি বিপ্লবের সময় লন্ডন আর প্যারিসের পটভূমিতে চার্লস ডিকেন্সের ঐতিহাসিক উপন্যাস।",
     "language": "en",
@@ -239,8 +273,11 @@
   },
   {
     "title": "The Great Gatsby",
-    "titleBangla": "দ্য গ্রেট গ্যাটসবি",
+    "titleBangla": null,
     "author": "F. Scott Fitzgerald",
+    "searchAliases": [
+      "দ্য গ্রেট গ্যাটসবি"
+    ],
     "category": "uponnash",
     "description": "জ্যাজ যুগের নিউ ইয়র্কে রহস্যময় ধনী জে গ্যাটসবি আর তার হারানো প্রেম ডেইজিকে নিয়ে এফ. স্কট ফিটজেরাল্ডের উপন্যাস।",
     "language": "en",
@@ -290,8 +327,12 @@
   },
   {
     "title": "The Prince",
-    "titleBangla": "দ্য প্রিন্স",
+    "titleBangla": null,
     "author": "Niccolò Machiavelli",
+    "translator": "W. K. Marriott",
+    "searchAliases": [
+      "দ্য প্রিন্স"
+    ],
     "category": "probondho",
     "description": "রাজ্য জয় আর ক্ষমতা ধরে রাখার কৌশল নিয়ে নিকোলো মাকিয়াভেলির রাজনৈতিক গ্রন্থ।",
     "language": "en",
@@ -309,6 +350,7 @@
     "title": "War and Peace",
     "titleBangla": "যুদ্ধ ও শান্তি",
     "author": "Leo Tolstoy",
+    "translator": "Aylmer Maude ও Louise Maude",
     "category": "uponnash",
     "description": "নেপোলিয়নের রাশিয়া আক্রমণের সময়ের কয়েকটি অভিজাত রুশ পরিবারের জীবন নিয়ে লেভ তলস্তয়ের মহাকাব্যিক উপন্যাস।",
     "language": "en",
@@ -318,7 +360,7 @@
     "sources": [
       {
         "url": "https://www.gutenberg.org/ebooks/2600",
-        "rightsBasis": "লেখক ল্যেভ তল্‌স্তোয় ১৯১০ সালে, অনুবাদক Aylmer and Louise Maude ১৯৩৮ সালে ও অনুবাদক Aylmer and Louise Maude ১৯৩৯ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+        "rightsBasis": "লেখক ল্যেভ তল্‌স্তোয় ১৯১০ সালে, অনুবাদক Aylmer Maude ১৯৩৮ সালে ও অনুবাদক Louise Maude ১৯৩৯ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
       }
     ]
   },
@@ -392,8 +434,11 @@
   },
   {
     "title": "The History of Tom Jones, a Foundling",
-    "titleBangla": "দ্য হিস্ট্রি অফ টম জোনস, আ ফাউন্ডলিং",
+    "titleBangla": null,
     "author": "Henry Fielding",
+    "searchAliases": [
+      "দ্য হিস্ট্রি অফ টম জোনস, আ ফাউন্ডলিং"
+    ],
     "category": "uponnash",
     "description": "হেনরি ফিল্ডিংয়ের ইংরেজি উপন্যাস।",
     "language": "en",
@@ -409,8 +454,11 @@
   },
   {
     "title": "The Adventures of Tom Sawyer",
-    "titleBangla": "দি অ্যাডভেঞ্চার্স অব টম সয়্যার",
+    "titleBangla": null,
     "author": "Mark Twain",
+    "searchAliases": [
+      "দি অ্যাডভেঞ্চার্স অব টম সয়্যার"
+    ],
     "category": "uponnash",
     "description": "মিসিসিপি নদীর ধারের ছোট শহরে দুরন্ত কিশোর টম সয়্যারের নানা কাণ্ড নিয়ে মার্ক টোয়েনের উপন্যাস।",
     "language": "en",
@@ -477,8 +525,11 @@
   },
   {
     "title": "The Scarlet Letter",
-    "titleBangla": "দ্য স্কার্লেট লেটার",
+    "titleBangla": null,
     "author": "Nathaniel Hawthorne",
+    "searchAliases": [
+      "দ্য স্কার্লেট লেটার"
+    ],
     "category": "uponnash",
     "description": "সতেরো শতকের পিউরিটান বোস্টনে বুকে লজ্জার লাল অক্ষর পরতে বাধ্য হওয়া হেস্টার প্রিনকে নিয়ে নাথানিয়েল হথর্নের উপন্যাস।",
     "language": "en",
@@ -496,6 +547,7 @@
     "title": "Confessions",
     "titleBangla": null,
     "author": "Augustine of Hippo",
+    "translator": "Edward Bouverie Pusey",
     "category": "itihash-jiboni",
     "description": "সন্ত অগাস্টিনের নিজের জীবন আর খ্রিস্টধর্মে দীক্ষার কাহিনি, ঈশ্বরের উদ্দেশে বলা আত্মকথার আকারে।",
     "language": "en",
@@ -511,8 +563,11 @@
   },
   {
     "title": "The Wonderful Wizard of Oz",
-    "titleBangla": "দ্য ওয়ান্ডারফুল উইজার্ড অব অজ",
+    "titleBangla": null,
     "author": "L. Frank Baum",
+    "searchAliases": [
+      "দ্য ওয়ান্ডারফুল উইজার্ড অব অজ"
+    ],
     "category": "shishu-sahitto",
     "description": "ঘূর্ণিঝড়ে উড়ে গিয়ে অজ নামের এক জাদুর দেশে পৌঁছানো ছোট্ট ডরোথির অভিযান নিয়ে এল. ফ্র্যাঙ্ক বমের বই।",
     "language": "en",
@@ -528,8 +583,11 @@
   },
   {
     "title": "Great Expectations",
-    "titleBangla": "গ্রেট এক্সপেকটেশানস",
+    "titleBangla": null,
     "author": "Charles Dickens",
+    "searchAliases": [
+      "গ্রেট এক্সপেকটেশানস"
+    ],
     "category": "uponnash",
     "description": "অনাথ কিশোর পিপের এক অজানা পৃষ্ঠপোষকের টাকায় ভদ্রলোক হয়ে ওঠার চেষ্টা নিয়ে চার্লস ডিকেন্সের উপন্যাস।",
     "language": "en",
@@ -579,8 +637,11 @@
   },
   {
     "title": "Leviathan",
-    "titleBangla": "লেভিয়াথন",
+    "titleBangla": null,
     "author": "Thomas Hobbes",
+    "searchAliases": [
+      "লেভিয়াথন"
+    ],
     "category": "probondho",
     "description": "রাষ্ট্র ও শাসনের ভিত্তি নিয়ে টমাস হবসের রাজনৈতিক দর্শনের গ্রন্থ।",
     "language": "en",
@@ -613,8 +674,11 @@
   },
   {
     "title": "Adventures of Huckleberry Finn",
-    "titleBangla": "অ্যাডভেঞ্চার্স অব হাক্‌লবেরি ফিন্",
+    "titleBangla": null,
     "author": "Mark Twain",
+    "searchAliases": [
+      "অ্যাডভেঞ্চার্স অব হাক্‌লবেরি ফিন্"
+    ],
     "category": "uponnash",
     "description": "পালিয়ে আসা কিশোর হাক আর দাসত্ব থেকে পালানো জিমের মিসিসিপি নদীতে ভেলায় চড়ে যাত্রা নিয়ে মার্ক টোয়েনের উপন্যাস।",
     "language": "en",
@@ -630,8 +694,11 @@
   },
   {
     "title": "Wuthering Heights",
-    "titleBangla": "ওয়াদারিং হাইটস",
+    "titleBangla": null,
     "author": "Emily Brontë",
+    "searchAliases": [
+      "ওয়াদারিং হাইটস"
+    ],
     "category": "uponnash",
     "description": "ইয়র্কশায়ারের জলাভূমিতে হিথক্লিফ আর ক্যাথরিনের প্রেম ও প্রতিশোধ নিয়ে এমিলি ব্রন্টির একমাত্র উপন্যাস।",
     "language": "en",
@@ -642,23 +709,6 @@
       {
         "url": "https://www.gutenberg.org/ebooks/768",
         "rightsBasis": "লেখক ১৮৪৮ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
-      }
-    ]
-  },
-  {
-    "title": "Barry Locke, Half-back",
-    "titleBangla": null,
-    "author": "Ralph Henry Barbour",
-    "category": "shishu-sahitto",
-    "description": "রালফ হেনরি বার্বারের ইংরেজি ছোটদের বই।",
-    "language": "en",
-    "publishYear": null,
-    "authorDeathYear": 1944,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://www.gutenberg.org/ebooks/78118",
-        "rightsBasis": "লেখক ১৯৪৪ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
       }
     ]
   },
@@ -698,8 +748,11 @@
   },
   {
     "title": "Ulysses",
-    "titleBangla": "ইউলিসিস",
+    "titleBangla": null,
     "author": "James Joyce",
+    "searchAliases": [
+      "ইউলিসিস"
+    ],
     "category": "uponnash",
     "description": "ডাবলিনে ১৯০৪ সালের একটি দিনে লিওপোল্ড ব্লুম আর আরও কয়েকজনের ঘোরাফেরা নিয়ে জেমস জয়েসের উপন্যাস।",
     "language": "en",
@@ -717,6 +770,7 @@
     "title": "A Doll's House",
     "titleBangla": null,
     "author": "Henrik Ibsen",
+    "translator": "R. Farquharson Sharp",
     "category": "natok",
     "description": "স্বামীর সংসারে পুতুলের মতো জীবন থেকে বেরিয়ে আসা নোরাকে নিয়ে হেনরিক ইবসেনের নাটক।",
     "language": "en",
@@ -783,8 +837,11 @@
   },
   {
     "title": "The Importance of Being Earnest",
-    "titleBangla": "দি ইমপোর্টেন্স অব বিয়িং আর্নেস্ট",
+    "titleBangla": null,
     "author": "Oscar Wilde",
+    "searchAliases": [
+      "দি ইমপোর্টেন্স অব বিয়িং আর্নেস্ট"
+    ],
     "category": "natok",
     "description": "নাম আর পরিচয়ের গোলমাল নিয়ে অস্কার ওয়াইল্ডের হাসির নাটক।",
     "language": "en",
@@ -800,8 +857,11 @@
   },
   {
     "title": "Treasure Island",
-    "titleBangla": "ট্রেজার আইল্যান্ড",
+    "titleBangla": null,
     "author": "Robert Louis Stevenson",
+    "searchAliases": [
+      "ট্রেজার আইল্যান্ড"
+    ],
     "category": "uponnash",
     "description": "জলদস্যুদের লুকোনো গুপ্তধনের খোঁজে কিশোর জিম হকিন্সের সমুদ্রযাত্রা নিয়ে রবার্ট লুইস স্টিভেনসনের উপন্যাস।",
     "language": "en",
@@ -870,6 +930,7 @@
     "title": "The Brothers Karamazov",
     "titleBangla": null,
     "author": "Fyodor Dostoevsky",
+    "translator": "Constance Garnett",
     "category": "uponnash",
     "description": "বাবার খুনকে ঘিরে কারামাজভ পরিবারের ভাইদের বিশ্বাস, সন্দেহ আর বিবেকের টানাপোড়েন নিয়ে ফিওদর দস্তয়েভস্কির শেষ উপন্যাস।",
     "language": "en",
@@ -936,8 +997,11 @@
   },
   {
     "title": "The Pirate",
-    "titleBangla": "দ্য পাইরেট",
+    "titleBangla": null,
     "author": "Walter Scott",
+    "searchAliases": [
+      "দ্য পাইরেট"
+    ],
     "category": "uponnash",
     "description": "ওয়াল্টার স্কটের ইংরেজি উপন্যাস।",
     "language": "en",
@@ -987,8 +1051,11 @@
   },
   {
     "title": "A Christmas Carol",
-    "titleBangla": "আ ক্রিসমাস ক্যারল",
+    "titleBangla": null,
     "author": "Charles Dickens",
+    "searchAliases": [
+      "আ ক্রিসমাস ক্যারল"
+    ],
     "category": "uponnash",
     "description": "বড়দিনের রাতে ভূতেদের দেখা পেয়ে বদলে যাওয়া কৃপণ এবেনিজার স্ক্রুজকে নিয়ে চার্লস ডিকেন্সের কাহিনি।",
     "language": "en",
@@ -1006,6 +1073,7 @@
     "title": "Thus Spake Zarathustra",
     "titleBangla": null,
     "author": "Friedrich Nietzsche",
+    "translator": "Thomas Common",
     "category": "probondho",
     "description": "জরথুস্ত্র নামের এক দার্শনিক চরিত্রের মুখে বলা ফ্রিডরিখ নিৎশের দর্শনগ্রন্থ।",
     "language": "en",
@@ -1040,6 +1108,7 @@
     "title": "Carmen",
     "titleBangla": null,
     "author": "Prosper Mérimée",
+    "translator": "Mary Loyd",
     "category": "thriller-rohosso",
     "description": "Prosper Mérimée-এর ফরাসি রহস্য-রোমাঞ্চ কাহিনি, Mary Loyd-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -1074,6 +1143,7 @@
     "title": "Beyond Good and Evil",
     "titleBangla": null,
     "author": "Friedrich Nietzsche",
+    "translator": "Helen Zimmern",
     "category": "probondho",
     "description": "ফ্রিডরিখ নিচের জার্মান দর্শন বিষয়ক বই, Helen Zimmern-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -1089,8 +1159,12 @@
   },
   {
     "title": "The Republic",
-    "titleBangla": "রিপাবলিক",
+    "titleBangla": null,
     "author": "Plato",
+    "translator": "Benjamin Jowett",
+    "searchAliases": [
+      "রিপাবলিক"
+    ],
     "category": "probondho",
     "description": "ন্যায় কী আর আদর্শ রাষ্ট্র কেমন হওয়া উচিত, তা নিয়ে সক্রেটিসের সংলাপের আকারে প্লেটোর দর্শনগ্রন্থ।",
     "language": "en",
@@ -1174,8 +1248,11 @@
   },
   {
     "title": "Peter Pan",
-    "titleBangla": "পিটার প্যান",
+    "titleBangla": null,
     "author": "J. M. Barrie",
+    "searchAliases": [
+      "পিটার প্যান"
+    ],
     "category": "uponnash",
     "description": "কখনো বড় না হওয়া ছেলে পিটার প্যানের সঙ্গে ওয়েন্ডি আর তার ভাইদের নেভারল্যান্ডে যাওয়া নিয়ে জে. এম. ব্যারির বই।",
     "language": "en",
@@ -1207,23 +1284,6 @@
     ]
   },
   {
-    "title": "A Guide to the History of Physical Education",
-    "titleBangla": null,
-    "author": "Fred Eugene Leonard",
-    "category": "itihash-jiboni",
-    "description": "Fred Eugene Leonard-এর ইংরেজি ইতিহাস বিষয়ক বই।",
-    "language": "en",
-    "publishYear": null,
-    "authorDeathYear": 1922,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://www.gutenberg.org/ebooks/78009",
-        "rightsBasis": "লেখক Fred Eugene Leonard ১৯২২ সালে ও সম্পাদক R. Tait McKenzie ১৯৩৮ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
-      }
-    ]
-  },
-  {
     "title": "On Liberty",
     "titleBangla": null,
     "author": "John Stuart Mill",
@@ -1244,6 +1304,7 @@
     "title": "The Treasure of Pearls",
     "titleBangla": null,
     "author": "Gustave Aimard",
+    "translator": "Sir Frederic Wraxall, 3rd Baronet",
     "category": "uponnash",
     "description": "Gustave Aimard-এর ফরাসি উপন্যাস, Sir Frederic Wraxall, 3rd Baronet-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -1254,346 +1315,6 @@
       {
         "url": "https://www.gutenberg.org/ebooks/46276",
         "rightsBasis": "লেখক Gustave Aimard ১৮৮৩ সালে ও অনুবাদক Sir Frederic Wraxall, 3rd Baronet ১৮৬৫ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
-      }
-    ]
-  },
-  {
-    "title": "Tales Grotesque and Curious",
-    "titleBangla": null,
-    "author": "Ryūnosuke Akutagawa",
-    "category": "uponnash",
-    "description": "রিয়ুনোসুকে আকুতাগাওয়ার জাপানি উপন্যাস, Glenn W. Shaw-এর ইংরেজি অনুবাদে।",
-    "language": "en",
-    "publishYear": null,
-    "authorDeathYear": 1927,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://www.gutenberg.org/ebooks/78105",
-        "rightsBasis": "লেখক রিয়ুনোসুকে আকুতাগাওয়া ১৯২৭ সালে ও অনুবাদক Glenn W. Shaw ১৯৬১ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
-      }
-    ]
-  },
-  {
-    "title": "Main Currents in American Thought",
-    "titleBangla": null,
-    "author": "Vernon Louis Parrington",
-    "category": "probondho",
-    "description": "Vernon Louis Parrington-এর ইংরেজি দর্শন বিষয়ক বই।",
-    "language": "en",
-    "publishYear": null,
-    "authorDeathYear": 1929,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://www.gutenberg.org/ebooks/78025",
-        "rightsBasis": "লেখক ১৯২৯ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
-      }
-    ]
-  },
-  {
-    "title": "Præraphaelite Diaries and Letters",
-    "titleBangla": null,
-    "author": "Ford Madox Brown, Dante Gabriel Rossetti ও Gabriele Rossetti",
-    "category": "itihash-jiboni",
-    "description": "Ford Madox Brown, Dante Gabriel Rossetti ও Gabriele Rossetti-এর ইংরেজি জীবনী।",
-    "language": "en",
-    "publishYear": null,
-    "authorDeathYear": 1893,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://www.gutenberg.org/ebooks/78022",
-        "rightsBasis": "লেখক Ford Madox Brown ১৮৯৩ সালে, লেখক Dante Gabriel Rossetti ১৮৮২ সালে, লেখক Gabriele Rossetti ১৮৫৪ সালে ও সম্পাদক William Michael Rossetti ১৯১৯ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
-      }
-    ]
-  },
-  {
-    "title": "The Marvellous Land of Snergs",
-    "titleBangla": null,
-    "author": "E. A. Wyke-Smith",
-    "category": "shishu-sahitto",
-    "description": "E. A. Wyke-Smith-এর ইংরেজি ছোটদের বই।",
-    "language": "en",
-    "publishYear": null,
-    "authorDeathYear": 1935,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://www.gutenberg.org/ebooks/78120",
-        "rightsBasis": "লেখক ১৯৩৫ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
-      }
-    ]
-  },
-  {
-    "title": "The Dangerous Game",
-    "titleBangla": null,
-    "author": "William Le Queux",
-    "category": "thriller-rohosso",
-    "description": "William Le Queux-এর ইংরেজি রহস্য-রোমাঞ্চ কাহিনি।",
-    "language": "en",
-    "publishYear": null,
-    "authorDeathYear": 1927,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://www.gutenberg.org/ebooks/78029",
-        "rightsBasis": "লেখক ১৯২৭ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
-      }
-    ]
-  },
-  {
-    "title": "Three Sevens",
-    "titleBangla": null,
-    "author": "Perley Poore Sheehan",
-    "category": "thriller-rohosso",
-    "description": "Perley Poore Sheehan-এর ইংরেজি রহস্য-রোমাঞ্চ কাহিনি।",
-    "language": "en",
-    "publishYear": null,
-    "authorDeathYear": 1943,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://www.gutenberg.org/ebooks/78011",
-        "rightsBasis": "লেখক ১৯৪৩ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
-      }
-    ]
-  },
-  {
-    "title": "The Cruise of the Nona",
-    "titleBangla": null,
-    "author": "Hilaire Belloc",
-    "category": "bhromon",
-    "description": "Hilaire Belloc-এর ইংরেজি ভ্রমণকাহিনি।",
-    "language": "en",
-    "publishYear": null,
-    "authorDeathYear": 1953,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://www.gutenberg.org/ebooks/78020",
-        "rightsBasis": "লেখক ১৯৫৩ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
-      }
-    ]
-  },
-  {
-    "title": "Claribel",
-    "titleBangla": null,
-    "author": "Lucy Ellen Guernsey",
-    "category": "shishu-sahitto",
-    "description": "Lucy Ellen Guernsey-এর ইংরেজি ছোটদের বই।",
-    "language": "en",
-    "publishYear": null,
-    "authorDeathYear": 1899,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://www.gutenberg.org/ebooks/78044",
-        "rightsBasis": "লেখক ১৮৯৯ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
-      }
-    ]
-  },
-  {
-    "title": "The Black Pearl",
-    "titleBangla": null,
-    "author": "Marie Lion",
-    "category": "uponnash",
-    "description": "Marie Lion-এর উপন্যাস, Maude Wholohan-এর ইংরেজি অনুবাদে।",
-    "language": "en",
-    "publishYear": null,
-    "authorDeathYear": 1922,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://www.gutenberg.org/ebooks/78087",
-        "rightsBasis": "লেখক Marie Lion ১৯২২ সালে ও অনুবাদক Maude Wholohan ১৯৫০ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
-      }
-    ]
-  },
-  {
-    "title": "Joan and Co.",
-    "titleBangla": null,
-    "author": "Frederick Orin Bartlett",
-    "category": "uponnash",
-    "description": "Frederick Orin Bartlett-এর ইংরেজি উপন্যাস।",
-    "language": "en",
-    "publishYear": null,
-    "authorDeathYear": 1945,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://www.gutenberg.org/ebooks/78046",
-        "rightsBasis": "লেখক ১৯৪৫ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
-      }
-    ]
-  },
-  {
-    "title": "Kate Mulhall",
-    "titleBangla": null,
-    "author": "Ezra Meeker",
-    "category": "uponnash",
-    "description": "Ezra Meeker-এর ইংরেজি উপন্যাস।",
-    "language": "en",
-    "publishYear": null,
-    "authorDeathYear": 1928,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://www.gutenberg.org/ebooks/78040",
-        "rightsBasis": "লেখক ১৯২৮ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
-      }
-    ]
-  },
-  {
-    "title": "The Trouble at Pinelands",
-    "titleBangla": null,
-    "author": "Ernest M. Poate",
-    "category": "thriller-rohosso",
-    "description": "Ernest M. Poate-এর ইংরেজি রহস্য-রোমাঞ্চ কাহিনি।",
-    "language": "en",
-    "publishYear": null,
-    "authorDeathYear": 1935,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://www.gutenberg.org/ebooks/78103",
-        "rightsBasis": "লেখক ১৯৩৫ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
-      }
-    ]
-  },
-  {
-    "title": "Things Near & Far",
-    "titleBangla": null,
-    "author": "Arthur Machen",
-    "category": "uponnash",
-    "description": "Arthur Machen-এর ইংরেজি উপন্যাস।",
-    "language": "en",
-    "publishYear": null,
-    "authorDeathYear": 1947,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://www.gutenberg.org/ebooks/78106",
-        "rightsBasis": "লেখক ১৯৪৭ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
-      }
-    ]
-  },
-  {
-    "title": "Success",
-    "titleBangla": null,
-    "author": "Una Lucy Silberrad",
-    "category": "uponnash",
-    "description": "Una Lucy Silberrad-এর ইংরেজি উপন্যাস।",
-    "language": "en",
-    "publishYear": null,
-    "authorDeathYear": 1955,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://www.gutenberg.org/ebooks/78012",
-        "rightsBasis": "লেখক ১৯৫৫ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
-      }
-    ]
-  },
-  {
-    "title": "The Haunting Hand",
-    "titleBangla": null,
-    "author": "Walter Adolphe Roberts",
-    "category": "thriller-rohosso",
-    "description": "Walter Adolphe Roberts-এর ইংরেজি রহস্য-রোমাঞ্চ কাহিনি।",
-    "language": "en",
-    "publishYear": null,
-    "authorDeathYear": 1962,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://www.gutenberg.org/ebooks/78094",
-        "rightsBasis": "লেখক ১৯৬২ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
-      }
-    ]
-  },
-  {
-    "title": "The Unknown Seven",
-    "titleBangla": null,
-    "author": "Herman Landon",
-    "category": "thriller-rohosso",
-    "description": "Herman Landon-এর ইংরেজি রহস্য-রোমাঞ্চ কাহিনি।",
-    "language": "en",
-    "publishYear": null,
-    "authorDeathYear": 1960,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://www.gutenberg.org/ebooks/78010",
-        "rightsBasis": "লেখক ১৯৬০ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
-      }
-    ]
-  },
-  {
-    "title": "A Young Man's Story",
-    "titleBangla": null,
-    "author": "Sarah Doudney",
-    "category": "shishu-sahitto",
-    "description": "Sarah Doudney-এর ইংরেজি ছোটদের বই।",
-    "language": "en",
-    "publishYear": null,
-    "authorDeathYear": 1926,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://www.gutenberg.org/ebooks/78060",
-        "rightsBasis": "লেখক ১৯২৬ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
-      }
-    ]
-  },
-  {
-    "title": "Bushy",
-    "titleBangla": null,
-    "author": "Cynthia May Westover Alden",
-    "category": "uponnash",
-    "description": "Cynthia May Westover Alden-এর ইংরেজি উপন্যাস।",
-    "language": "en",
-    "publishYear": null,
-    "authorDeathYear": 1931,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://www.gutenberg.org/ebooks/78043",
-        "rightsBasis": "লেখক ১৯৩১ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
-      }
-    ]
-  },
-  {
-    "title": "Miniatures of French History",
-    "titleBangla": null,
-    "author": "Hilaire Belloc",
-    "category": "itihash-jiboni",
-    "description": "Hilaire Belloc-এর ইংরেজি ইতিহাস বিষয়ক বই।",
-    "language": "en",
-    "publishYear": null,
-    "authorDeathYear": 1953,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://www.gutenberg.org/ebooks/78114",
-        "rightsBasis": "লেখক ১৯৫৩ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
-      }
-    ]
-  },
-  {
-    "title": "Grateful Peter's New Year's Gift",
-    "titleBangla": null,
-    "author": "Ruth Lamb",
-    "category": "shishu-sahitto",
-    "description": "Ruth Lamb-এর ইংরেজি ছোটদের বই।",
-    "language": "en",
-    "publishYear": null,
-    "authorDeathYear": 1916,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://www.gutenberg.org/ebooks/78109",
-        "rightsBasis": "লেখক ১৯১৬ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
       }
     ]
   },
@@ -1615,26 +1336,10 @@
     ]
   },
   {
-    "title": "The Catholic Church and History",
-    "titleBangla": null,
-    "author": "Hilaire Belloc",
-    "category": "itihash-jiboni",
-    "description": "Hilaire Belloc-এর ইংরেজি ইতিহাস বিষয়ক বই।",
-    "language": "en",
-    "publishYear": null,
-    "authorDeathYear": 1953,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://www.gutenberg.org/ebooks/78085",
-        "rightsBasis": "লেখক ১৯৫৩ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
-      }
-    ]
-  },
-  {
     "title": "Flower, Fruit, and Thorn Pieces;",
     "titleBangla": null,
     "author": "Jean Paul",
+    "translator": "Alexander Ewing",
     "category": "uponnash",
     "description": "জিন পলের জার্মান উপন্যাস, Alexander Ewing-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -1645,57 +1350,6 @@
       {
         "url": "https://www.gutenberg.org/ebooks/36164",
         "rightsBasis": "লেখক জিন পল ১৮২৫ সালে ও অনুবাদক Alexander Ewing ১৮৯৫ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
-      }
-    ]
-  },
-  {
-    "title": "Verses",
-    "titleBangla": null,
-    "author": "Violet Jacob",
-    "category": "kobita",
-    "description": "Violet Jacob-এর ইংরেজি কাব্যগ্রন্থ।",
-    "language": "en",
-    "publishYear": null,
-    "authorDeathYear": 1946,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://www.gutenberg.org/ebooks/78110",
-        "rightsBasis": "লেখক ১৯৪৬ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
-      }
-    ]
-  },
-  {
-    "title": "Borrowed Feathers",
-    "titleBangla": null,
-    "author": "Ruth Lamb",
-    "category": "shishu-sahitto",
-    "description": "Ruth Lamb-এর ইংরেজি ছোটদের বই।",
-    "language": "en",
-    "publishYear": null,
-    "authorDeathYear": 1916,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://www.gutenberg.org/ebooks/78051",
-        "rightsBasis": "লেখক ১৯১৬ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
-      }
-    ]
-  },
-  {
-    "title": "Ash Wednesday",
-    "titleBangla": null,
-    "author": "T. S. Eliot",
-    "category": "kobita",
-    "description": "টি. এস. ইলিয়টের ইংরেজি কাব্যগ্রন্থ।",
-    "language": "en",
-    "publishYear": null,
-    "authorDeathYear": 1965,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://www.gutenberg.org/ebooks/78023",
-        "rightsBasis": "লেখক ১৯৬৫ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
       }
     ]
   },
@@ -1713,40 +1367,6 @@
       {
         "url": "https://www.gutenberg.org/ebooks/38477",
         "rightsBasis": "লেখক ১৯৪৫ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
-      }
-    ]
-  },
-  {
-    "title": "The Happiness of Hazelbrook",
-    "titleBangla": null,
-    "author": "Charlotte Grace O'Brien",
-    "category": "shishu-sahitto",
-    "description": "শার্লট গ্রেস ও'ব্রায়েনের ইংরেজি ছোটদের বই।",
-    "language": "en",
-    "publishYear": null,
-    "authorDeathYear": 1909,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://www.gutenberg.org/ebooks/78045",
-        "rightsBasis": "লেখক ১৯০৯ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
-      }
-    ]
-  },
-  {
-    "title": "The Story of Nelson",
-    "titleBangla": null,
-    "author": "Edmund Francis Sellar",
-    "category": "itihash-jiboni",
-    "description": "Edmund Francis Sellar-এর ইংরেজি জীবনী।",
-    "language": "en",
-    "publishYear": null,
-    "authorDeathYear": 1918,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://www.gutenberg.org/ebooks/78115",
-        "rightsBasis": "লেখক ১৯১৮ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
       }
     ]
   },
@@ -1781,40 +1401,6 @@
       {
         "url": "https://www.gutenberg.org/ebooks/2868",
         "rightsBasis": "লেখক ১৯৩২ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
-      }
-    ]
-  },
-  {
-    "title": "A Municipal Feud",
-    "titleBangla": null,
-    "author": "Ernest Haycox",
-    "category": "uponnash",
-    "description": "Ernest Haycox-এর ইংরেজি উপন্যাস।",
-    "language": "en",
-    "publishYear": null,
-    "authorDeathYear": 1950,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://www.gutenberg.org/ebooks/78086",
-        "rightsBasis": "লেখক ১৯৫০ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
-      }
-    ]
-  },
-  {
-    "title": "Two Happy Years in Ceylon",
-    "titleBangla": null,
-    "author": "Constance Gordon-Cumming",
-    "category": "bhromon",
-    "description": "Constance Gordon-Cumming-এর ইংরেজি ভ্রমণকাহিনি।",
-    "language": "en",
-    "publishYear": null,
-    "authorDeathYear": 1924,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://www.gutenberg.org/ebooks/78228",
-        "rightsBasis": "লেখক ১৯২৪ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
       }
     ]
   },
@@ -1907,6 +1493,7 @@
     "title": "Enchiridion of Epictetus",
     "titleBangla": null,
     "author": "Epictetus",
+    "translator": "Thomas Wentworth Higginson",
     "category": "probondho",
     "description": "এপিকটেটাসের প্রাচীন গ্রিক দর্শন বিষয়ক বই, Thomas Wentworth Higginson-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -1939,8 +1526,11 @@
   },
   {
     "title": "Heart of Darkness",
-    "titleBangla": "হার্ট অফ ডার্কনেস",
+    "titleBangla": null,
     "author": "Joseph Conrad",
+    "searchAliases": [
+      "হার্ট অফ ডার্কনেস"
+    ],
     "category": "uponnash",
     "description": "কঙ্গো নদী ধরে আফ্রিকার গভীরে রহস্যময় কুর্টজের খোঁজে নাবিক মার্লোর যাত্রা নিয়ে জোসেফ কনরাডের ছোট উপন্যাস।",
     "language": "en",
@@ -2060,6 +1650,7 @@
     "title": "Oedipus King of Thebes",
     "titleBangla": null,
     "author": "Sophocles",
+    "translator": "Gilbert Murray",
     "category": "natok",
     "description": "নিয়তির হাতে বাঁধা থিবসের রাজা ইডিপাসকে নিয়ে সফোক্লিসের গ্রিক ট্র্যাজেডি।",
     "language": "en",
@@ -2111,8 +1702,9 @@
     "title": "Four Arthurian Romances",
     "titleBangla": null,
     "author": "Chrétien de Troyes",
-    "category": "uponnash",
-    "description": "Chrétien de Troyes-এর ফরাসি উপন্যাস, William Wistar Comfort-এর ইংরেজি অনুবাদে।",
+    "translator": "William Wistar Comfort",
+    "category": "puran-lokkotha",
+    "description": "Chrétien de Troyes-এর ফরাসি কিংবদন্তির কাহিনি, William Wistar Comfort-এর ইংরেজি অনুবাদে।",
     "language": "en",
     "publishYear": null,
     "authorDeathYear": 1190,
@@ -2162,6 +1754,7 @@
     "title": "Cameron of Lochiel",
     "titleBangla": null,
     "author": "Aubert de Gaspé",
+    "translator": "Charles G. D. Roberts",
     "category": "uponnash",
     "description": "Aubert de Gaspé-এর উপন্যাস, Charles G. D. Roberts-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -2177,8 +1770,11 @@
   },
   {
     "title": "On the Origin of Species",
-    "titleBangla": "অন দ্য অরিজিন অব স্পিসিস",
+    "titleBangla": null,
     "author": "Charles Darwin",
+    "searchAliases": [
+      "অন দ্য অরিজিন অব স্পিসিস"
+    ],
     "category": "probondho",
     "description": "প্রাকৃতিক নির্বাচনের মাধ্যমে প্রজাতির বিবর্তনের তত্ত্ব নিয়ে চার্লস ডারউইনের যুগান্তকারী গ্রন্থ।",
     "language": "en",
@@ -2194,9 +1790,13 @@
   },
   {
     "title": "Iliad",
-    "titleBangla": "ইলিয়াড",
+    "titleBangla": null,
     "author": "Homer",
-    "category": "kobita",
+    "translator": "Alexander Pope",
+    "searchAliases": [
+      "ইলিয়াড"
+    ],
+    "category": "puran-lokkotha",
     "description": "ট্রয়ের যুদ্ধের শেষ দিকে বীর আকিলিসের ক্রোধ নিয়ে হোমারের মহাকাব্য, আলেকজান্ডার পোপের ইংরেজি পদ্য অনুবাদে।",
     "language": "en",
     "publishYear": null,
@@ -2230,6 +1830,7 @@
     "title": "Anabasis of Alexander",
     "titleBangla": null,
     "author": "Arrian",
+    "translator": "E. J. Chinnock",
     "category": "itihash-jiboni",
     "description": "আররিয়ানোসের প্রাচীন গ্রিক জীবনী, E. J. Chinnock-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -2245,8 +1846,11 @@
   },
   {
     "title": "A Farewell to Arms",
-    "titleBangla": "আ ফেয়ারওয়েল টু আর্মস",
+    "titleBangla": null,
     "author": "Ernest Hemingway",
+    "searchAliases": [
+      "আ ফেয়ারওয়েল টু আর্মস"
+    ],
     "category": "uponnash",
     "description": "প্রথম বিশ্বযুদ্ধের ইতালীয় রণাঙ্গনে এক মার্কিন অ্যাম্বুলেন্সচালক আর এক ইংরেজ নার্সের প্রেম নিয়ে আর্নেস্ট হেমিংওয়ের উপন্যাস।",
     "language": "en",
@@ -2262,8 +1866,12 @@
   },
   {
     "title": "The Divine Comedy",
-    "titleBangla": "লা দিভিনা কোম্মেদিয়া",
+    "titleBangla": null,
     "author": "Dante Alighieri",
+    "translator": "Henry Francis Cary",
+    "searchAliases": [
+      "লা দিভিনা কোম্মেদিয়া"
+    ],
     "category": "kobita",
     "description": "নরক, পরিশুদ্ধিস্থান আর স্বর্গের মধ্য দিয়ে কবির যাত্রা নিয়ে দান্তে আলিগিয়েরির মহাকাব্য।",
     "language": "en",
@@ -2330,8 +1938,12 @@
   },
   {
     "title": "The Art of War",
-    "titleBangla": "সুন্চি বিংফা",
+    "titleBangla": null,
     "author": "Sun Tzu",
+    "translator": "Lionel Giles",
+    "searchAliases": [
+      "সুন্চি বিংফা"
+    ],
     "category": "probondho",
     "description": "যুদ্ধ আর রণকৌশল নিয়ে প্রাচীন চীনা সমরবিদ সুন জুর গ্রন্থ।",
     "language": "en",
@@ -2364,8 +1976,12 @@
   },
   {
     "title": "Don Quixote",
-    "titleBangla": "ডন কিহোতে",
+    "titleBangla": null,
     "author": "Miguel de Cervantes",
+    "translator": "John Ormsby",
+    "searchAliases": [
+      "ডন কিহোতে"
+    ],
     "category": "uponnash",
     "description": "নাইটদের কাহিনি পড়ে নিজেকে বীর নাইট ভেবে বেরিয়ে পড়া ডন কিহোতে আর তার সঙ্গী সাঞ্চো পাঞ্জাকে নিয়ে মিগেল দে সের্ভান্তেসের উপন্যাস।",
     "language": "en",
@@ -2383,6 +1999,7 @@
     "title": "Around the World in Eighty Days",
     "titleBangla": null,
     "author": "Jules Verne",
+    "translator": "George Makepeace Towle",
     "category": "uponnash",
     "description": "বাজি ধরে আশি দিনে পৃথিবী ঘুরে আসতে বেরোনো ফিলিয়াস ফগ আর তার ভৃত্য পাসপার্তুকে নিয়ে জুল ভার্নের উপন্যাস।",
     "language": "en",
@@ -2400,6 +2017,7 @@
     "title": "White Nights, and Other Stories",
     "titleBangla": null,
     "author": "Fyodor Dostoevsky",
+    "translator": "Constance Garnett",
     "category": "chhotogolpo",
     "description": "ফিওদোর দস্তয়েভ্‌স্কির রুশ গল্পের বই, Constance Garnett-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -2468,6 +2086,7 @@
     "title": "Eloisa",
     "titleBangla": null,
     "author": "Jean-Jacques Rousseau",
+    "translator": "William Kenrick",
     "category": "uponnash",
     "description": "জঁ-জাক রুসোর ফরাসি উপন্যাস, William Kenrick-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -2517,8 +2136,12 @@
   },
   {
     "title": "Les Misérables",
-    "titleBangla": "লে মিজেরাবল",
+    "titleBangla": null,
     "author": "Victor Hugo",
+    "translator": "Isabel Florence Hapgood",
+    "searchAliases": [
+      "লে মিজেরাবল"
+    ],
     "category": "uponnash",
     "description": "রুটি চুরির দায়ে জেল খাটা জাঁ ভালজাঁর নতুন জীবনের সংগ্রাম নিয়ে ভিক্তর উগোর উপন্যাস।",
     "language": "en",
@@ -2568,8 +2191,11 @@
   },
   {
     "title": "The Secret Garden",
-    "titleBangla": "দ্য সিক্রেট গার্ডেন",
+    "titleBangla": null,
     "author": "Frances Hodgson Burnett",
+    "searchAliases": [
+      "দ্য সিক্রেট গার্ডেন"
+    ],
     "category": "shishu-sahitto",
     "description": "এক পুরোনো বাড়ির তালাবন্ধ বাগান খুঁজে পেয়ে নতুন করে বাঁচতে শেখা অনাথ মেয়ে মেরি লেনক্সকে নিয়ে ফ্রান্সেস হজসন বার্নেটের বই।",
     "language": "en",
@@ -2585,8 +2211,12 @@
   },
   {
     "title": "Anna Karenina",
-    "titleBangla": "আন্না কারেনিনা",
+    "titleBangla": null,
     "author": "Leo Tolstoy",
+    "translator": "Constance Garnett",
+    "searchAliases": [
+      "আন্না কারেনিনা"
+    ],
     "category": "uponnash",
     "description": "বিবাহিত আন্না কারেনিনার প্রেম আর সমাজের চোখে তার পরিণতি নিয়ে লেভ তলস্তয়ের উপন্যাস।",
     "language": "en",
@@ -2602,8 +2232,11 @@
   },
   {
     "title": "Gulliver's Travels",
-    "titleBangla": "গালিভার’স ট্রাভেলস",
+    "titleBangla": null,
     "author": "Jonathan Swift",
+    "searchAliases": [
+      "গালিভার’স ট্রাভেলস"
+    ],
     "category": "uponnash",
     "description": "জাহাজডুবির পর লিলিপুটের খুদে মানুষ থেকে শুরু করে নানা আজব দেশে লেমুয়েল গালিভারের ভ্রমণ নিয়ে জোনাথন সুইফটের ব্যঙ্গাত্মক উপন্যাস।",
     "language": "en",
@@ -2653,8 +2286,11 @@
   },
   {
     "title": "The Jungle Book",
-    "titleBangla": "দ্য জাঙ্গল বুক",
+    "titleBangla": null,
     "author": "Rudyard Kipling",
+    "searchAliases": [
+      "দ্য জাঙ্গল বুক"
+    ],
     "category": "chhotogolpo",
     "description": "ভারতের জঙ্গলে নেকড়েদের কাছে বড় হওয়া মোগলি আর আরও কয়েকটি প্রাণীর গল্প নিয়ে রুডইয়ার্ড কিপলিংয়ের বই।",
     "language": "en",
@@ -2670,8 +2306,12 @@
   },
   {
     "title": "The Sorrows of Young Werther",
-    "titleBangla": "ডি লাইডেন ডেস ইউঙেন ভেরটার্স",
+    "titleBangla": null,
     "author": "Johann Wolfgang von Goethe",
+    "translator": "R. Dillon Boylan",
+    "searchAliases": [
+      "ডি লাইডেন ডেস ইউঙেন ভেরটার্স"
+    ],
     "category": "uponnash",
     "description": "ইয়োহান ভল্ফগাং ফন গ্যোটের জার্মান উপন্যাস, R. Dillon Boylan-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -2703,6 +2343,23 @@
     ]
   },
   {
+    "title": "Calculus Made Easy",
+    "titleBangla": null,
+    "author": "Silvanus P. Thompson",
+    "category": "probondho",
+    "description": "Silvanus P. Thompson-এর ইংরেজি বিজ্ঞান বিষয়ক বই।",
+    "language": "en",
+    "publishYear": null,
+    "authorDeathYear": 1916,
+    "isPublicDomain": true,
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/33283",
+        "rightsBasis": "লেখক ১৯১৬ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
     "title": "Mr Standfast",
     "titleBangla": null,
     "author": "John Buchan",
@@ -2723,6 +2380,7 @@
     "title": "Baburnama",
     "titleBangla": "বাবরনামা",
     "author": "Babur",
+    "translator": "Annette Beveridge",
     "category": "itihash-jiboni",
     "description": "বাবরের ফারসি জীবনী, এ্যানেট সুসানা এ্যাক্রয়েড বেভারীজের ইংরেজি অনুবাদে।",
     "language": "en",
@@ -2757,6 +2415,7 @@
     "title": "Apology",
     "titleBangla": null,
     "author": "Plato",
+    "translator": "Benjamin Jowett",
     "category": "probondho",
     "description": "প্লেটোর প্রাচীন গ্রিক দর্শন বিষয়ক বই, Benjamin Jowett-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -2772,8 +2431,11 @@
   },
   {
     "title": "Oliver Twist",
-    "titleBangla": "অলিভার টুইস্ট",
+    "titleBangla": null,
     "author": "Charles Dickens",
+    "searchAliases": [
+      "অলিভার টুইস্ট"
+    ],
     "category": "uponnash",
     "description": "লন্ডনের অপরাধজগতে গিয়ে পড়া অনাথ বালক অলিভার টুইস্টকে নিয়ে চার্লস ডিকেন্সের উপন্যাস।",
     "language": "en",
@@ -2806,8 +2468,11 @@
   },
   {
     "title": "Dubliners",
-    "titleBangla": "ডাবলিনার্স",
+    "titleBangla": null,
     "author": "James Joyce",
+    "searchAliases": [
+      "ডাবলিনার্স"
+    ],
     "category": "chhotogolpo",
     "description": "ডাবলিনের সাধারণ মানুষের জীবন নিয়ে জেমস জয়েসের ছোটগল্পের সংকলন।",
     "language": "en",
@@ -2942,8 +2607,11 @@
   },
   {
     "title": "A Midsummer Night's Dream",
-    "titleBangla": "এ মিডসামার নাইট'স ড্রিম",
+    "titleBangla": null,
     "author": "William Shakespeare",
+    "searchAliases": [
+      "এ মিডসামার নাইট'স ড্রিম"
+    ],
     "category": "natok",
     "description": "উইলিয়াম শেকসপিয়রের ইংরেজি নাটক।",
     "language": "en",
@@ -2976,8 +2644,11 @@
   },
   {
     "title": "David Copperfield",
-    "titleBangla": "ডেভিড কপারফিল্ড",
+    "titleBangla": null,
     "author": "Charles Dickens",
+    "searchAliases": [
+      "ডেভিড কপারফিল্ড"
+    ],
     "category": "uponnash",
     "description": "ডেভিড কপারফিল্ডের নিজের জবানিতে তার শৈশব থেকে পরিণত বয়স পর্যন্ত জীবন নিয়ে চার্লস ডিকেন্সের উপন্যাস।",
     "language": "en",
@@ -3009,9 +2680,30 @@
     ]
   },
   {
+    "title": "The Notebooks of Leonardo Da Vinci",
+    "titleBangla": null,
+    "author": "Leonardo da Vinci",
+    "translator": "Jean-Paul Richter",
+    "category": "probondho",
+    "description": "লিওনার্দো দা ভিঞ্চির ইতালীয় প্রবন্ধের বই, Jean-Paul Richter-এর ইংরেজি অনুবাদে।",
+    "language": "en",
+    "publishYear": null,
+    "authorDeathYear": 1519,
+    "isPublicDomain": true,
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/5000",
+        "rightsBasis": "লেখক লিওনার্দো দা ভিঞ্চি ১৫১৯ সালে ও অনুবাদক Jean-Paul Richter ১৯৩৭ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
     "title": "Robinson Crusoe",
-    "titleBangla": "রবিনসন ক্রুসো",
+    "titleBangla": null,
     "author": "Daniel Defoe",
+    "searchAliases": [
+      "রবিনসন ক্রুসো"
+    ],
     "category": "uponnash",
     "description": "জাহাজডুবির পর এক নির্জন দ্বীপে বহু বছর একা টিকে থাকা রবিনসন ক্রুসোকে নিয়ে ড্যানিয়েল ডিফোর উপন্যাস।",
     "language": "en",
@@ -3080,6 +2772,7 @@
     "title": "The Satires of Juvenal, Persius, Sulpicia, and Lucilius",
     "titleBangla": null,
     "author": "Juvenal, Gaius Lucilius, Persius ও Sulpicia",
+    "translator": "Lewis Evans ও William Gifford",
     "category": "kobita",
     "description": "Juvenal, Gaius Lucilius, Persius ও Sulpicia-এর লাতিন কাব্যগ্রন্থ, Lewis Evans ও William Gifford-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -3148,6 +2841,7 @@
     "title": "Notes from Underground",
     "titleBangla": null,
     "author": "Fyodor Dostoevsky",
+    "translator": "Constance Garnett",
     "category": "uponnash",
     "description": "সমাজ থেকে সরে থাকা এক নামহীন মানুষের তিক্ত আত্মকথন নিয়ে ফিওদর দস্তয়েভস্কির ছোট উপন্যাস।",
     "language": "en",
@@ -3214,8 +2908,11 @@
   },
   {
     "title": "Paradise Lost",
-    "titleBangla": "প্যারাডাইস লস্ট",
+    "titleBangla": null,
     "author": "John Milton",
+    "searchAliases": [
+      "প্যারাডাইস লস্ট"
+    ],
     "category": "kobita",
     "description": "শয়তানের বিদ্রোহ আর আদম ও হাওয়ার স্বর্গচ্যুতি নিয়ে জন মিল্টনের মহাকাব্য।",
     "language": "en",
@@ -3248,10 +2945,14 @@
   },
   {
     "title": "Metamorphoses",
-    "titleBangla": "মেটামরফোসিস",
+    "titleBangla": null,
     "author": "Ovid",
-    "category": "kobita",
-    "description": "ওভিডের লাতিন কাব্যগ্রন্থ, Henry Thomas Riley-এর ইংরেজি অনুবাদে।",
+    "translator": "Henry Thomas Riley",
+    "searchAliases": [
+      "মেটামরফোসিস"
+    ],
+    "category": "puran-lokkotha",
+    "description": "ওভিডের লাতিন পুরাণকথার কাব্য, Henry Thomas Riley-এর ইংরেজি অনুবাদে।",
     "language": "en",
     "publishYear": null,
     "authorDeathYear": 17,
@@ -3267,6 +2968,7 @@
     "title": "Symposium",
     "titleBangla": null,
     "author": "Plato",
+    "translator": "Benjamin Jowett",
     "category": "probondho",
     "description": "প্লেটোর প্রাচীন গ্রিক দর্শন বিষয়ক বই, Benjamin Jowett-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -3282,8 +2984,11 @@
   },
   {
     "title": "Common Sense",
-    "titleBangla": "কমন সেন্স",
+    "titleBangla": null,
     "author": "Thomas Paine",
+    "searchAliases": [
+      "কমন সেন্স"
+    ],
     "category": "probondho",
     "description": "আমেরিকার উপনিবেশগুলোর ব্রিটেন থেকে স্বাধীন হওয়ার পক্ষে টমাস পেইনের প্রভাবশালী পুস্তিকা।",
     "language": "en",
@@ -3316,8 +3021,11 @@
   },
   {
     "title": "As You Like It",
-    "titleBangla": "অ্যাজ ইউ লাইক ইট",
+    "titleBangla": null,
     "author": "William Shakespeare",
+    "searchAliases": [
+      "অ্যাজ ইউ লাইক ইট"
+    ],
     "category": "natok",
     "description": "উইলিয়াম শেকসপিয়রের ইংরেজি নাটক।",
     "language": "en",
@@ -3386,6 +3094,7 @@
     "title": "Critique of Pure Reason",
     "titleBangla": null,
     "author": "Immanuel Kant",
+    "translator": "John Meiklejohn",
     "category": "probondho",
     "description": "মানুষের জ্ঞানের সীমা আর ভিত্তি নিয়ে ইমানুয়েল কান্টের দর্শনগ্রন্থ।",
     "language": "en",
@@ -3401,8 +3110,11 @@
   },
   {
     "title": "Love's Labour's Lost",
-    "titleBangla": "লাভ’স লেবার’স লস্ট",
+    "titleBangla": null,
     "author": "William Shakespeare",
+    "searchAliases": [
+      "লাভ’স লেবার’স লস্ট"
+    ],
     "category": "natok",
     "description": "উইলিয়াম শেকসপিয়রের ইংরেজি নাটক।",
     "language": "en",
@@ -3418,8 +3130,11 @@
   },
   {
     "title": "Uncle Tom's Cabin",
-    "titleBangla": "আঙ্কল টমস্‌ কেবিন",
+    "titleBangla": null,
     "author": "Harriet Beecher Stowe",
+    "searchAliases": [
+      "আঙ্কল টমস্‌ কেবিন"
+    ],
     "category": "uponnash",
     "description": "আমেরিকার দাসপ্রথার নিষ্ঠুরতা নিয়ে হ্যারিয়েট বিচার স্টো-র উপন্যাস, যা দাসপ্রথাবিরোধী আন্দোলনে বড় প্রভাব ফেলেছিল।",
     "language": "en",
@@ -3437,6 +3152,7 @@
     "title": "Essays",
     "titleBangla": null,
     "author": "Michel de Montaigne",
+    "translator": "Charles Cotton",
     "category": "probondho",
     "description": "মিশেল দ্য মঁতেইনের ইতালীয় প্রবন্ধের বই, চার্লস কটনের ইংরেজি অনুবাদে।",
     "language": "en",
@@ -3590,6 +3306,7 @@
     "title": "The Diary of Samuel Pepys",
     "titleBangla": null,
     "author": "Samuel Pepys",
+    "translator": "Mynors Bright",
     "category": "itihash-jiboni",
     "description": "স্যামুয়েল পেপিসের জীবনী, Mynors Bright-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -3605,8 +3322,11 @@
   },
   {
     "title": "Black Beauty",
-    "titleBangla": "ব্ল্যাক বিউটি",
+    "titleBangla": null,
     "author": "Anna Sewell",
+    "searchAliases": [
+      "ব্ল্যাক বিউটি"
+    ],
     "category": "shishu-sahitto",
     "description": "এক ঘোড়ার নিজের জবানিতে বলা তার জীবনের ভালো-মন্দ মনিবদের কথা নিয়ে আনা সিউয়েলের বই।",
     "language": "en",
@@ -3758,8 +3478,11 @@
   },
   {
     "title": "The Canterbury Tales",
-    "titleBangla": "দ্য ক্যান্টারবেরি টেলস",
+    "titleBangla": null,
     "author": "Geoffrey Chaucer",
+    "searchAliases": [
+      "দ্য ক্যান্টারবেরি টেলস"
+    ],
     "category": "kobita",
     "description": "ক্যান্টারবেরিতে তীর্থযাত্রায় চলা একদল যাত্রীর বলা গল্প নিয়ে জেফ্রি চসারের কাব্য।",
     "language": "en",
@@ -3859,6 +3582,24 @@
     ]
   },
   {
+    "title": "Three Hundred Aesop’s Fables",
+    "titleBangla": null,
+    "author": "Aesop",
+    "translator": "George Fyler Townsend",
+    "category": "puran-lokkotha",
+    "description": "শিয়াল, কাক, সিংহসহ নানা প্রাণীর গল্পে নীতিকথা বলা প্রাচীন গ্রিসের ঈশপের উপকথার সংকলন।",
+    "language": "en",
+    "publishYear": null,
+    "authorDeathYear": -564,
+    "isPublicDomain": true,
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/21",
+        "rightsBasis": "লেখক এসপ আনুমানিক খ্রিস্টপূর্ব ৫৬৪ সালে ও অনুবাদক George Fyler Townsend ১৯০০ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
     "title": "A Connecticut Yankee in King Arthur's Court",
     "titleBangla": null,
     "author": "Mark Twain",
@@ -3947,6 +3688,7 @@
     "title": "Phaedrus",
     "titleBangla": null,
     "author": "Plato",
+    "translator": "Benjamin Jowett",
     "category": "probondho",
     "description": "প্লেটোর প্রাচীন গ্রিক দর্শন বিষয়ক বই, Benjamin Jowett-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -3996,8 +3738,11 @@
   },
   {
     "title": "White Fang",
-    "titleBangla": "হোয়াইট ফ্যাঙ",
+    "titleBangla": null,
     "author": "Jack London",
+    "searchAliases": [
+      "হোয়াইট ফ্যাঙ"
+    ],
     "category": "uponnash",
     "description": "জ্যাক লন্ডনের ইংরেজি উপন্যাস।",
     "language": "en",
@@ -4049,6 +3794,7 @@
     "title": "Phaedo",
     "titleBangla": null,
     "author": "Plato",
+    "translator": "Benjamin Jowett",
     "category": "probondho",
     "description": "প্লেটোর প্রাচীন গ্রিক দর্শন বিষয়ক বই, Benjamin Jowett-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -4066,6 +3812,7 @@
     "title": "Antiquities of the Jews",
     "titleBangla": null,
     "author": "Josephus",
+    "translator": "William Whiston",
     "category": "itihash-jiboni",
     "description": "Josephus-এর প্রাচীন গ্রিক ইতিহাস বিষয়ক বই, William Whiston-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -4081,8 +3828,11 @@
   },
   {
     "title": "The Tragical History of Doctor Faustus",
-    "titleBangla": "ডক্টর ফস্টাস",
+    "titleBangla": null,
     "author": "Christopher Marlowe",
+    "searchAliases": [
+      "ডক্টর ফস্টাস"
+    ],
     "category": "natok",
     "description": "জ্ঞান আর ক্ষমতার লোভে শয়তানের কাছে নিজের আত্মা বিক্রি করা ডক্টর ফস্টাসকে নিয়ে ক্রিস্টোফার মার্লোর নাটক।",
     "language": "en",
@@ -4117,6 +3867,7 @@
     "title": "Poetics",
     "titleBangla": null,
     "author": "Aristotle",
+    "translator": "Samuel H. Butcher",
     "category": "kobita",
     "description": "এরিস্টটলের প্রাচীন গ্রিক কাব্যগ্রন্থ, Samuel H. Butcher-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -4132,8 +3883,11 @@
   },
   {
     "title": "Ann Veronica",
-    "titleBangla": "অ্যান ভেরোনিকা",
+    "titleBangla": null,
     "author": "H. G. Wells",
+    "searchAliases": [
+      "অ্যান ভেরোনিকা"
+    ],
     "category": "uponnash",
     "description": "এইচ.জি. ওয়েলসের ইংরেজি উপন্যাস।",
     "language": "en",
@@ -4268,9 +4022,13 @@
   },
   {
     "title": "Aeneid",
-    "titleBangla": "ইনিড",
+    "titleBangla": null,
     "author": "Virgil",
-    "category": "kobita",
+    "translator": "John Dryden",
+    "searchAliases": [
+      "ইনিড"
+    ],
+    "category": "puran-lokkotha",
     "description": "ট্রয় থেকে পালিয়ে ইতালিতে নতুন জাতির ভিত্তি গড়তে যাওয়া বীর ইনিয়াসকে নিয়ে ভার্জিলের মহাকাব্য।",
     "language": "en",
     "publishYear": null,
@@ -4304,6 +4062,7 @@
     "title": "History of the Peloponnesian War",
     "titleBangla": "পেলোপনেশীয় যুদ্ধের ইতিহাস",
     "author": "Thucydides",
+    "translator": "Richard Crawley",
     "category": "itihash-jiboni",
     "description": "থুসিডাইডিসের প্রাচীন গ্রিক ইতিহাস বিষয়ক বই, Richard Crawley-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -4336,8 +4095,11 @@
   },
   {
     "title": "A Princess of Mars",
-    "titleBangla": "আ প্রিন্সেস অফ মার্স",
+    "titleBangla": null,
     "author": "Edgar Rice Burroughs",
+    "searchAliases": [
+      "আ প্রিন্সেস অফ মার্স"
+    ],
     "category": "biggan-kolpokahini",
     "description": "এডগার রাইস বারোজের ইংরেজি বিজ্ঞান কল্পকাহিনী।",
     "language": "en",
@@ -4403,23 +4165,6 @@
     ]
   },
   {
-    "title": "Divine Comedy, Longfellow's Translation, Hell",
-    "titleBangla": null,
-    "author": "Dante Alighieri",
-    "category": "kobita",
-    "description": "দান্তে আলিগিয়েরির ইতালীয় কাব্যগ্রন্থ, হেনরি ওয়েডসওয়ার্থ লংফেলোর ইংরেজি অনুবাদে।",
-    "language": "en",
-    "publishYear": null,
-    "authorDeathYear": 1321,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://www.gutenberg.org/ebooks/1001",
-        "rightsBasis": "লেখক দান্তে আলিগিয়েরি ১৩২১ সালে ও অনুবাদক হেনরি ওয়েডসওয়ার্থ লংফেলো ১৮৮২ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
-      }
-    ]
-  },
-  {
     "title": "Paul Clifford",
     "titleBangla": null,
     "author": "Edward Bulwer-Lytton",
@@ -4440,8 +4185,9 @@
     "title": "The Romance of Tristan and Iseult",
     "titleBangla": null,
     "author": "Joseph Bédier",
-    "category": "uponnash",
-    "description": "Joseph Bédier-এর ফরাসি উপন্যাস, Hilaire Belloc-এর ইংরেজি অনুবাদে।",
+    "translator": "Hilaire Belloc",
+    "category": "puran-lokkotha",
+    "description": "Joseph Bédier-এর ফরাসি কিংবদন্তির কাহিনি, Hilaire Belloc-এর ইংরেজি অনুবাদে।",
     "language": "en",
     "publishYear": null,
     "authorDeathYear": 1938,
@@ -4542,6 +4288,7 @@
     "title": "Anabasis",
     "titleBangla": null,
     "author": "Xenophon",
+    "translator": "Henry Graham Dakyns",
     "category": "itihash-jiboni",
     "description": "জেনোফনের প্রাচীন গ্রিক ইতিহাস বিষয়ক বই, Henry Graham Dakyns-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -4625,8 +4372,11 @@
   },
   {
     "title": "Utopia",
-    "titleBangla": "ইউটোপিয়া",
+    "titleBangla": null,
     "author": "Thomas More",
+    "searchAliases": [
+      "ইউটোপিয়া"
+    ],
     "category": "probondho",
     "description": "এক কাল্পনিক দ্বীপের আদর্শ সমাজব্যবস্থা নিয়ে টমাস মোরের গ্রন্থ।",
     "language": "en",
@@ -4676,8 +4426,11 @@
   },
   {
     "title": "Hamlet",
-    "titleBangla": "হ্যামলেট",
+    "titleBangla": null,
     "author": "William Shakespeare",
+    "searchAliases": [
+      "হ্যামলেট"
+    ],
     "category": "natok",
     "description": "বাবার হত্যার প্রতিশোধ নিতে গিয়ে দ্বিধায় ভোগা ডেনমার্কের রাজপুত্র হ্যামলেটকে নিয়ে শেকসপিয়রের ট্র্যাজেডি।",
     "language": "en",
@@ -4695,6 +4448,7 @@
     "title": "Ethics",
     "titleBangla": null,
     "author": "Benedictus de Spinoza",
+    "translator": "R. H. M. Elwes",
     "category": "probondho",
     "description": "বারুখ স্পিনোজার লাতিন দর্শন বিষয়ক বই, R. H. M. Elwes-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -4746,8 +4500,8 @@
     "title": "Myths of the Cherokee",
     "titleBangla": null,
     "author": "James Mooney",
-    "category": "uponnash",
-    "description": "James Mooney-এর ইংরেজি উপন্যাস।",
+    "category": "puran-lokkotha",
+    "description": "James Mooney-এর ইংরেজি পুরাণকথার সংকলন।",
     "language": "en",
     "publishYear": null,
     "authorDeathYear": 1921,
@@ -4829,8 +4583,11 @@
   },
   {
     "title": "The Gift of the Magi",
-    "titleBangla": "দ্য গিফট অব দ্য ম্যাজাই",
+    "titleBangla": null,
     "author": "O. Henry",
+    "searchAliases": [
+      "দ্য গিফট অব দ্য ম্যাজাই"
+    ],
     "category": "chhotogolpo",
     "description": "ও হেনরির ইংরেজি গল্পের বই।",
     "language": "en",
@@ -4880,8 +4637,11 @@
   },
   {
     "title": "A Portrait of the Artist as a Young Man",
-    "titleBangla": "আ পোর্ট্রেট অব দি আর্টিস্ট এজ আ ইয়াং ম্যান",
+    "titleBangla": null,
     "author": "James Joyce",
+    "searchAliases": [
+      "আ পোর্ট্রেট অব দি আর্টিস্ট এজ আ ইয়াং ম্যান"
+    ],
     "category": "uponnash",
     "description": "আইরিশ তরুণ স্টিফেন ডিডালাসের শৈশব থেকে শিল্পী হয়ে ওঠা পর্যন্ত বেড়ে ওঠা নিয়ে জেমস জয়েসের উপন্যাস।",
     "language": "en",
@@ -4914,10 +4674,13 @@
   },
   {
     "title": "The Merry Adventures of Robin Hood",
-    "titleBangla": "দ্য মেরি অ্যাডভেঞ্চারস অব রবিন হুড",
+    "titleBangla": null,
     "author": "Howard Pyle",
-    "category": "uponnash",
-    "description": "Howard Pyle-এর ইংরেজি উপন্যাস।",
+    "searchAliases": [
+      "দ্য মেরি অ্যাডভেঞ্চারস অব রবিন হুড"
+    ],
+    "category": "puran-lokkotha",
+    "description": "শেরউড বনের রবিন হুড আর তার সঙ্গীদের কিংবদন্তি নিয়ে হাওয়ার্ড পাইলের লেখা কাহিনি।",
     "language": "en",
     "publishYear": null,
     "authorDeathYear": 1911,
@@ -4933,6 +4696,7 @@
     "title": "Hypnerotomachia Poliphili",
     "titleBangla": null,
     "author": "Francesco Colonna",
+    "translator": "Robert Dallington",
     "category": "uponnash",
     "description": "Francesco Colonna-এর উপন্যাস, Robert Dallington-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -4950,6 +4714,7 @@
     "title": "The Reign of Greed",
     "titleBangla": null,
     "author": "José Rizal",
+    "translator": "Charles E. Derbyshire",
     "category": "uponnash",
     "description": "হোসে রিজালের স্প্যানিশ উপন্যাস, Charles E. Derbyshire-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -4984,8 +4749,9 @@
     "title": "Hesiod, the Homeric Hymns, and Homerica",
     "titleBangla": null,
     "author": "Hesiod",
-    "category": "kobita",
-    "description": "এসিওদোর প্রাচীন গ্রিক কাব্যগ্রন্থ, Hugh Gerard Evelyn-White-এর ইংরেজি অনুবাদে।",
+    "translator": "Hugh Gerard Evelyn-White",
+    "category": "puran-lokkotha",
+    "description": "দেবতাদের জন্ম আর মানুষের যুগ নিয়ে হেসিওডের কাব্য, সঙ্গে হোমারীয় স্তোত্র আর অন্যান্য প্রাচীন গ্রিক কাব্যাংশ।",
     "language": "en",
     "publishYear": null,
     "authorDeathYear": -601,
@@ -5035,6 +4801,7 @@
     "title": "On the Nature of Things",
     "titleBangla": null,
     "author": "Lucretius",
+    "translator": "William Ellery Leonard",
     "category": "kobita",
     "description": "লুক্রেতিউসের লাতিন কাব্যগ্রন্থ, William Ellery Leonard-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -5050,10 +4817,13 @@
   },
   {
     "title": "The Happy Prince and Other Tales",
-    "titleBangla": "দ্য হ্যাপি প্রিন্স অ্যান্ড আদার টেইলস",
+    "titleBangla": null,
     "author": "Oscar Wilde",
-    "category": "shishu-sahitto",
-    "description": "অস্কার ওয়াইল্ডের ইংরেজি ছোটদের বই।",
+    "searchAliases": [
+      "দ্য হ্যাপি প্রিন্স অ্যান্ড আদার টেইলস"
+    ],
+    "category": "puran-lokkotha",
+    "description": "অস্কার ওয়াইল্ডের ইংরেজি রূপকথার সংকলন।",
     "language": "en",
     "publishYear": null,
     "authorDeathYear": 1900,
@@ -5117,6 +4887,23 @@
     ]
   },
   {
+    "title": "How We Think",
+    "titleBangla": null,
+    "author": "John Dewey",
+    "category": "probondho",
+    "description": "জন ডুয়ির ইংরেজি দর্শন বিষয়ক বই।",
+    "language": "en",
+    "publishYear": null,
+    "authorDeathYear": 1952,
+    "isPublicDomain": true,
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/37423",
+        "rightsBasis": "লেখক ১৯৫২ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
     "title": "The Amazing Marriage",
     "titleBangla": null,
     "author": "George Meredith",
@@ -5137,6 +4924,7 @@
     "title": "Discourse on the Method",
     "titleBangla": null,
     "author": "René Descartes",
+    "translator": "John Veitch",
     "category": "probondho",
     "description": "সন্দেহ থেকে শুরু করে নিশ্চিত জ্ঞানে পৌঁছানোর পদ্ধতি নিয়ে রনে দেকার্তের দর্শনগ্রন্থ।",
     "language": "en",
@@ -5152,8 +4940,11 @@
   },
   {
     "title": "Macbeth",
-    "titleBangla": "ম্যাকবেথ",
+    "titleBangla": null,
     "author": "William Shakespeare",
+    "searchAliases": [
+      "ম্যাকবেথ"
+    ],
     "category": "natok",
     "description": "ডাইনিদের ভবিষ্যদ্বাণী শুনে রাজা হওয়ার লোভে খুনের পথে যাওয়া স্কটিশ সেনাপতি ম্যাকবেথকে নিয়ে শেকসপিয়রের ট্র্যাজেডি।",
     "language": "en",
@@ -5222,8 +5013,8 @@
     "title": "King Arthur and the Knights of the Round Table",
     "titleBangla": null,
     "author": "Thomas Malory",
-    "category": "uponnash",
-    "description": "Thomas Malory-এর ইংরেজি উপন্যাস।",
+    "category": "puran-lokkotha",
+    "description": "রাজা আর্থার, গোলটেবিলের নাইট আর পবিত্র গ্রেইলের খোঁজ নিয়ে টমাস ম্যালরির মধ্যযুগীয় কিংবদন্তি-কাহিনি।",
     "language": "en",
     "publishYear": null,
     "authorDeathYear": 1471,
@@ -5253,9 +5044,29 @@
     ]
   },
   {
+    "title": "Democracy and Education",
+    "titleBangla": null,
+    "author": "John Dewey",
+    "category": "probondho",
+    "description": "জন ডুয়ির ইংরেজি দর্শন বিষয়ক বই।",
+    "language": "en",
+    "publishYear": null,
+    "authorDeathYear": 1952,
+    "isPublicDomain": true,
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/852",
+        "rightsBasis": "লেখক ১৯৫২ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
     "title": "Tess of the d'Urbervilles",
-    "titleBangla": "টেস অভ দা ডারবারভিলস",
+    "titleBangla": null,
     "author": "Thomas Hardy",
+    "searchAliases": [
+      "টেস অভ দা ডারবারভিলস"
+    ],
     "category": "uponnash",
     "description": "দরিদ্র গ্রামীণ মেয়ে টেস ডারবিফিল্ডের জীবনের দুর্ভাগ্য নিয়ে টমাস হার্ডির উপন্যাস।",
     "language": "en",
@@ -5322,8 +5133,11 @@
   },
   {
     "title": "Vanity Fair",
-    "titleBangla": "ভ্যানিটি ফেয়ার",
+    "titleBangla": null,
     "author": "William Makepeace Thackeray",
+    "searchAliases": [
+      "ভ্যানিটি ফেয়ার"
+    ],
     "category": "uponnash",
     "description": "উনিশ শতকের ইংরেজ সমাজে উচ্চাভিলাষী বেকি শার্পের ওপরে ওঠার চেষ্টা নিয়ে উইলিয়াম মেকপিস থ্যাকারের উপন্যাস।",
     "language": "en",
@@ -5339,8 +5153,12 @@
   },
   {
     "title": "The Mysterious Island",
-    "titleBangla": "দ্য মিস্টিরিয়াস আইল্যান্ড",
+    "titleBangla": null,
     "author": "Jules Verne",
+    "translator": "Agnes Kinloch Kingston",
+    "searchAliases": [
+      "দ্য মিস্টিরিয়াস আইল্যান্ড"
+    ],
     "category": "biggan-kolpokahini",
     "description": "জুল ভার্নের ফরাসি বিজ্ঞান কল্পকাহিনী, Agnes Kinloch Kingston-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -5409,6 +5227,7 @@
     "title": "The Philippines a Century Hence",
     "titleBangla": null,
     "author": "José Rizal",
+    "translator": "Charles E. Derbyshire",
     "category": "itihash-jiboni",
     "description": "হোসে রিজালের স্প্যানিশ ইতিহাস বিষয়ক বই, Charles E. Derbyshire-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -5443,6 +5262,7 @@
     "title": "Notre-Dame de Paris",
     "titleBangla": null,
     "author": "Victor Hugo",
+    "translator": "Isabel Florence Hapgood",
     "category": "uponnash",
     "description": "প্যারিসের নোতর-দাম গির্জার কুঁজো ঘণ্টাবাদক কোয়াসিমোদো আর নর্তকী এসমেরাল্দাকে নিয়ে ভিক্তর উগোর উপন্যাস।",
     "language": "en",
@@ -5494,6 +5314,7 @@
     "title": "The Consolation of Philosophy",
     "titleBangla": null,
     "author": "Boethius",
+    "translator": "H. R. James",
     "category": "probondho",
     "description": "Boethius-এর লাতিন দর্শন বিষয়ক বই, H. R. James-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -5528,6 +5349,7 @@
     "title": "Plutarch's Morals",
     "titleBangla": null,
     "author": "Plutarch",
+    "translator": "Arthur Richard Shilleto",
     "category": "probondho",
     "description": "প্লুতার্কের লাতিন দর্শন বিষয়ক বই, Arthur Richard Shilleto-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -5628,8 +5450,12 @@
   },
   {
     "title": "Madame Bovary",
-    "titleBangla": "মাদাম বোভারি",
+    "titleBangla": null,
     "author": "Gustave Flaubert",
+    "translator": "Eleanor Marx",
+    "searchAliases": [
+      "মাদাম বোভারি"
+    ],
     "category": "uponnash",
     "description": "মফস্বলের একঘেয়ে বিবাহিত জীবন থেকে মুক্তি খুঁজতে গিয়ে বিপর্যয়ে পড়া এমা বোভারিকে নিয়ে গুস্তাভ ফ্লবেয়ারের উপন্যাস।",
     "language": "en",
@@ -5798,8 +5624,11 @@
   },
   {
     "title": "The Faerie Queene",
-    "titleBangla": "দ্য ফেয়ারি কুইন",
+    "titleBangla": null,
     "author": "Edmund Spenser",
+    "searchAliases": [
+      "দ্য ফেয়ারি কুইন"
+    ],
     "category": "kobita",
     "description": "এডমান্ড স্পেন্সারের ইংরেজি কাব্যগ্রন্থ।",
     "language": "en",
@@ -5868,6 +5697,7 @@
     "title": "Gorgias",
     "titleBangla": null,
     "author": "Plato",
+    "translator": "Benjamin Jowett",
     "category": "probondho",
     "description": "প্লেটোর প্রাচীন গ্রিক দর্শন বিষয়ক বই, Benjamin Jowett-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -5895,23 +5725,6 @@
       {
         "url": "https://www.gutenberg.org/ebooks/967",
         "rightsBasis": "লেখক ১৮৭০ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
-      }
-    ]
-  },
-  {
-    "title": "She Who Sleeps",
-    "titleBangla": null,
-    "author": "Sax Rohmer",
-    "category": "thriller-rohosso",
-    "description": "Sax Rohmer-এর ইংরেজি রহস্য-রোমাঞ্চ কাহিনি।",
-    "language": "en",
-    "publishYear": null,
-    "authorDeathYear": 1959,
-    "isPublicDomain": true,
-    "sources": [
-      {
-        "url": "https://www.gutenberg.org/ebooks/77092",
-        "rightsBasis": "লেখক ১৯৫৯ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
       }
     ]
   },
@@ -5987,6 +5800,7 @@
     "title": "Quo Vadis",
     "titleBangla": null,
     "author": "Henryk Sienkiewicz",
+    "translator": "Jeremiah Curtin",
     "category": "uponnash",
     "description": "হেনরিক শিন্‌কিয়েউইচের পোলিশ উপন্যাস, Jeremiah Curtin-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -6174,6 +5988,7 @@
     "title": "The Torrents of Spring",
     "titleBangla": null,
     "author": "Ivan Turgenev",
+    "translator": "Constance Garnett",
     "category": "uponnash",
     "description": "ইভান তুর্গেনেভের ফরাসি উপন্যাস, Constance Garnett-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -6189,8 +6004,12 @@
   },
   {
     "title": "The Interpretation of Dreams",
-    "titleBangla": "দি ইন্টারপ্রিটেশন অব ড্রিমস",
+    "titleBangla": null,
     "author": "Sigmund Freud",
+    "translator": "Abraham Brill",
+    "searchAliases": [
+      "দি ইন্টারপ্রিটেশন অব ড্রিমস"
+    ],
     "category": "probondho",
     "description": "সিগমুন্ড ফ্রয়েডের জার্মান বিজ্ঞান বিষয়ক বই, Abraham Brill-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -6208,6 +6027,7 @@
     "title": "The Knights of the Cross",
     "titleBangla": null,
     "author": "Henryk Sienkiewicz",
+    "translator": "Samuel Augustus Binion",
     "category": "uponnash",
     "description": "হেনরিক শিন্‌কিয়েউইচের পোলিশ উপন্যাস, Samuel Augustus Binion-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -6240,8 +6060,11 @@
   },
   {
     "title": "The Gods of Mars",
-    "titleBangla": "দ্য গডস অফ মার্স",
+    "titleBangla": null,
     "author": "Edgar Rice Burroughs",
+    "searchAliases": [
+      "দ্য গডস অফ মার্স"
+    ],
     "category": "biggan-kolpokahini",
     "description": "এডগার রাইস বারোজের ইংরেজি বিজ্ঞান কল্পকাহিনী।",
     "language": "en",
@@ -6276,6 +6099,7 @@
     "title": "Thoughts of Marcus Aurelius Antoninus",
     "titleBangla": null,
     "author": "Marcus Aurelius",
+    "translator": "George Long",
     "category": "itihash-jiboni",
     "description": "মার্কাস অরেলিয়াসের লাতিন জীবনী, জর্জ লংয়ের ইংরেজি অনুবাদে।",
     "language": "en",
@@ -6393,8 +6217,12 @@
   },
   {
     "title": "The Decameron",
-    "titleBangla": "দেকামেরোন",
+    "titleBangla": null,
     "author": "Giovanni Boccaccio",
+    "translator": "John Payne",
+    "searchAliases": [
+      "দেকামেরোন"
+    ],
     "category": "chhotogolpo",
     "description": "জোভান্নি বোক্কাচ্চোর ইতালীয় গল্পের বই, John Payne-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -6446,6 +6274,7 @@
     "title": "Gargantua and Pantagruel",
     "titleBangla": null,
     "author": "François Rabelais",
+    "translator": "Peter Anthony Motteux ও Thomas Urquhart",
     "category": "uponnash",
     "description": "ফ্রাঁসোয়া রাবলের ফরাসি উপন্যাস, Peter Anthony Motteux ও Thomas Urquhart-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -6461,8 +6290,11 @@
   },
   {
     "title": "Rip Van Winkle",
-    "titleBangla": "রিপ ভ্যান উইঙ্কল",
+    "titleBangla": null,
     "author": "Washington Irving",
+    "searchAliases": [
+      "রিপ ভ্যান উইঙ্কল"
+    ],
     "category": "chhotogolpo",
     "description": "ওয়াশিংটন আরভিংয়ের ইংরেজি গল্পের বই।",
     "language": "en",
@@ -6582,6 +6414,7 @@
     "title": "On the Cross",
     "titleBangla": null,
     "author": "Wilhelmine von Hillern",
+    "translator": "Mary J. Safford",
     "category": "uponnash",
     "description": "Wilhelmine von Hillern-এর জার্মান উপন্যাস, Mary J. Safford-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -6614,8 +6447,11 @@
   },
   {
     "title": "A Vindication of the Rights of Woman",
-    "titleBangla": "আ ভিন্ডিকেশন অব দ্য রাইটস অব উইমেন",
+    "titleBangla": null,
     "author": "Mary Wollstonecraft",
+    "searchAliases": [
+      "আ ভিন্ডিকেশন অব দ্য রাইটস অব উইমেন"
+    ],
     "category": "probondho",
     "description": "ম্যারি ওলস্টোনক্র্যাফ্‌টের ইংরেজি দর্শন বিষয়ক বই।",
     "language": "en",
@@ -6667,6 +6503,7 @@
     "title": "Fundamental Principles of the Metaphysic of Morals",
     "titleBangla": null,
     "author": "Immanuel Kant",
+    "translator": "Thomas Kingsmill Abbott",
     "category": "probondho",
     "description": "ইমানুয়েল কান্টের জার্মান দর্শন বিষয়ক বই, Thomas Kingsmill Abbott-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -6701,6 +6538,7 @@
     "title": "The Antichrist",
     "titleBangla": null,
     "author": "Friedrich Nietzsche",
+    "translator": "H. L. Mencken",
     "category": "probondho",
     "description": "ফ্রিডরিখ নিচের জার্মান দর্শন বিষয়ক বই, এইচ এল মেনকেনের ইংরেজি অনুবাদে।",
     "language": "en",
@@ -6803,6 +6641,7 @@
     "title": "The Lady with the Dog and Other Stories",
     "titleBangla": null,
     "author": "Anton Chekhov",
+    "translator": "Constance Garnett",
     "category": "chhotogolpo",
     "description": "আন্তন চেখভের রুশ গল্পের বই, Constance Garnett-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -6813,6 +6652,23 @@
       {
         "url": "https://www.gutenberg.org/ebooks/13415",
         "rightsBasis": "লেখক আন্তন চেখভ ১৯০৪ সালে ও অনুবাদক Constance Garnett ১৯৪৬ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
+    "title": "How to Live on 24 Hours a Day",
+    "titleBangla": null,
+    "author": "Arnold Bennett",
+    "category": "atmounnoyon",
+    "description": "Arnold Bennett-এর ইংরেজি আত্ম-উন্নয়নের বই।",
+    "language": "en",
+    "publishYear": null,
+    "authorDeathYear": 1931,
+    "isPublicDomain": true,
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/2274",
+        "rightsBasis": "লেখক ১৯৩১ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
       }
     ]
   },
@@ -6871,6 +6727,7 @@
     "title": "Politics",
     "titleBangla": "রাজনীতি",
     "author": "Aristotle",
+    "translator": "William Ellis",
     "category": "probondho",
     "description": "এরিস্টটলের প্রাচীন গ্রিক দর্শন বিষয়ক বই, William Ellis-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -6937,8 +6794,11 @@
   },
   {
     "title": "The Subjection of Women",
-    "titleBangla": "দ্য সাবজেকশন অব উইমেন",
+    "titleBangla": null,
     "author": "John Stuart Mill",
+    "searchAliases": [
+      "দ্য সাবজেকশন অব উইমেন"
+    ],
     "category": "probondho",
     "description": "জন স্টুয়ার্ট মিলের ইংরেজি দর্শন বিষয়ক বই।",
     "language": "en",
@@ -6956,6 +6816,7 @@
     "title": "The Social Contract & Discourses",
     "titleBangla": null,
     "author": "Jean-Jacques Rousseau",
+    "translator": "G. D. H. Cole",
     "category": "probondho",
     "description": "জঁ-জাক রুসোর ফরাসি দর্শন বিষয়ক বই, G. D. H. Cole-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -6973,6 +6834,7 @@
     "title": "Life of St. Francis of Assisi",
     "titleBangla": null,
     "author": "Paul Sabatier",
+    "translator": "Louise Seymour Houghton",
     "category": "itihash-jiboni",
     "description": "Paul Sabatier-এর ফরাসি জীবনী, Louise Seymour Houghton-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -7024,6 +6886,7 @@
     "title": "History of Rome",
     "titleBangla": null,
     "author": "Titus Livius",
+    "translator": "D. Spillan",
     "category": "itihash-jiboni",
     "description": "Titus Livius-এর লাতিন ইতিহাস বিষয়ক বই, D. Spillan-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -7058,6 +6921,7 @@
     "title": "Euthyphro",
     "titleBangla": null,
     "author": "Plato",
+    "translator": "Benjamin Jowett",
     "category": "probondho",
     "description": "প্লেটোর প্রাচীন গ্রিক দর্শন বিষয়ক বই, Benjamin Jowett-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -7276,9 +7140,27 @@
     ]
   },
   {
+    "title": "Argonauts of the Western Pacific",
+    "titleBangla": null,
+    "author": "Bronisław Malinowski",
+    "category": "probondho",
+    "description": "Bronisław Malinowski-এর ইংরেজি বিজ্ঞান বিষয়ক বই।",
+    "language": "en",
+    "publishYear": null,
+    "authorDeathYear": 1942,
+    "isPublicDomain": true,
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/55822",
+        "rightsBasis": "লেখক Bronisław Malinowski ১৯৪২ সালে ও ভূমিকা/টীকার লেখক James George Frazer ১৯৪১ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
     "title": "A Journey into the Interior of the Earth",
     "titleBangla": null,
     "author": "Jules Verne",
+    "translator": "F. A. Malleson",
     "category": "biggan-kolpokahini",
     "description": "জুল ভার্নের ফরাসি বিজ্ঞান কল্পকাহিনী, F. A. Malleson-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -7330,6 +7212,7 @@
     "title": "Analects",
     "titleBangla": null,
     "author": "Confucius",
+    "translator": "James Legge",
     "category": "probondho",
     "description": "কনফুসিয়াসের চীনা দর্শন বিষয়ক বই, James Legge-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -7364,6 +7247,7 @@
     "title": "At the Sign of the Cat and Racket",
     "titleBangla": null,
     "author": "Honoré de Balzac",
+    "translator": "Clara Bell",
     "category": "uponnash",
     "description": "অনরে দ্য বালজাকের ফরাসি উপন্যাস, Clara Bell-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -7415,6 +7299,7 @@
     "title": "The Wars of the Jews",
     "titleBangla": null,
     "author": "Josephus",
+    "translator": "William Whiston",
     "category": "itihash-jiboni",
     "description": "Josephus-এর লাতিন ইতিহাস বিষয়ক বই, William Whiston-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -7432,6 +7317,7 @@
     "title": "Psychology of the Unconscious",
     "titleBangla": null,
     "author": "Carl Jung",
+    "translator": "Beatrice M. Hinkle",
     "category": "probondho",
     "description": "কাৰ্ল য়ুংয়ের জার্মান দর্শন বিষয়ক বই, Beatrice M. Hinkle-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -7449,8 +7335,8 @@
     "title": "Just So Stories",
     "titleBangla": null,
     "author": "Rudyard Kipling",
-    "category": "shishu-sahitto",
-    "description": "রুডইয়ার্ড কিপলিংয়ের ইংরেজি ছোটদের বই।",
+    "category": "puran-lokkotha",
+    "description": "রুডইয়ার্ড কিপলিংয়ের ইংরেজি উপকথার সংকলন।",
     "language": "en",
     "publishYear": null,
     "authorDeathYear": 1936,
@@ -7517,6 +7403,7 @@
     "title": "A Selection from the Discourses of Epictetus with the Encheiridion",
     "titleBangla": null,
     "author": "Epictetus",
+    "translator": "George Long",
     "category": "probondho",
     "description": "এপিকটেটাসের প্রাচীন গ্রিক দর্শন বিষয়ক বই, জর্জ লংয়ের ইংরেজি অনুবাদে।",
     "language": "en",
@@ -7551,8 +7438,8 @@
     "title": "Fairy Dreams",
     "titleBangla": null,
     "author": "Jane G. Austin",
-    "category": "shishu-sahitto",
-    "description": "জেন জি অস্টিনের ইংরেজি ছোটদের বই।",
+    "category": "puran-lokkotha",
+    "description": "জেন জি অস্টিনের ইংরেজি রূপকথার সংকলন।",
     "language": "en",
     "publishYear": null,
     "authorDeathYear": 1894,
@@ -7578,6 +7465,23 @@
       {
         "url": "https://www.gutenberg.org/ebooks/24518",
         "rightsBasis": "লেখক ১৮৮৯ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
+    "title": "The Devil's Dictionary",
+    "titleBangla": null,
+    "author": "Ambrose Bierce",
+    "category": "probondho",
+    "description": "অ্যামব্রোজ বিয়ার্সের ইংরেজি প্রবন্ধের বই।",
+    "language": "en",
+    "publishYear": null,
+    "authorDeathYear": 1914,
+    "isPublicDomain": true,
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/972",
+        "rightsBasis": "লেখক ১৯১৪ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
       }
     ]
   },
@@ -7619,6 +7523,7 @@
     "title": "Satyricon",
     "titleBangla": null,
     "author": "Petronius",
+    "translator": "William Charles Firebaugh",
     "category": "uponnash",
     "description": "Petronius-এর লাতিন উপন্যাস, William Charles Firebaugh-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -7670,8 +7575,8 @@
     "title": "Hero-Myths & Legends of the British Race",
     "titleBangla": null,
     "author": "M. I. Ebbutt",
-    "category": "uponnash",
-    "description": "M. I. Ebbutt-এর ইংরেজি উপন্যাস।",
+    "category": "puran-lokkotha",
+    "description": "M. I. Ebbutt-এর ইংরেজি পুরাণ ও কিংবদন্তির কাহিনি।",
     "language": "en",
     "publishYear": null,
     "authorDeathYear": 1934,
@@ -7687,6 +7592,7 @@
     "title": "Reflections",
     "titleBangla": null,
     "author": "François de La Rochefoucauld",
+    "translator": "James Hain Friswell ও John William Willis-Bund",
     "category": "probondho",
     "description": "François de La Rochefoucauld-এর ফরাসি দর্শন বিষয়ক বই, James Hain Friswell ও John William Willis-Bund-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -7721,6 +7627,7 @@
     "title": "The Essays of Arthur Schopenhauer",
     "titleBangla": null,
     "author": "Arthur Schopenhauer",
+    "translator": "T. Bailey Saunders",
     "category": "probondho",
     "description": "আর্টুর শোপেনহাউয়ারের জার্মান দর্শন বিষয়ক বই, T. Bailey Saunders-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -7738,8 +7645,9 @@
     "title": "The Younger Edda",
     "titleBangla": null,
     "author": "Snorri Sturluson",
-    "category": "kobita",
-    "description": "Snorri Sturluson-এর কাব্যগ্রন্থ, Rasmus Bjørn Anderson-এর ইংরেজি অনুবাদে।",
+    "translator": "Rasmus Bjørn Anderson",
+    "category": "puran-lokkotha",
+    "description": "নর্স পুরাণের দেবদেবী আর সৃষ্টির কাহিনি নিয়ে স্নোরি স্টার্লুসনের গদ্য এডা।",
     "language": "en",
     "publishYear": null,
     "authorDeathYear": 1241,
@@ -7857,6 +7765,7 @@
     "title": "Plays of Sophocles",
     "titleBangla": null,
     "author": "Sophocles",
+    "translator": "Francis Storr",
     "category": "natok",
     "description": "সোফোক্লেসের প্রাচীন গ্রিক নাটক, Francis Storr-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -7908,6 +7817,7 @@
     "title": "The Social Cancer",
     "titleBangla": null,
     "author": "José Rizal",
+    "translator": "Charles E. Derbyshire",
     "category": "uponnash",
     "description": "হোসে রিজালের স্প্যানিশ উপন্যাস, Charles E. Derbyshire-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -8078,6 +7988,7 @@
     "title": "Cicero's Tusculan Disputations",
     "titleBangla": null,
     "author": "Cicero",
+    "translator": "Charles Duke Yonge",
     "category": "probondho",
     "description": "সিসারোর লাতিন দর্শন বিষয়ক বই, Charles Duke Yonge-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -8146,6 +8057,7 @@
     "title": "Swann's Way",
     "titleBangla": null,
     "author": "Marcel Proust",
+    "translator": "Charles Kenneth Scott Moncrieff",
     "category": "uponnash",
     "description": "মার্সেল প্রুস্ত্‌ের ফরাসি উপন্যাস, Charles Kenneth Scott Moncrieff-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -8178,8 +8090,11 @@
   },
   {
     "title": "Ivanhoe",
-    "titleBangla": "আইভানহো",
+    "titleBangla": null,
     "author": "Walter Scott",
+    "searchAliases": [
+      "আইভানহো"
+    ],
     "category": "uponnash",
     "description": "মধ্যযুগের ইংল্যান্ডে নাইট আইভানহোকে নিয়ে ওয়াল্টার স্কটের ঐতিহাসিক উপন্যাস।",
     "language": "en",
@@ -8197,8 +8112,8 @@
     "title": "The Blue Fairy Book",
     "titleBangla": null,
     "author": "Andrew Lang",
-    "category": "shishu-sahitto",
-    "description": "Andrew Lang-এর ইংরেজি ছোটদের বই।",
+    "category": "puran-lokkotha",
+    "description": "নানা দেশের চেনা রূপকথা নিয়ে অ্যান্ড্রু ল্যাংয়ের সম্পাদনায় রূপকথার সংকলন।",
     "language": "en",
     "publishYear": null,
     "authorDeathYear": 1912,
@@ -8231,6 +8146,7 @@
     "title": "The Imitation of Christ",
     "titleBangla": null,
     "author": "Thomas à Kempis",
+    "translator": "William Benham",
     "category": "probondho",
     "description": "থমাস এ কেম্পিসের ডাচ দর্শন বিষয়ক বই, William Benham-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -8316,6 +8232,7 @@
     "title": "Hedda Gabler",
     "titleBangla": null,
     "author": "Henrik Ibsen",
+    "translator": "William Archer ও Edmund Gosse",
     "category": "natok",
     "description": "হেনরিক ইবসেনের নরওয়েজীয় নাটক, উইলিয়াম আর্চার ও Edmund Gosse-এর ইংরেজি অনুবাদে।",
     "language": "en",
@@ -8496,6 +8413,419 @@
       {
         "url": "https://www.gutenberg.org/ebooks/14860",
         "rightsBasis": "লেখক ওয়াল্টার স্কট ১৮৩২ সালে ও সম্পাদক ডেভিড ডগলাস ১৯১৬ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
+    "title": "Flatland",
+    "titleBangla": null,
+    "author": "Edwin Abbott Abbott",
+    "category": "uponnash",
+    "description": "Edwin Abbott Abbott-এর ইংরেজি উপন্যাস।",
+    "language": "en",
+    "publishYear": null,
+    "authorDeathYear": 1926,
+    "isPublicDomain": true,
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/201",
+        "rightsBasis": "লেখক ১৯২৬ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
+    "title": "The Complete Works of Robert Burns",
+    "titleBangla": null,
+    "author": "Robert Burns ও Allan Cunningham",
+    "category": "kobita",
+    "description": "রবার্ট বার্নস ও অ্যালান কানিংহামের ইংরেজি কাব্যগ্রন্থ।",
+    "language": "en",
+    "publishYear": null,
+    "authorDeathYear": 1842,
+    "isPublicDomain": true,
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/18500",
+        "rightsBasis": "লেখক রবার্ট বার্নস ১৭৯৬ সালে ও লেখক অ্যালান কানিংহাম ১৮৪২ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
+    "title": "The Tapestry Book",
+    "titleBangla": null,
+    "author": "Helen Churchill Candee",
+    "category": "itihash-jiboni",
+    "description": "Helen Churchill Candee-এর ইংরেজি ইতিহাস বিষয়ক বই।",
+    "language": "en",
+    "publishYear": null,
+    "authorDeathYear": 1949,
+    "isPublicDomain": true,
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/26151",
+        "rightsBasis": "লেখক ১৯৪৯ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
+    "title": "The Principles of Scientific Management",
+    "titleBangla": null,
+    "author": "Frederick Winslow Taylor",
+    "category": "probondho",
+    "description": "ফ্রেডরিক উইন্সলো টেইলরের ইংরেজি অর্থনীতি বিষয়ক বই।",
+    "language": "en",
+    "publishYear": null,
+    "authorDeathYear": 1915,
+    "isPublicDomain": true,
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/6435",
+        "rightsBasis": "লেখক ১৯১৫ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
+    "title": "The Grand Inquisitor",
+    "titleBangla": null,
+    "author": "Fyodor Dostoevsky",
+    "translator": "Helena Blavatsky",
+    "category": "natok",
+    "description": "ফিওদোর দস্তয়েভ্‌স্কির রুশ নাটক, হেলেনা পেত্রোভনা ব্লাভাৎস্কির ইংরেজি অনুবাদে।",
+    "language": "en",
+    "publishYear": null,
+    "authorDeathYear": 1881,
+    "isPublicDomain": true,
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/8578",
+        "rightsBasis": "লেখক ফিওদোর দস্তয়েভ্‌স্কি ১৮৮১ সালে ও অনুবাদক হেলেনা পেত্রোভনা ব্লাভাৎস্কি ১৮৯১ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
+    "title": "Human, All Too Human",
+    "titleBangla": null,
+    "author": "Friedrich Nietzsche",
+    "translator": "Alexander Harvey",
+    "category": "probondho",
+    "description": "ফ্রিডরিখ নিচের জার্মান দর্শন বিষয়ক বই, Alexander Harvey-এর ইংরেজি অনুবাদে।",
+    "language": "en",
+    "publishYear": null,
+    "authorDeathYear": 1900,
+    "isPublicDomain": true,
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/38145",
+        "rightsBasis": "লেখক ফ্রিডরিখ নিচে ১৯০০ সালে ও অনুবাদক Alexander Harvey ১৯৪৯ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
+    "title": "Famous Sea Fights, from Salamis to Tsu-Shima",
+    "titleBangla": null,
+    "author": "A. Hilliard Atteridge",
+    "category": "itihash-jiboni",
+    "description": "A. Hilliard Atteridge-এর ইংরেজি ইতিহাস বিষয়ক বই।",
+    "language": "en",
+    "publishYear": null,
+    "authorDeathYear": 1941,
+    "isPublicDomain": true,
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/25088",
+        "rightsBasis": "লেখক ১৯৪১ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
+    "title": "The Magic of Jewels and Charms",
+    "titleBangla": null,
+    "author": "George Frederick Kunz",
+    "category": "itihash-jiboni",
+    "description": "George Frederick Kunz-এর ইংরেজি ইতিহাস বিষয়ক বই।",
+    "language": "en",
+    "publishYear": null,
+    "authorDeathYear": 1932,
+    "isPublicDomain": true,
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/66583",
+        "rightsBasis": "লেখক ১৯৩২ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
+    "title": "The Mystery of Angelina Frood",
+    "titleBangla": null,
+    "author": "R. Austin Freeman",
+    "category": "thriller-rohosso",
+    "description": "R. Austin Freeman-এর ইংরেজি রহস্য-রোমাঞ্চ কাহিনি।",
+    "language": "en",
+    "publishYear": null,
+    "authorDeathYear": 1943,
+    "isPublicDomain": true,
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/76072",
+        "rightsBasis": "লেখক ১৯৪৩ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
+    "title": "The Velveteen Rabbit",
+    "titleBangla": null,
+    "author": "Margery Williams",
+    "category": "shishu-sahitto",
+    "description": "Margery Williams-এর ইংরেজি ছোটদের বই।",
+    "language": "en",
+    "publishYear": null,
+    "authorDeathYear": 1944,
+    "isPublicDomain": true,
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/11757",
+        "rightsBasis": "লেখক ১৯৪৪ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
+    "title": "The Hour of the Dragon",
+    "titleBangla": null,
+    "author": "Robert E. Howard",
+    "category": "uponnash",
+    "description": "রবার্ট ই হাওয়ার্ডের ইংরেজি উপন্যাস।",
+    "language": "en",
+    "publishYear": null,
+    "authorDeathYear": 1936,
+    "isPublicDomain": true,
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/42243",
+        "rightsBasis": "লেখক ১৯৩৬ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
+    "title": "Peter and Wendy",
+    "titleBangla": null,
+    "author": "J. M. Barrie",
+    "category": "uponnash",
+    "description": "J. M. Barrie-এর ইংরেজি উপন্যাস।",
+    "language": "en",
+    "publishYear": null,
+    "authorDeathYear": 1937,
+    "isPublicDomain": true,
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/26654",
+        "rightsBasis": "লেখক ১৯৩৭ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
+    "title": "Southern Horrors",
+    "titleBangla": null,
+    "author": "Ida B. Wells",
+    "category": "itihash-jiboni",
+    "description": "Ida B. Wells-এর ইংরেজি ইতিহাস বিষয়ক বই।",
+    "language": "en",
+    "publishYear": null,
+    "authorDeathYear": 1931,
+    "isPublicDomain": true,
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/14975",
+        "rightsBasis": "লেখক ১৯৩১ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
+    "title": "The Trail of the Serpent",
+    "titleBangla": null,
+    "author": "Mary Elizabeth Braddon",
+    "category": "thriller-rohosso",
+    "description": "Mary Elizabeth Braddon-এর ইংরেজি রহস্য-রোমাঞ্চ কাহিনি।",
+    "language": "en",
+    "publishYear": null,
+    "authorDeathYear": 1915,
+    "isPublicDomain": true,
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/75840",
+        "rightsBasis": "লেখক ১৯১৫ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
+    "title": "The Sun Also Rises",
+    "titleBangla": null,
+    "author": "Ernest Hemingway",
+    "searchAliases": [
+      "দ্য সান অলসো রাইজেস"
+    ],
+    "category": "uponnash",
+    "description": "আর্নেস্ট হেমিংওয়ের ইংরেজি উপন্যাস।",
+    "language": "en",
+    "publishYear": null,
+    "authorDeathYear": 1961,
+    "isPublicDomain": true,
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/67138",
+        "rightsBasis": "লেখক ১৯৬১ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
+    "title": "The Cardinal's Snuff-box",
+    "titleBangla": null,
+    "author": "Henry Harland",
+    "category": "uponnash",
+    "description": "Henry Harland-এর ইংরেজি উপন্যাস।",
+    "language": "en",
+    "publishYear": null,
+    "authorDeathYear": 1905,
+    "isPublicDomain": true,
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/5610",
+        "rightsBasis": "লেখক ১৯০৫ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
+    "title": "The Adventures of Heine",
+    "titleBangla": null,
+    "author": "Edgar Wallace",
+    "category": "thriller-rohosso",
+    "description": "এডগার ওয়ালেসের ইংরেজি রহস্য-রোমাঞ্চ কাহিনি।",
+    "language": "en",
+    "publishYear": null,
+    "authorDeathYear": 1932,
+    "isPublicDomain": true,
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/76462",
+        "rightsBasis": "লেখক ১৯৩২ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
+    "title": "Essays",
+    "titleBangla": null,
+    "author": "Francis Bacon",
+    "category": "probondho",
+    "description": "ফ্রান্সিস বেকনের ইংরেজি দর্শন বিষয়ক বই।",
+    "language": "en",
+    "publishYear": null,
+    "authorDeathYear": 1626,
+    "isPublicDomain": true,
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/575",
+        "rightsBasis": "লেখক ১৬২৬ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
+    "title": "The Amazing Adventures of Letitia Carberry",
+    "titleBangla": null,
+    "author": "Mary Roberts Rinehart",
+    "category": "thriller-rohosso",
+    "description": "Mary Roberts Rinehart-এর ইংরেজি রহস্য-রোমাঞ্চ কাহিনি।",
+    "language": "en",
+    "publishYear": null,
+    "authorDeathYear": 1958,
+    "isPublicDomain": true,
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/75922",
+        "rightsBasis": "লেখক ১৯৫৮ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
+    "title": "The Crimson Circle",
+    "titleBangla": null,
+    "author": "Edgar Wallace",
+    "category": "thriller-rohosso",
+    "description": "এডগার ওয়ালেসের ইংরেজি রহস্য-রোমাঞ্চ কাহিনি।",
+    "language": "en",
+    "publishYear": null,
+    "authorDeathYear": 1932,
+    "isPublicDomain": true,
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/76257",
+        "rightsBasis": "লেখক ১৯৩২ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
+    "title": "Malay Magic",
+    "titleBangla": null,
+    "author": "Walter William Skeat",
+    "category": "probondho",
+    "description": "Walter William Skeat-এর ইংরেজি ধর্ম বিষয়ক বই।",
+    "language": "en",
+    "publishYear": null,
+    "authorDeathYear": 1953,
+    "isPublicDomain": true,
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/47873",
+        "rightsBasis": "লেখক ১৯৫৩ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
+    "title": "Anne of the Island",
+    "titleBangla": null,
+    "author": "Lucy Maud Montgomery",
+    "category": "uponnash",
+    "description": "Lucy Maud Montgomery-এর ইংরেজি উপন্যাস।",
+    "language": "en",
+    "publishYear": null,
+    "authorDeathYear": 1942,
+    "isPublicDomain": true,
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/51",
+        "rightsBasis": "লেখক ১৯৪২ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
+    "title": "The Crown of Wild Olive",
+    "titleBangla": null,
+    "author": "John Ruskin",
+    "category": "probondho",
+    "description": "জন রাস্কিনের ইংরেজি দর্শন বিষয়ক বই।",
+    "language": "en",
+    "publishYear": null,
+    "authorDeathYear": 1900,
+    "isPublicDomain": true,
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/26716",
+        "rightsBasis": "লেখক ১৯০০ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
+    "title": "Limanora",
+    "titleBangla": null,
+    "author": "John Macmillan Brown",
+    "category": "biggan-kolpokahini",
+    "description": "John Macmillan Brown-এর ইংরেজি বিজ্ঞান কল্পকাহিনী।",
+    "language": "en",
+    "publishYear": null,
+    "authorDeathYear": 1935,
+    "isPublicDomain": true,
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/76533",
+        "rightsBasis": "লেখক ১৯৩৫ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
       }
     ]
   }

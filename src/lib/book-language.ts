@@ -1,27 +1,41 @@
-// The language filter on the library, category pages and search (?lang=bn or
-// ?lang=en; nothing means all), the order books are listed in, and paging.
+// The language filter on the library, category pages and search (?lang=bn
+// for Bangla, ?lang=other for every other language; nothing means all), the
+// order books are listed in, and paging.
 
-export type LanguageFilter = "all" | "bn" | "en";
+export type LanguageFilter = "all" | "bn" | "other";
 
 export const LANGUAGE_FILTERS: { value: LanguageFilter; label: string }[] = [
-  { value: "all", label: "সব" },
   { value: "bn", label: "বাংলা" },
-  { value: "en", label: "ইংরেজি" },
+  { value: "other", label: "অন্যান্য ভাষা" },
+  { value: "all", label: "সব" },
 ];
 
 export function readLanguage(raw: string | string[] | undefined): LanguageFilter {
   const value = Array.isArray(raw) ? raw[0] : raw;
-  return value === "bn" || value === "en" ? value : "all";
+  if (value === "bn") return "bn";
+  // "en" was the old English-only chip; links to it now show every language
+  // that isn't Bangla, which includes English.
+  if (value === "other" || value === "en") return "other";
+  return "all";
 }
 
 // For the query string: "all" is the default, so it isn't written.
 export const languageParam = (lang: LanguageFilter) => (lang === "all" ? undefined : lang);
 
-// Book.language is the language code ("bn", "en", "ru", ...); "all" adds no
-// condition, so books in other languages still appear there.
-export function languageWhere(lang: LanguageFilter): { language?: string } {
-  return lang === "all" ? {} : { language: lang };
+// Book.language is the language code ("bn", "en", "ru", ...).
+export function languageWhere(lang: LanguageFilter): { language?: string | { not: string } } {
+  if (lang === "bn") return { language: "bn" };
+  if (lang === "other") return { language: { not: "bn" } };
+  return {};
 }
+
+// The same test as languageWhere, for a book already loaded.
+export function inLanguage(language: string, lang: LanguageFilter): boolean {
+  return lang === "all" || (lang === "bn") === (language === "bn");
+}
+
+// "No books in ..." messages: "বাংলা ভাষার" / "অন্য ভাষার".
+export const languagePhrase = (lang: Exclude<LanguageFilter, "all">) => (lang === "bn" ? "বাংলা ভাষার" : "অন্য ভাষার");
 
 type Listed = { language: string; title: string; titleBangla: string | null };
 

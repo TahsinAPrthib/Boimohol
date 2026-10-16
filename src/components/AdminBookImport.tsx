@@ -56,7 +56,15 @@ export default function AdminBookImport({ categoryNames }: { categoryNames: Reco
   const shown = result ?? preview;
   const linkCount = shown?.valid.reduce((n, r) => n + r.sources.length, 0) ?? 0;
   const linkedCount = shown?.linked.length ?? 0;
-  const actionable = (shown?.valid.length ?? 0) + linkedCount;
+  const updatedCount = shown?.updated.length ?? 0;
+  const actionable = (shown?.valid.length ?? 0) + linkedCount + updatedCount;
+  const buttonLabel = [
+    shown?.valid.length || actionable === 0 ? `${bn(shown?.valid.length ?? 0)}টি বই যোগ করুন` : null,
+    linkedCount > 0 ? `${bn(linkedCount)}টি আগের বইয়ে লিংক দিন` : null,
+    updatedCount > 0 ? `${bn(updatedCount)}টি আগের বই হালনাগাদ করুন` : null,
+  ]
+    .filter(Boolean)
+    .join(", ");
 
   return (
     <div className="flex flex-col gap-4">
@@ -97,6 +105,12 @@ export default function AdminBookImport({ categoryNames }: { categoryNames: Reco
               {bn(shown.duplicates.length)}টি · ত্রুটিপূর্ণ {bn(shown.invalid.length)}টি
               {linkCount > 0 && <> · নতুন বইয়ে বাইরের সাইটে বিনামূল্যে পড়ার লিংক {bn(linkCount)}টি</>}
               {linkedCount > 0 && <> · ক্যাটালগের আগের বইয়ে লিংক যোগ হবে {bn(linkedCount)}টিতে</>}
+              {updatedCount > 0 && (
+                <>
+                  {" "}
+                  · <span className="font-semibold text-cloth">আগের বই হালনাগাদ হবে {bn(updatedCount)}টি</span>
+                </>
+              )}
             </p>
           )}
 
@@ -107,11 +121,7 @@ export default function AdminBookImport({ categoryNames }: { categoryNames: Reco
               disabled={pending || actionable === 0}
               className="btn-primary self-start disabled:opacity-50"
             >
-              {importing
-                ? "যোগ করা হচ্ছে..."
-                : linkedCount > 0
-                  ? `${bn(shown.valid.length)}টি বই যোগ করুন, ${bn(linkedCount)}টি আগের বইয়ে লিংক দিন`
-                  : `${bn(shown.valid.length)}টি বই যোগ করুন`}
+              {importing ? "সংরক্ষণ করা হচ্ছে..." : buttonLabel}
             </button>
           )}
 
@@ -123,6 +133,23 @@ export default function AdminBookImport({ categoryNames }: { categoryNames: Reco
                   <ul className="mt-1 list-disc pl-5 text-oxblood">
                     {r.reasons.map((reason) => (
                       <li key={reason}>{reason}</li>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ReportList>
+          )}
+
+          {updatedCount > 0 && (
+            <ReportList title={`আগের বইয়ে ${result ? "হালনাগাদ হয়েছে" : "হালনাগাদ হবে"} (${bn(updatedCount)}টি) — নতুন বই যোগ হবে না`} open={!result}>
+              {shown.updated.map((r) => (
+                <li key={r.row} className="border-b border-ink/10 py-2" data-updated-row>
+                  <span>
+                    সারি {bn(r.row)}: <span className="font-semibold text-ink">{r.title}</span> — {r.author}
+                  </span>
+                  <ul className="mt-1 list-disc pl-5 text-ink/60">
+                    {r.changes.map((c) => (
+                      <li key={c}>{c}</li>
                     ))}
                   </ul>
                 </li>

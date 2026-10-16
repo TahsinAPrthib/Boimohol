@@ -10,9 +10,14 @@
 //                                      is read but never rewritten): new books,
 //                                      then links for catalog books; -3, -4 ...
 //                                      past 500 rows
+//   data/wikisource-batch1-corrections.json
+//                                      update rows for batch 1 books already
+//                                      imported: translator credits and
+//                                      corrected rights notes
 //   data/wikisource-unclassified.json  works with no confirmed form, for later
+//                                      (only when there are any)
 //   data/wikisource-excluded.json      everything left out, with the reason
-//   data/wikisource-report.md          counts, category decisions, spot-check
+//   data/wikisource-report.md          counts, category decisions, translators
 //
 // The rules, step by step:
 //   1. Scans: every index on bn.wikisource in "১০০% মুদ্রণ সংশোধিত" or
@@ -30,23 +35,26 @@
 //      already in our catalog, and minus posthumous works first published
 //      after the cutoff year (protected for 60 years from publication).
 //
-// Then run scripts/wikisource-spot-check.ts for the live spot-check.
+// Then run scripts/wikisource-spot-check.ts for the live spot-check, and
+// scripts/wikisource-translator-check.ts to re-check every translator live.
 import { existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { fetchCompleteIndexes } from "./wikisource/indexes";
 import { buildCandidates, PD_CUTOFF, type Candidate, type Person } from "./wikisource/candidates";
 import { verifyWork, type Verification } from "./wikisource/verify";
-import { classify, FORM_BY_HAND, formByKey, UNCLASSIFIED_NOTES, type Form } from "./wikisource/classify";
+import { classify, EXCLUDED_BY_HAND, FORM_BY_HAND, formByKey, UNCLASSIFIED_NOTES, type Form } from "./wikisource/classify";
+import { BANGLA_ORIGINAL, RETOLD_BY_AUTHOR } from "./wikisource/translators";
 import { CONFIRMED_DEATHS, NO_SOURCE, NOT_CONFIRMED } from "./wikisource/death-years";
 import { romanize } from "./wikisource/romanize";
 import { describe } from "./wikisource/descriptions";
 import { networkCalls } from "./wikisource/http";
 import { normalizeForSearch } from "../src/lib/search";
-import { bookImportRowSchema } from "../src/lib/book-schema";
+import { bookImportRowSchema, bookUpdateRowSchema } from "../src/lib/book-schema";
 
 type Row = {
   title: string;
   titleBangla: string;
   author: string;
+  translator?: string; // who wrote the Bangla text of a translation
   category: string;
   description: string;
   language: "bn";
@@ -73,6 +81,30 @@ const MAX_IMPORT_ROWS = 500;
 
 // Import files already handed over; never rewritten (see "Batches" below).
 const FROZEN_FILES = ["data/wikisource-import.json"];
+
+// Batch 1 rights notes corrected after batch 1 was first handed over
+// (data/wikisource-batch1-corrections.md): the corrections file carries
+// them, in case the import went in before the correction.
+const BATCH1_NOTES_CORRECTED = new Set([
+  "https://bn.wikisource.org/wiki/কথামালা_(১৮৭৭)",
+  "https://bn.wikisource.org/wiki/চিত্রে_জয়দেব_ও_গীতগোবিন্দ",
+  "https://bn.wikisource.org/wiki/মেগাস্থেনীসের_ভারত-বিবরণ_(১৯৪৪)",
+]);
+
+// Field order for files a person reads: who and what first, then the rest.
+const tidy = (r: Row): Row => ({
+  title: r.title,
+  titleBangla: r.titleBangla,
+  author: r.author,
+  ...(r.translator ? { translator: r.translator } : {}),
+  category: r.category,
+  description: r.description,
+  language: r.language,
+  publishYear: r.publishYear,
+  authorDeathYear: r.authorDeathYear,
+  isPublicDomain: r.isPublicDomain,
+  sources: r.sources,
+});
 
 // Which category each form goes to, as decided on 2026-10-15: five new
 // categories (created by migration 20261015085903) for plays, short stories,
@@ -245,6 +277,11 @@ async function main() {
     const romanized = !c.titleEn;
     const title = c.titleEn ?? romanize(titleBangla);
     const author = c.authors.map(nameOf).join(" ও ");
+    const leftOut = EXCLUDED_BY_HAND[`${titleBangla}|${author}`];
+    if (leftOut) {
+      exclude(c, leftOut);
+      continue;
+    }
 
     // Bangladeshi law protects a work first published after its author's
     // death for 60 years from publication, so the death year alone doesn't
@@ -272,6 +309,7 @@ async function main() {
     const byHand = FORM_BY_HAND[`${titleBangla}|${author}`];
     const form = byHand ? formByKey(byHand) : classify([...c.index.categories, ...best.v.categories], c.wikidataTypes);
     const base = {
+      ...(c.translators.length ? { translator: c.translators.map(nameOf).join(" ও ") } : {}),
       description: describe({ titleBangla, authors: c.authors.map(nameOf), translators: c.translators.map(nameOf), form }),
       language: "bn" as const,
       publishYear: c.publishYear,
@@ -325,7 +363,7 @@ async function main() {
   // have become more careful since (an approximate date that read as exact),
   // the note is corrected in place and the change listed in the report.
   const current = new Map([...ready, ...linked].map((x) => [urlOf(x), x.row]));
-  const noteChanges: { title: string; before: string; after: string }[] = [];
+  const noteChanges: { url: string; title: string; before: string; after: string }[] = [];
   const frozenRows: Row[] = [];
   for (const f of FROZEN_FILES.filter((f) => existsSync(f))) {
     const rows = JSON.parse(readFileSync(f, "utf8")) as Row[];
@@ -333,7 +371,7 @@ async function main() {
     for (const r of rows) {
       const now = current.get(r.sources[0].url);
       if (now && now.sources[0].rightsBasis !== r.sources[0].rightsBasis) {
-        noteChanges.push({ title: r.titleBangla, before: r.sources[0].rightsBasis, after: now.sources[0].rightsBasis });
+        noteChanges.push({ url: r.sources[0].url, title: r.titleBangla, before: r.sources[0].rightsBasis, after: now.sources[0].rightsBasis });
         r.sources[0].rightsBasis = now.sources[0].rightsBasis;
         changed = true;
       }
@@ -350,18 +388,80 @@ async function main() {
 
   for (const f of readdirSync("data").filter((f) => /^wikisource-(import-\d+|pending)\.json$/.test(f))) rmSync(`data/${f}`);
   const chunks: Row[][] = [];
-  for (let i = 0; i < fresh.length; i += MAX_IMPORT_ROWS) chunks.push(fresh.slice(i, i + MAX_IMPORT_ROWS).map((x) => x.row));
+  for (let i = 0; i < fresh.length; i += MAX_IMPORT_ROWS) chunks.push(fresh.slice(i, i + MAX_IMPORT_ROWS).map((x) => tidy(x.row)));
   const firstNew = FROZEN_FILES.length + 1;
   const importFiles = chunks.map((_, i) => `data/wikisource-import-${firstNew + i}.json`);
   chunks.forEach((rows, i) => writeFileSync(importFiles[i], JSON.stringify(rows, null, 2) + "\n"));
+  if (unclassified.length) {
+    writeFileSync(
+      "data/wikisource-unclassified.json",
+      JSON.stringify(
+        sortRows(unclassified).map((x) => ({ ...tidy(x.row), category: null, note: UNCLASSIFIED_NOTES[`${x.row.titleBangla}|${x.row.author}`] ?? null })),
+        null,
+        2
+      ) + "\n"
+    );
+  } else if (existsSync("data/wikisource-unclassified.json")) rmSync("data/wikisource-unclassified.json");
+
+  // ---- translators: who wrote the Bangla text ----
+  // Every work whose original is in another language or older than Bangla
+  // prose: the translator (or the Bangla writer credited as author, for a
+  // retelling) must be named and must pass the death-year rule too.
+  type Writer = { id: string; name: string; role: string; deathYear: number | null; when: string };
+  type TranslatorCheck = { batch: string; key: string; row: Row; original: string; writers: Writer[]; ok: boolean; note: string };
+  const writer = (p: Person, role: string): Writer => ({ id: p.id, name: nameOf(p), role, deathYear: p.deathYear, when: p.era ?? p.deathText ?? String(p.deathYear) });
+  const passes = (ws: Writer[]) => ws.length > 0 && ws.every((w) => w.deathYear !== null && w.deathYear <= PD_CUTOFF);
+  const originalOf = (c: Candidate) =>
+    c.authors.map((p) => `${nameOf(p)} (${p.era ?? p.deathText ?? p.deathYear})`).join(", ");
+  const checks: TranslatorCheck[] = [];
+  for (const x of [...ready, ...linked, ...unclassified]) {
+    const key = `${x.row.titleBangla}|${x.row.author}`;
+    const batch = frozenUrls.has(urlOf(x)) ? "1" : "2";
+    const ancient = x.c.authors.some((p) => p.deathYear !== null && p.deathYear < 1800);
+    if (x.c.translation || x.c.translators.length) {
+      const writers = x.c.translators.map((p) => writer(p, "translator"));
+      checks.push({ batch, key, row: x.row, original: originalOf(x.c), writers, ok: passes(writers), note: writers.length ? "translator named on Wikidata" : "no translator named" });
+    } else if (RETOLD_BY_AUTHOR[key]) {
+      const writers = x.c.authors.map((p) => writer(p, "Bangla writer, credited as author"));
+      checks.push({ batch, key, row: x.row, original: RETOLD_BY_AUTHOR[key], writers, ok: passes(writers), note: "retold or translated by the credited author" });
+    } else if (ancient) {
+      const writers = x.c.authors.map((p) => writer(p, "author"));
+      const known = BANGLA_ORIGINAL[key];
+      checks.push({ batch, key, row: x.row, original: originalOf(x.c), writers, ok: Boolean(known) && passes(writers), note: known ?? "author died before 1800 and no translator is named: who wrote the Bangla text is unknown" });
+    }
+  }
+  const batch1Failures = checks.filter((k) => k.batch === "1" && !k.ok);
   writeFileSync(
-    "data/wikisource-unclassified.json",
-    JSON.stringify(
-      sortRows(unclassified).map((x) => ({ ...x.row, category: null, note: UNCLASSIFIED_NOTES[`${x.row.titleBangla}|${x.row.author}`] ?? null })),
-      null,
-      2
-    ) + "\n"
+    "data/.wikisource-cache/translator-check.json",
+    JSON.stringify(checks.map((k) => ({ batch: k.batch, title: k.row.titleBangla, url: k.row.sources[0].url, original: k.original, writers: k.writers })), null, 2)
   );
+
+  // ---- batch 1 corrections: update rows for books already imported ----
+  // A translator credit for every translation, and the rights note as it
+  // should read now (the import shows a note change only where it differs
+  // from what's stored). Matched by batch 1's own title, Bangla title and
+  // author -- what the import stored.
+  type UpdateRow = { match: { title: string; titleBangla: string; author: string }; set?: { translator: string }; sources: { url: string; rightsBasis: string }[] };
+  const noteChangedNow = new Set(noteChanges.map((n) => n.url));
+  const corrections: UpdateRow[] = [];
+  for (const r of frozenRows) {
+    const url = r.sources[0].url;
+    const now = current.get(url);
+    if (!now) continue;
+    const noteFixed = BATCH1_NOTES_CORRECTED.has(url) || noteChangedNow.has(url);
+    if (!now.translator && !noteFixed) continue;
+    corrections.push({
+      match: { title: r.title, titleBangla: r.titleBangla, author: r.author },
+      ...(now.translator ? { set: { translator: now.translator } } : {}),
+      sources: [{ url, rightsBasis: now.sources[0].rightsBasis }],
+    });
+  }
+  for (const u of corrections) {
+    const check = bookUpdateRowSchema.safeParse(u);
+    if (!check.success) throw new Error(`correction for "${u.match.titleBangla}" fails the import schema: ${check.error.issues.map((i) => i.message).join("; ")}`);
+  }
+  if (corrections.length > MAX_IMPORT_ROWS) throw new Error(`${corrections.length} corrections: split the file`);
+  writeFileSync("data/wikisource-batch1-corrections.json", JSON.stringify(corrections, null, 2) + "\n");
   excluded.sort((a, b) => a.reason.localeCompare(b.reason) || a.author.localeCompare(b.author, "bn"));
   writeFileSync("data/wikisource-excluded.json", JSON.stringify(excluded, null, 2) + "\n");
 
@@ -397,6 +497,7 @@ async function main() {
   L(`| Batch 1, already prepared (${FROZEN_FILES.map((f) => `\`${f}\``).join(", ")}, unchanged) | ${frozenRows.length} |`);
   L(`| Batch 2, new books (${fileList}) | ${freshReady.length} |`);
   L(`| Batch 2, links for books already in the catalog (same file) | ${freshLinked.length} |`);
+  L(`| Batch 1 corrections: translator credits and rights notes (\`data/wikisource-batch1-corrections.json\`, update rows) | ${corrections.length} |`);
   L(`| Not imported yet: no confirmed category (\`data/wikisource-unclassified.json\`) | ${unclassified.length} |`);
   L(`| Left out, with reasons (\`data/wikisource-excluded.json\`) | ${excluded.length} |`);
   L();
@@ -406,12 +507,10 @@ async function main() {
     L("Every batch 1 row still passes every check.");
   }
   L();
-  if (existsSync("data/wikisource-batch1-corrections.md")) {
-    L("**Batch 1 rights notes corrected.** Three notes gave an approximate date as exact; see `data/wikisource-batch1-corrections.md`.");
-    L();
-  }
+  L(`**Batch 1 corrections.** \`data/wikisource-batch1-corrections.json\` has ${corrections.length} update rows for batch 1 books already imported: a translator credit for each of the ${corrections.filter((u) => u.set?.translator).length} translations, and the rights note each link should carry — including the three notes corrected after batch 1 was handed over (\`data/wikisource-batch1-corrections.md\`). Upload it on /admin/books like any import: the preview lists every book it changes under “আগের বইয়ে হালনাগাদ হবে”, and a note that is already right shows no change.`);
+  L();
   if (noteChanges.length) {
-    L(`**Batch 1 rights notes corrected (${noteChanges.length}).** These gave an approximate Wikidata date as if it were exact; only the note changed. If batch 1 is already imported, edit the note on /admin/books (the book's “বাইরের সাইটে বিনামূল্যের কপি” box).`);
+    L(`**Batch 1 rights notes corrected in this run (${noteChanges.length}).** Only the note changed; the corrections file carries it.`);
     L();
     for (const n of noteChanges) L(`- ${n.title}: “${n.before}” → “${n.after}”`);
     L();
@@ -420,13 +519,29 @@ async function main() {
   L();
   L("**Rules beyond the death year.** A work first published after its author's death (or a translation after its translator's) is protected in Bangladesh for 60 years from publication, so such a work first printed after " + PD_CUTOFF + " is excluded even when the author died earlier. Wikidata labels Manik Bandopadhyay by his legal name, প্রবোধকুমার বন্দ্যোপাধ্যায়; the import uses মানিক বন্দ্যোপাধ্যায়. A translation's Bangla title is taken from its Wikisource page, not from the original work's label.");
   L();
-  const myth = unclassified.filter((x) => /পুরাণ ও লোককথা/.test(UNCLASSIFIED_NOTES[`${x.row.titleBangla}|${x.row.author}`] ?? ""));
-  L("## Needs your decision");
+  const rowByKey = (key: string) => [...ready, ...linked].find((x) => `${x.row.titleBangla}|${x.row.author}` === key);
+  const myth = ready.filter((x) => x.row.category === "puran-lokkotha");
+  const kumudini = [...ready, ...linked].find((x) => x.c.authors.some((p) => p.id === "Q141100605"));
+  L("## Decisions applied (2026-10-16)");
   L();
-  L(`1. **কুমুদিনী বসু (সাহিত্য-চিন্তা).** Left out: both Wikipedias put her death before 1965 (1943 / 1942) and bn Wikipedia lists the book among her works, but neither cites the year. Include it on that basis?`);
-  L(`2. **A category পুরাণ ও লোককথা (Mythology & folklore)** for the ${myth.length} epic, myth and folk-tale works still without one: ${myth.map((x) => x.row.titleBangla).join(", ")}.`);
-  L("3. **পথে-বিপথে** (অবনীন্দ্রনাথ): humorous prose sketches — প্রবন্ধ or ছোটগল্প?");
-  L("4. **শরৎ-সাহিত্য-সংগ্রহ** (volume 13, mixed forms): suggested to leave out.");
+  L(`1. **কুমুদিনী বসু (সাহিত্য-চিন্তা): included.** Both Wikipedias put her death in 1942–43; the year used is 1943. Rights note: “${kumudini?.row.sources[0].rightsBasis ?? "(not found)"}”`);
+  L(`2. **পুরাণ ও লোককথা** (\`puran-lokkotha\`, migration 20261015203820): ${myth.length} works — ${myth.map((x) => x.row.titleBangla).join(", ")}.`);
+  L(`3. **পথে-বিপথে: ${rowByKey("পথে-বিপথে|অবনীন্দ্রনাথ ঠাকুর")?.row.category ?? "(not found)"}.** Of its 16 pieces, 12 are first-person stories on the Ganges ferry with the friend অবিন (মোহিনী, অস্থি, গুরুজী, টুপি, দোশালা, মাতু, শেমুষী, ইন্দু, অরোরা, পর্-ঈ-তাউস্, ছাই-ভস্ম, লুকি-বিদ্যে); 4 are travel sketches (গমনাগমন, নিষ্ক্রমণ, আরোহণ, বিচরণ).`);
+  L("4. **শরৎ-সাহিত্য-সংগ্রহ: left out** (in `data/wikisource-excluded.json`).");
+  L();
+  L("## Translators: who wrote the Bangla text");
+  L();
+  L(`Every prepared work whose original is in another language or older than Bangla prose (${checks.length}): the person who wrote the Bangla text, and their death year, which must pass the same rule (${PD_CUTOFF} or earlier). A translator is credited on the book page (\`translator\`); for a retelling that Wikisource credits to the Bangla writer as author (রাজশেখর বসু's মহাভারত), that writer is the author shown, so there is no separate translator line. Re-checked live on Wikidata in \`data/wikisource-translator-check.md\` (\`scripts/wikisource-translator-check.ts\`).`);
+  L();
+  L(batch1Failures.length ? `**Batch 1 books that fail this check (${batch1Failures.length}):** ${batch1Failures.map((k) => `${k.row.titleBangla} (${k.note})`).join("; ")}.` : "**Every batch 1 book passes this check.** None has an unnamed translator or one who died after the cutoff.");
+  L();
+  L("| Batch | Work | Original | Bangla text by | Died | Passes |");
+  L("|---|---|---|---|---|---|");
+  for (const k of [...checks].sort((a, b) => a.batch.localeCompare(b.batch) || a.row.titleBangla.localeCompare(b.row.titleBangla, "bn"))) {
+    const by = k.writers.map((w) => `${w.name} (${w.role})`).join(", ") || "—";
+    const died = k.writers.map((w) => w.when).join(", ") || "—";
+    L(`| ${k.batch} | ${cell(k.row.titleBangla)} | ${cell(k.original)} | ${cell(by)} | ${cell(died)} | ${k.ok ? "yes" : `**no** — ${cell(k.note)}`} |`);
+  }
   L();
   L("## Batch 2");
   L();
@@ -462,9 +577,13 @@ async function main() {
   L();
   L("## Not imported yet: no confirmed category");
   L();
-  L("Re-checked 2026-10-16 by reading each text's contents and a passage. They are in `data/wikisource-unclassified.json` with `category: null` and the note below.");
-  L();
-  for (const x of sortRows(unclassified)) L(`- ${x.row.titleBangla} — ${x.row.author}: ${UNCLASSIFIED_NOTES[`${x.row.titleBangla}|${x.row.author}`] ?? "form not found"} (${x.row.sources[0].url})`);
+  if (unclassified.length) {
+    L("They are in `data/wikisource-unclassified.json` with `category: null` and the note below.");
+    L();
+    for (const x of sortRows(unclassified)) L(`- ${x.row.titleBangla} — ${x.row.author}: ${UNCLASSIFIED_NOTES[`${x.row.titleBangla}|${x.row.author}`] ?? "form not found"} (${x.row.sources[0].url})`);
+  } else {
+    L("None: every work now has a category or was left out by decision.");
+  }
   L();
   L("## All prepared books by category (batches 1 and 2)");
   L();

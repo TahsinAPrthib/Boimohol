@@ -38,6 +38,8 @@ export default async function EditBookPage(props: { params: Promise<{ id: string
           publishYear: book.publishYear,
           authorDeathYear: book.authorDeathYear,
           isPublicDomain: book.isPublicDomain,
+          translator: book.translator,
+          searchAliases: book.searchAliases,
         }}
       />
     </div>

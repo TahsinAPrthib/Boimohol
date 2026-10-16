@@ -1,0 +1,704 @@
+[
+  {
+    "match": {
+      "title": "The Old Man and the Sea",
+      "titleBangla": "দ্য ওল্ড ম্যান অ্যান্ড দ্য সি",
+      "author": "Ernest Hemingway"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "দ্য ওল্ড ম্যান অ্যান্ড দ্য সি"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Leaves of Grass",
+      "titleBangla": "লিভস অব গ্রাস",
+      "author": "Walt Whitman"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "লিভস অব গ্রাস"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "The Prophet",
+      "titleBangla": "দ্য প্রফেট",
+      "author": "Kahlil Gibran"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "দ্য প্রফেট"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "The Waste Land",
+      "titleBangla": "দ্য ওয়েস্ট ল্যান্ড",
+      "author": "T. S. Eliot"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "দ্য ওয়েস্ট ল্যান্ড"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "The Discovery of India",
+      "titleBangla": "দ্য ডিসকভারি অব ইন্ডিয়া",
+      "author": "Jawaharlal Nehru"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "দ্য ডিসকভারি অব ইন্ডিয়া"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Glimpses of World History",
+      "titleBangla": "গ্লিম্পসেস অব ওয়ার্ল্ড হিস্ট্রি",
+      "author": "Jawaharlal Nehru"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "গ্লিম্পসেস অব ওয়ার্ল্ড হিস্ট্রি"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Autobiography of a Yogi",
+      "titleBangla": "অটোবায়োগ্রাফি অব আ যোগী",
+      "author": "Paramahansa Yogananda"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "অটোবায়োগ্রাফি অব আ যোগী"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Up from Slavery",
+      "titleBangla": "আপ ফ্রম স্লেভারি",
+      "author": "Booker T. Washington"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "আপ ফ্রম স্লেভারি"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Long Walk to Freedom",
+      "titleBangla": "লং ওয়াক টু ফ্রিডম",
+      "author": "Nelson Mandela"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "লং ওয়াক টু ফ্রিডম"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Sapiens: A Brief History of Humankind",
+      "titleBangla": "স্যাপিয়েন্স",
+      "author": "Yuval Noah Harari"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "স্যাপিয়েন্স"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "The Gulag Archipelago",
+      "titleBangla": "দ্য গুলাগ আর্কিপেলাগো",
+      "author": "Aleksandr Solzhenitsyn"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "দ্য গুলাগ আর্কিপেলাগো"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "The Hound of the Baskervilles",
+      "titleBangla": "দ্য হাউন্ড অব দ্য বাস্কারভিলস",
+      "author": "Arthur Conan Doyle"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "দ্য হাউন্ড অব দ্য বাস্কারভিলস"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "A Study in Scarlet",
+      "titleBangla": "আ স্টাডি ইন স্কারলেট",
+      "author": "Arthur Conan Doyle"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "আ স্টাডি ইন স্কারলেট"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "The Sign of the Four",
+      "titleBangla": "দ্য সাইন অব দ্য ফোর",
+      "author": "Arthur Conan Doyle"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "দ্য সাইন অব দ্য ফোর"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "The Moonstone",
+      "titleBangla": "দ্য মুনস্টোন",
+      "author": "Wilkie Collins"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "দ্য মুনস্টোন"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "The Maltese Falcon",
+      "titleBangla": "দ্য মলটিজ ফ্যালকন",
+      "author": "Dashiell Hammett"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "দ্য মলটিজ ফ্যালকন"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "The Big Sleep",
+      "titleBangla": "দ্য বিগ স্লিপ",
+      "author": "Raymond Chandler"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "দ্য বিগ স্লিপ"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "The Thirty-Nine Steps",
+      "titleBangla": "দ্য থার্টি-নাইন স্টেপস",
+      "author": "John Buchan"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "দ্য থার্টি-নাইন স্টেপস"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Murder on the Orient Express",
+      "titleBangla": "মার্ডার অন দ্য ওরিয়েন্ট এক্সপ্রেস",
+      "author": "Agatha Christie"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "মার্ডার অন দ্য ওরিয়েন্ট এক্সপ্রেস"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "And Then There Were None",
+      "titleBangla": "অ্যান্ড দেন দেয়ার ওয়্যার নান",
+      "author": "Agatha Christie"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "অ্যান্ড দেন দেয়ার ওয়্যার নান"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "The Count of Monte Cristo",
+      "titleBangla": "দ্য কাউন্ট অব মন্টি ক্রিস্টো",
+      "author": "Alexandre Dumas"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "দ্য কাউন্ট অব মন্টি ক্রিস্টো"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "The Name of the Rose",
+      "titleBangla": "দ্য নেম অব দ্য রোজ",
+      "author": "Umberto Eco"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "দ্য নেম অব দ্য রোজ"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Frankenstein",
+      "titleBangla": "ফ্রাঙ্কেনস্টাইন",
+      "author": "Mary Shelley"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "ফ্রাঙ্কেনস্টাইন"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "The Time Machine",
+      "titleBangla": "দ্য টাইম মেশিন",
+      "author": "H. G. Wells"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "দ্য টাইম মেশিন"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "The Invisible Man",
+      "titleBangla": "দ্য ইনভিজিবল ম্যান",
+      "author": "H. G. Wells"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "দ্য ইনভিজিবল ম্যান"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "The Island of Doctor Moreau",
+      "titleBangla": "দ্য আইল্যান্ড অব ডক্টর মোরো",
+      "author": "H. G. Wells"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "দ্য আইল্যান্ড অব ডক্টর মোরো"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Twenty Thousand Leagues Under the Seas",
+      "titleBangla": "টোয়েন্টি থাউজ্যান্ড লিগস আন্ডার দ্য সিজ",
+      "author": "Jules Verne"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "টোয়েন্টি থাউজ্যান্ড লিগস আন্ডার দ্য সিজ"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Journey to the Center of the Earth",
+      "titleBangla": "জার্নি টু দ্য সেন্টার অব দি আর্থ",
+      "author": "Jules Verne"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "জার্নি টু দ্য সেন্টার অব দি আর্থ"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "From the Earth to the Moon",
+      "titleBangla": "ফ্রম দি আর্থ টু দ্য মুন",
+      "author": "Jules Verne"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "ফ্রম দি আর্থ টু দ্য মুন"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Nineteen Eighty-Four",
+      "titleBangla": "নাইনটিন এইটি-ফোর",
+      "author": "George Orwell"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "নাইনটিন এইটি-ফোর"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Brave New World",
+      "titleBangla": "ব্রেভ নিউ ওয়ার্ল্ড",
+      "author": "Aldous Huxley"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "ব্রেভ নিউ ওয়ার্ল্ড"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "We",
+      "titleBangla": "উই",
+      "author": "Yevgeny Zamyatin"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "উই"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Fahrenheit 451",
+      "titleBangla": "ফারেনহাইট ৪৫১",
+      "author": "Ray Bradbury"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "ফারেনহাইট ৪৫১"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Foundation",
+      "titleBangla": "ফাউন্ডেশন",
+      "author": "Isaac Asimov"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "ফাউন্ডেশন"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Dune",
+      "titleBangla": "ডুন",
+      "author": "Frank Herbert"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "ডুন"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Solaris",
+      "titleBangla": "সোলারিস",
+      "author": "Stanisław Lem"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "সোলারিস"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Meditations",
+      "titleBangla": "মেডিটেশনস",
+      "author": "Marcus Aurelius"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "মেডিটেশনস"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Self-Help",
+      "titleBangla": "সেলফ-হেল্প",
+      "author": "Samuel Smiles"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "সেলফ-হেল্প"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "As a Man Thinketh",
+      "titleBangla": "অ্যাজ আ ম্যান থিংকেথ",
+      "author": "James Allen"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "অ্যাজ আ ম্যান থিংকেথ"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "The Science of Getting Rich",
+      "titleBangla": "দ্য সায়েন্স অব গেটিং রিচ",
+      "author": "Wallace D. Wattles"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "দ্য সায়েন্স অব গেটিং রিচ"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "The Richest Man in Babylon",
+      "titleBangla": "দ্য রিচেস্ট ম্যান ইন ব্যাবিলন",
+      "author": "George S. Clason"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "দ্য রিচেস্ট ম্যান ইন ব্যাবিলন"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Acres of Diamonds",
+      "titleBangla": "একরস অব ডায়মন্ডস",
+      "author": "Russell H. Conwell"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "একরস অব ডায়মন্ডস"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "How to Stop Worrying and Start Living",
+      "titleBangla": "হাউ টু স্টপ ওয়ারিং অ্যান্ড স্টার্ট লিভিং",
+      "author": "Dale Carnegie"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "হাউ টু স্টপ ওয়ারিং অ্যান্ড স্টার্ট লিভিং"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Man's Search for Meaning",
+      "titleBangla": "ম্যানস সার্চ ফর মিনিং",
+      "author": "Viktor E. Frankl"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "ম্যানস সার্চ ফর মিনিং"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "The 7 Habits of Highly Effective People",
+      "titleBangla": "দ্য সেভেন হ্যাবিটস অব হাইলি ইফেক্টিভ পিপল",
+      "author": "Stephen R. Covey"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "দ্য সেভেন হ্যাবিটস অব হাইলি ইফেক্টিভ পিপল"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "The Power of Positive Thinking",
+      "titleBangla": "দ্য পাওয়ার অব পজিটিভ থিংকিং",
+      "author": "Norman Vincent Peale"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "দ্য পাওয়ার অব পজিটিভ থিংকিং"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Atomic Habits",
+      "titleBangla": "অ্যাটমিক হ্যাবিটস",
+      "author": "James Clear"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "অ্যাটমিক হ্যাবিটস"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Deep Work",
+      "titleBangla": "ডিপ ওয়ার্ক",
+      "author": "Cal Newport"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "ডিপ ওয়ার্ক"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Mindset: The New Psychology of Success",
+      "titleBangla": "মাইন্ডসেট",
+      "author": "Carol S. Dweck"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "মাইন্ডসেট"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Thinking, Fast and Slow",
+      "titleBangla": "থিংকিং, ফাস্ট অ্যান্ড স্লো",
+      "author": "Daniel Kahneman"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "থিংকিং, ফাস্ট অ্যান্ড স্লো"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "The Psychology of Money",
+      "titleBangla": "দ্য সাইকোলজি অব মানি",
+      "author": "Morgan Housel"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "দ্য সাইকোলজি অব মানি"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "The Power of Now",
+      "titleBangla": "দ্য পাওয়ার অব নাউ",
+      "author": "Eckhart Tolle"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "দ্য পাওয়ার অব নাউ"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Who Moved My Cheese?",
+      "titleBangla": "হু মুভড মাই চিজ?",
+      "author": "Spencer Johnson"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "হু মুভড মাই চিজ?"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Emotional Intelligence",
+      "titleBangla": "ইমোশনাল ইন্টেলিজেন্স",
+      "author": "Daniel Goleman"
+    },
+    "set": {
+      "titleBangla": null,
+      "searchAliases": [
+        "ইমোশনাল ইন্টেলিজেন্স"
+      ]
+    }
+  }
+]

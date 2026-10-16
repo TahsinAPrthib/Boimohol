@@ -63,7 +63,12 @@ const WIKIDATA_TYPES: Record<string, string> = {
   Q208505: "mystery",
 };
 
-const FORMS = new Map(RULES.map((r) => [r.form.key, r.form]));
+// Myths, epics retold, fables and folk tales (category created by migration
+// 20261015203820). Set only by hand, in FORM_BY_HAND: no category rule leads
+// here, so works already prepared keep the category their rule gave them.
+const MYTHOLOGY = E("mythology", "পুরাণ ও লোককথার বই", "puran-lokkotha");
+
+const FORMS = new Map([...RULES.map((r) => [r.form.key, r.form] as const), [MYTHOLOGY.key, MYTHOLOGY] as const]);
 
 // Categories that describe the publisher, place, year, language or author
 // rather than the form -- ignored so "বাংলা সাহিত্য" can't decide anything.
@@ -178,6 +183,28 @@ export const FORM_BY_HAND: Record<string, string> = {
   "৺কৃত্তিবাসের পরিচয় সংগ্রহ|হরিশচন্দ্র মিত্র": "essays",
   "পল্লীগ্রামস্থ চৌকীদার বিষয়ক প্রস্তাবিত রাজ নিয়মের বিরুদ্ধে ভারতবর্ষীয় সভার আবেদন|দেবেন্দ্রনাথ ঠাকুর": "essays",
   "শ্রীযুত ডাক্তর এম, জে, ব্রমলি সাহেবের বক্তৃতার দ্বারা সংক্ষেপ আবেদন|মাউন্টফোর্ড জোসেফ ব্রমলি": "essays",
+  // Decided 2026-10-16: the new category পুরাণ ও লোককথা.
+  "মহাভারত (উপক্রমণিকাভাগ)|ঈশ্বরচন্দ্র বিদ্যাসাগর": "mythology", // prose Mahabharata, introductory chapters
+  "মহাভারত|রাজশেখর বসু": "mythology", // condensed Mahabharata
+  "কুরু পাণ্ডব|রবীন্দ্রনাথ ঠাকুর": "mythology", // Mahabharata episodes retold
+  "সতী|দীনেশচন্দ্র সেন": "mythology", // the Sati legend, twelve chapters
+  "ভয়ভাঙ্গা|দীনেশচন্দ্র সেন": "mythology", // Radha-Krishna episodes retold
+  "মেয়েলি ব্রত ও কথা|পরমেশপ্রসন্ন রায়": "mythology", // East Bengal folk rituals and their tales
+  "অদ্ভুত রামায়ণ|বাল্মীকি": "mythology", // a Ramayana variant, in translation
+  "বত্রিশ সিংহাসন|লাল্লু লাল": "mythology", // the Vikramaditya story cycle, in translation
+  // Decided 2026-10-16: by what most of its 16 pieces are. Twelve are
+  // first-person stories on the Ganges ferry with the friend অবিন (মোহিনী,
+  // অস্থি, গুরুজী, টুপি, দোশালা, মাতু, শেমুষী, ইন্দু, অরোরা, পর্-ঈ-তাউস্,
+  // ছাই-ভস্ম, লুকি-বিদ্যে); four are travel sketches (গমনাগমন, নিষ্ক্রমণ,
+  // আরোহণ, বিচরণ).
+  "পথে-বিপথে|অবনীন্দ্রনাথ ঠাকুর": "stories",
+};
+
+// Works left out after reading them, and why (shown in the report and in
+// data/wikisource-excluded.json).
+export const EXCLUDED_BY_HAND: Record<string, string> = {
+  "শরৎ-সাহিত্য-সংগ্রহ|শরৎচন্দ্র চট্টোপাধ্যায়":
+    "left out by decision (2026-10-16): volume 13 of an omnibus of collected works, mixed forms (novels, stories, essays, letters), not a book of its own",
 };
 
 export function formByKey(key: string): Form {
@@ -188,15 +215,6 @@ export function formByKey(key: string): Form {
 
 // Works still without a category, and what was found on re-checking them
 // (2026-10-16). Shown in the report and in data/wikisource-unclassified.json.
-export const UNCLASSIFIED_NOTES: Record<string, string> = {
-  "মহাভারত (উপক্রমণিকাভাগ)|ঈশ্বরচন্দ্র বিদ্যাসাগর": "epic retelling (prose Mahabharata, introductory chapters) — proposed category পুরাণ ও লোককথা",
-  "মহাভারত|রাজশেখর বসু": "epic retelling (condensed Mahabharata) — proposed category পুরাণ ও লোককথা",
-  "কুরু পাণ্ডব|রবীন্দ্রনাথ ঠাকুর": "epic retelling (Mahabharata episodes) — proposed category পুরাণ ও লোককথা",
-  "সতী|দীনেশচন্দ্র সেন": "myth retold in prose (the Sati legend, twelve chapters) — proposed category পুরাণ ও লোককথা",
-  "ভয়ভাঙ্গা|দীনেশচন্দ্র সেন": "Radha-Krishna episodes retold — proposed category পুরাণ ও লোককথা",
-  "মেয়েলি ব্রত ও কথা|পরমেশপ্রসন্ন রায়": "folk rituals of East Bengal and their tales — proposed category পুরাণ ও লোককথা",
-  "অদ্ভুত রামায়ণ|বাল্মীকি": "a Ramayana variant, translated by সৌদামিনী দেবী (1890) — proposed category পুরাণ ও লোককথা",
-  "বত্রিশ সিংহাসন|লাল্লু লাল": "story cycle of King Vikramaditya, translated from Hindi — proposed category পুরাণ ও লোককথা",
-  "পথে-বিপথে|অবনীন্দ্রনাথ ঠাকুর": "humorous first-person prose sketches, between essays and stories — your choice (প্রবন্ধ or ছোটগল্প)",
-  "শরৎ-সাহিত্য-সংগ্রহ|শরৎচন্দ্র চট্টোপাধ্যায়": "omnibus volume 13 of collected works (mixed forms, including writings first published in it in 1960) — better left out",
-};
+// (All ten from 2026-10-16 were settled that day: see FORM_BY_HAND and
+// EXCLUDED_BY_HAND.)
+export const UNCLASSIFIED_NOTES: Record<string, string> = {};

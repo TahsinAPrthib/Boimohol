@@ -2,7 +2,7 @@ import Link from "next/link";
 import { hrefWith } from "@/lib/search";
 import { LANGUAGE_FILTERS, languageParam, type LanguageFilter } from "@/lib/book-language";
 
-// সব / বাংলা / ইংরেজি, keeping the page's other filters (category, search)
+// বাংলা / অন্যান্য ভাষা / সব, keeping the page's other filters (category, search)
 // and starting again at page 1.
 export default function LanguageChips({
   path,

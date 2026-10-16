@@ -86,6 +86,14 @@ const categories = [
     description: "ছোটদের জন্য গল্প, ছড়া আর রূপকথা।",
     colorKey: "turmeric",
   },
+  // Added by migration 20261015203820.
+  {
+    slug: "puran-lokkotha",
+    name: "Mythology & Folklore",
+    nameBangla: "পুরাণ ও লোককথা",
+    description: "পুরাণ ও মহাকাব্যের কাহিনি, উপকথা, রূপকথা আর লোককথা।",
+    colorKey: "oxblood",
+  },
 ];
 
 // Real, well-known books. Descriptions below are original one-line summaries

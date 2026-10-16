@@ -29,13 +29,21 @@
 //   5. Anyone else who added text (editor, introduction, commentary, notes)
 //      must pass rule 3 too; an illustrator known to have died after the
 //      cutoff rules the book out.
-//   6. One row per work: the most downloaded edition.
-//   7. Matched to our categories; books that fit none are listed, not forced.
-//   8. Books already in our catalog get the Gutenberg link added instead.
+//   6. Not a recent release (ebook #77000 on, released from October 2025):
+//      Gutenberg's counts cover the last 30 days, so a new release can rank
+//      on a short spike. Left out, and the selection goes further down.
+//   7. One row per work: the most downloaded edition.
+//   8. Matched to our categories; books that fit none are listed, not forced.
+//   9. Books already in our catalog get the Gutenberg link added instead.
+//
+// Each row credits its translator (`translator`). A Bangla title is shown
+// only when it is a genuine Bangla one (scripts/gutenberg/titles.ts); other
+// Bangla Wikipedia titles become hidden search aliases.
 import { existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import type { Agent, Ebook } from "./gutenberg/catalog";
 import { peopleByWikipedia, worksFor, type PersonFacts, type WorkFacts } from "./gutenberg/wikidata";
-import { formOf, type GForm } from "./gutenberg/forms";
+import { formOf, LEFT_OUT_BY_HAND, MYTH_BY_HAND, NOT_MYTH, type GForm } from "./gutenberg/forms";
+import { GENUINE_BANGLA_TITLES } from "./gutenberg/titles";
 import { GUTENBERG_KNOWN } from "./gutenberg/descriptions";
 import { possessive } from "./wikisource/descriptions";
 import { networkCalls } from "./wikisource/http";
@@ -46,11 +54,19 @@ const PD_CUTOFF = new Date().getUTCFullYear() - 61;
 const TARGET = 1000;
 const MAX_IMPORT_ROWS = 500; // same as the admin import
 const ENGLISH = "Q1860";
+const RECENT_FROM_ID = 77000; // released from 2025-10-07, a year before the feed
+// One part of a work whose whole is selected, under a title the edition
+// check can't tie to it.
+const PART_OF_SELECTED: Record<number, string> = {
+  8789: "the Inferno alone (Cary's translation): one part of The Divine Comedy, selected whole (#8800)",
+};
 
 type Row = {
   title: string;
   titleBangla: string | null;
   author: string;
+  translator?: string;
+  searchAliases?: string[];
   category: string;
   description: string;
   language: "en";
@@ -163,6 +179,18 @@ function editDistance(a: string, b: string): number {
     for (let j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
   return d[a.length][b.length];
 }
+// A work's title for telling editions apart: without a translator's name
+// ("Divine Comedy, Longfellow's Translation, Hell"), without "of <author>"
+// ("The Odyssey of Homer"), and singular ("The Odysseys of Homer").
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+function workTitle(title: string, authorNames: string[]): string {
+  let t = mainTitle(title).replace(/,\s*[^,]*['’]s translation\b.*$/i, "");
+  for (const name of authorNames) {
+    const last = name.split(/\s+/).pop() ?? "";
+    if (last.length > 2) t = t.replace(new RegExp(`\\s+of\\s+${escapeRe(last)}\\b.*$`, "i"), "");
+  }
+  return matchKey(t).replace(/s$/, "");
+}
 // Surnames spelt differently across sources: Dostoyevsky / Dostoevsky.
 const sameSurname = (a: string, b: string) => a === b || (a.length >= 5 && b.length >= 5 && editDistance(a, b) <= 2);
 
@@ -206,7 +234,17 @@ async function main() {
   const people = pool.flatMap((b) => Object.values(b.roles).flat());
   const facts = await peopleByWikipedia([...new Set(people.flatMap((a) => a.wikipedia.filter((u) => /\/\/en\.wikipedia\.org\//.test(u))))]);
   const works = await worksFor(pool.map((b) => ({ id: b.id, wikipedia: b.wikipedia })));
-  const factsFor = (a: Agent) => a.wikipedia.map((u) => facts.get(u)).find(Boolean);
+  // A Wikipedia page Gutenberg links to more than one person is about all of
+  // them ("Aylmer and Louise Maude"): its name and dates fit neither, so such
+  // a person keeps Gutenberg's own name and year.
+  const https = (u: string) => u.replace(/^http:/, "https:");
+  const agentsByPage = new Map<string, Set<string>>();
+  for (const a of people) for (const u of a.wikipedia) agentsByPage.set(https(u), (agentsByPage.get(https(u)) ?? new Set()).add(a.id));
+  const factsFor = (a: Agent) =>
+    a.wikipedia
+      .filter((u) => (agentsByPage.get(https(u))?.size ?? 0) < 2)
+      .map((u) => facts.get(u))
+      .find(Boolean);
   const person = (a: Agent): Person => {
     const f = factsFor(a);
     const wd = f?.death ?? null;
@@ -220,6 +258,7 @@ async function main() {
   };
 
   const excluded: { id: number; title: string; author: string; downloads: number; reason: string }[] = [];
+  const recentDropped: { id: number; title: string; author: string; downloads: number }[] = [];
   const discrepancies: { id: number; who: string; note: string }[] = [];
   const selected: Candidate[] = [];
   const seenWorks = new Map<string, Candidate>();
@@ -238,6 +277,10 @@ async function main() {
     }
     if (!pool.includes(b)) {
       exclude(`author died after ${PD_CUTOFF} (Gutenberg catalog)`);
+      continue;
+    }
+    if (PART_OF_SELECTED[b.id]) {
+      exclude(PART_OF_SELECTED[b.id]);
       continue;
     }
     const authors = (b.roles.aut ?? []).map(person);
@@ -289,14 +332,25 @@ async function main() {
     // only when its title agrees with Gutenberg's.
     const found = works.get(b.id);
     const work = found && (!found.nameEn || sameTitle(b.title, found.nameEn)) ? found : undefined;
-    const workKey = `${authors.map((p) => surname(authorName(p))).join("+")}|${loose(work?.id ?? mainTitle(b.title))}`;
-    const earlier = seenWorks.get(workKey);
+    // Rule 6, after the others so only books that would otherwise be in are
+    // counted -- and before rule 7, so an older edition of the same work can
+    // still take its place.
+    if (b.id >= RECENT_FROM_ID) {
+      recentDropped.push({ id: b.id, title: b.title, author: authors.map((p) => displayName(p.agent)).join("; "), downloads: b.downloads });
+      exclude(`recent release (ebook #${b.id}, ${b.issued ?? "date unknown"}): in the top downloads on a 30-day spike`);
+      continue;
+    }
+    // An edition is the same work as an earlier one when Wikidata ties both
+    // to one item, or their titles agree (see workTitle).
+    const who = authors.map((p) => surname(authorName(p))).join("+");
+    const keys = [work ? `${who}|${work.id}` : null, `${who}|${workTitle(b.title, authors.map(authorName))}`].filter((k): k is string => k !== null);
+    const earlier = keys.map((k) => seenWorks.get(k)).find(Boolean);
     if (earlier) {
       exclude(`another edition of the same work (kept #${earlier.book.id})`);
       continue;
     }
     const c: Candidate = { book: b, authors, translators, others, work };
-    seenWorks.set(workKey, c);
+    for (const k of keys) seenWorks.set(k, c);
     selected.push(c);
   }
   const lastDownloads = selected[selected.length - 1]?.book.downloads ?? 0;
@@ -343,11 +397,15 @@ async function main() {
       ...c.others.filter((o) => TEXT_ROLES[o.role]).map((o) => `${o.role === "edt" ? "সম্পাদক" : "ভূমিকা/টীকার লেখক"} ${nameBnOr(o.p)} ${o.p.text}`),
     ];
     const rightsBasis = `${listOf(clauses)} মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ`;
-    const titleBangla = c.work?.bnwiki ? c.work.bnwiki.replace(/\s*\([^)]*\)\s*$/, "").trim() : null;
+    const bnwikiTitle = c.work?.bnwiki ? c.work.bnwiki.replace(/\s*\([^)]*\)\s*$/, "").trim() : null;
+    const genuine = bnwikiTitle !== null && GENUINE_BANGLA_TITLES.has(b.id);
+    const titleBangla = genuine ? bnwikiTitle : null;
     let row: Row = {
       title,
       titleBangla,
       author,
+      ...(c.translators.length ? { translator: listOf(c.translators.map(nameOf)) } : {}),
+      ...(bnwikiTitle && !genuine ? { searchAliases: [bnwikiTitle] } : {}),
       category: form.category,
       description: GUTENBERG_KNOWN[b.id] ?? neutral,
       language: "en",
@@ -359,11 +417,17 @@ async function main() {
     // Already in the catalog: the row takes the catalog book's exact title and
     // author so the admin import matches it and only adds the link.
     const firstAuthor = surname(nameOf(c.authors[0]));
-    const hit = [title, mainTitle(b.title), titleBangla]
+    const hit = [title, mainTitle(b.title), bnwikiTitle]
       .filter((t): t is string => !!t)
       .flatMap((t) => catalog.get(matchKey(t)) ?? [])
-      .find((cb) => sameSurname(surname(cb.author), firstAuthor) || (titleBangla !== null && cb.titleBangla === titleBangla));
-    if (hit) row = { ...row, title: hit.title, titleBangla: hit.titleBangla, author: hit.author, category: hit.category };
+      .find((cb) => sameSurname(surname(cb.author), firstAuthor) || (bnwikiTitle !== null && cb.titleBangla === bnwikiTitle));
+    // A link row changes nothing about the catalog book but its links, so it
+    // carries the book's identity and nothing of its own.
+    if (hit) {
+      row = { ...row, title: hit.title, titleBangla: hit.titleBangla, author: hit.author, category: hit.category };
+      delete row.translator;
+      delete row.searchAliases;
+    }
     // Editions Wikidata didn't tie to one work (or tied to different items)
     // still meet here, under the title they'd be shown with.
     const rowKey = `${surname(row.author)}|${matchKey(row.title)}`;
@@ -384,11 +448,32 @@ async function main() {
   const fresh = rows.filter((r) => !r.linked);
   const linked = rows.filter((r) => r.linked);
   const ordered = [...fresh, ...linked];
+  // What the files this run replaces held, for the report's list of changes.
+  const idOf = (url: string) => Number(url.split("/").pop());
+  const previous = new Map<number, string>();
+  for (const f of readdirSync("data").filter((f) => /^gutenberg-import-\d+\.json$/.test(f)))
+    for (const r of JSON.parse(readFileSync(`data/${f}`, "utf8")) as Row[]) previous.set(idOf(r.sources[0].url), r.category);
+  if (existsSync("data/gutenberg-unfit.json"))
+    for (const u of JSON.parse(readFileSync("data/gutenberg-unfit.json", "utf8")) as { id: number }[]) previous.set(u.id, "unfit");
   for (const f of readdirSync("data").filter((f) => /^gutenberg-import-\d+\.json$/.test(f))) rmSync(`data/${f}`);
+  const tidy = (r: Row): Row => ({
+    title: r.title,
+    titleBangla: r.titleBangla,
+    author: r.author,
+    ...(r.translator ? { translator: r.translator } : {}),
+    ...(r.searchAliases?.length ? { searchAliases: r.searchAliases } : {}),
+    category: r.category,
+    description: r.description,
+    language: r.language,
+    publishYear: r.publishYear,
+    authorDeathYear: r.authorDeathYear,
+    isPublicDomain: r.isPublicDomain,
+    sources: r.sources,
+  });
   const files: string[] = [];
   for (let i = 0; i < ordered.length; i += MAX_IMPORT_ROWS) {
     const file = `data/gutenberg-import-${files.length + 1}.json`;
-    writeFileSync(file, JSON.stringify(ordered.slice(i, i + MAX_IMPORT_ROWS).map((r) => r.row), null, 2) + "\n");
+    writeFileSync(file, JSON.stringify(ordered.slice(i, i + MAX_IMPORT_ROWS).map((r) => tidy(r.row)), null, 2) + "\n");
     files.push(file);
   }
   writeFileSync("data/gutenberg-unfit.json", JSON.stringify(unfit, null, 2) + "\n");
@@ -415,25 +500,74 @@ async function main() {
   L(`| Selected: the ${selected.length} most downloaded that pass every rule (down to ${lastDownloads} downloads) | ${selected.length} |`);
   L(`| New books to import (${files.map((f) => `\`${f}\``).join(", ")}) | ${fresh.length} |`);
   L(`| Links for books already in the catalog (same files, at the end) | ${linked.length} |`);
-  L(`| Selected but no fitting category (\`data/gutenberg-unfit.json\`, not imported) | ${unfit.length} |`);
+  L(`| Selected but not imported: reference works, manuals, cookbooks and a few undecided (\`data/gutenberg-unfit.json\`) | ${unfit.length} |`);
   L(`| Left out while selecting, with reasons (\`data/gutenberg-excluded.json\`) | ${excluded.length} |`);
   L();
   L("**Language.** Gutenberg has no Bangla books, so every row is English (`language: \"en\"` — the language of the text the link leads to, including English translations).");
   L();
   L(`**Descriptions.** ${rows.filter((r) => GUTENBERG_KNOWN[r.c.book.id]).length} very well-known works got an original one-sentence Bangla description (\`scripts/gutenberg/descriptions.ts\`); the rest a neutral line (author, original language, form, translator), e.g. “${fresh.find((r) => !GUTENBERG_KNOWN[r.c.book.id])?.row.description ?? ""}”`);
   L();
-  L(`**Bangla titles.** Only where Wikidata links the work to a Bangla Wikipedia article (its title, as the established Bangla name): ${rows.filter((r) => r.row.titleBangla).length} books. No title was translated.`);
+  L(`**Bangla titles.** Shown only where the book has a genuine, well-established Bangla title (\`scripts/gutenberg/titles.ts\`): ${fresh.filter((r) => r.row.titleBangla).length} new books — ${fresh.filter((r) => r.row.titleBangla).map((r) => r.row.titleBangla).join(", ")}. The other ${fresh.filter((r) => r.row.searchAliases?.length).length} Bangla Wikipedia titles (transliterations such as “${fresh.find((r) => r.c.book.id === 1342)?.row.searchAliases?.[0] ?? ""}”, or names such as “${fresh.find((r) => r.c.book.id === 1524)?.row.searchAliases?.[0] ?? ""}”) are hidden search aliases (\`searchAliases\`): never shown, but a search in Bangla script finds the book. Link rows carry the catalog book's own titles; \`data/catalog-title-corrections.json\` (optional, from \`scripts/catalog-title-corrections.ts\`) applies the same rule to the catalog's own foreign books — 54 update rows that hide a transliterated Bangla title and keep it as a search alias.`);
+  L();
+  const translated = fresh.filter((r) => r.c.translators.length);
+  L(`**Translators.** ${translated.length} new books are translations; each row credits its translator (\`translator\`, shown on the book page as “অনুবাদ: …”). Every translator passed the same death-year rule as the authors — Gutenberg's year, cross-checked with Wikidata where Gutenberg links the person to Wikipedia (${translated.flatMap((r) => r.c.translators).filter((p) => p.facts?.death).length} of ${translated.flatMap((r) => r.c.translators).length} found there), the later year counting. A translation with no named translator, or one whose translator died after ${PD_CUTOFF} or has no known death year, is left out (see the exclusion reasons). Link rows don't set a translator: they add a link to a catalog book and change nothing else about it; the link's rights note names the translator.`);
   L();
   const peopleInRows = rows.flatMap((r) => [...r.c.authors, ...r.c.translators]);
   L(`**Wikidata cross-check.** ${peopleInRows.filter((p) => p.facts?.death).length} of the ${peopleInRows.length} authors and translators in the rows were found on Wikidata with a death date (through the Wikipedia page Gutenberg links them to); the rest rely on Gutenberg's catalog year alone.`);
   L();
-  const recent = fresh.filter((r) => r.c.book.id >= 77000);
-  L("## Needs your decision");
+  const myth = rows.filter((r) => r.row.category === "puran-lokkotha");
+  const undecided = unfit.filter((u) => LEFT_OUT_BY_HAND[u.id] === "undecided");
+  const notReviewed = unfit.filter((u) => !LEFT_OUT_BY_HAND[u.id]);
+  L("## Decisions applied (2026-10-16)");
   L();
-  L(`1. **Bangla titles.** ${fresh.filter((r) => r.row.titleBangla).length} new books carry the title of their Bangla Wikipedia article as \`titleBangla\`. Most are transliterations (“${fresh.find((r) => r.row.titleBangla && /অ্যান্ড|দ্য |অব /.test(r.row.titleBangla))?.row.titleBangla ?? ""}”), a few translations (“${fresh.find((r) => r.c.book.id === 2600)?.row.titleBangla ?? ""}”). Covers and lists show the Bangla title first, as for the catalog's own foreign books. Keep them, or keep only translated ones?`);
-  L(`2. **Language.** Every row is \`en\`, the language of the text the link leads to (also for translations). The catalog's own foreign books keep their original language (*Crime and Punishment* is \`ru\`), so the ইংরেজি filter won't show them even once they have an English Gutenberg link.`);
-  L(`3. **What “most downloaded” means.** Gutenberg's count covers the last 30 days, so ${recent.length} recent releases (ebook ids from 77000) are in on a short spike, e.g. ${recent.slice(0, 3).map((r) => `*${r.row.title}*`).join(", ")}. They pass every rule; drop them if you'd rather have only long-standing favourites.`);
-  L(`4. **${unfit.length} selected books fit no category** (dictionaries, cookery, manuals, textbooks, folklore collections ...), listed below and in \`data/gutenberg-unfit.json\`. Not imported.`);
+  L(`1. **Bangla titles:** only genuine Bangla titles are shown; transliterations are search aliases (above).`);
+  L(`2. **পুরাণ ও লোককথা:** ${myth.length} books moved there (listed below), from all the selected books, including the ones first listed as fitting no category and the children's books.`);
+  L(`3. **Recent releases dropped:** ${recentDropped.length} books released from October 2025 (ebook #${RECENT_FROM_ID} on) that passed every other rule were left out; the selection went further down the list to keep ${TARGET}. Listed below.`);
+  L(`4. **Non-fiction first listed as fitting no category:** essays, philosophy, religion, science (with mathematics and economics) and letters now go to \`probondho\`, plain history to \`itihash-jiboni\`, and *How to Live on 24 Hours a Day* to \`atmounnoyon\`; reference works, manuals and cookbooks stay out. **What's left: ${undecided.length} books** — ${undecided.map((u) => `*${u.title}*`).join(", ")} — law treatises and medical case studies, which no rule covers; they stay out until you decide.${notReviewed.length ? ` **Not yet reviewed: ${notReviewed.length}** (new in this run) — ${notReviewed.map((u) => `*${u.title}*`).join(", ")}.` : ""}`);
+  L(`5. **Language filter:** every row is \`en\`; the library's অন্যান্য ভাষা chip shows every language except Bangla, so the catalog's own foreign books (*Crime and Punishment* is \`ru\`) appear under it too.`);
+  L();
+  L("## পুরাণ ও লোককথা");
+  L();
+  L("Myths, legends, fables and fairy tales — collections and retellings — and the ancient epics that are a mythology's own texts, as for the Bangla works (the Mahabharata). Books that only use such material stay in their own category.");
+  L();
+  L("| Book | Author | Was | Now |");
+  L("|---|---|---|---|");
+  for (const r of myth) L(`| [${cell(r.row.title)}](${r.row.sources[0].url}) | ${cell(r.row.author)} | ${previous.get(r.c.book.id) ?? "new in this run"} | \`puran-lokkotha\` (${MYTH_BY_HAND[r.c.book.id]}) |`);
+  L();
+  const kept = rows.filter((r) => NOT_MYTH[r.c.book.id]);
+  L(`Shelved with myths, or with a myth or folklore heading, but kept where they are (${kept.length}): ${kept.map((r) => `*${r.row.title}* (\`${r.row.category}\` — ${NOT_MYTH[r.c.book.id]})`).join("; ")}.`);
+  L();
+  L("## Recent releases dropped");
+  L();
+  L("| # | Book | Author | Downloads (30 days) |");
+  L("|---|---|---|---|");
+  for (const x of recentDropped) L(`| ${x.id} | ${cell(x.title.slice(0, 90))} | ${cell(x.author)} | ${x.downloads} |`);
+  L();
+  const nowIds = new Map<number, string>([...rows.map((r) => [r.c.book.id, r.row.category] as const), ...unfit.map((u) => [u.id, "unfit"] as const)]);
+  if (previous.size) {
+    const added = [...nowIds].filter(([id]) => !previous.has(id));
+    const removed = [...previous].filter(([id]) => !nowIds.has(id));
+    const moved = [...nowIds].filter(([id, cat]) => previous.has(id) && previous.get(id) !== cat);
+    const label = (id: number) => {
+      const r = rows.find((x) => x.c.book.id === id);
+      const u = unfit.find((x) => x.id === id);
+      const x = excluded.find((e) => e.id === id);
+      return `#${id} *${cell((r?.row.title ?? u?.title ?? x?.title ?? "?").slice(0, 70))}*`;
+    };
+    L("## Changes from the previous files");
+    L();
+    L(`**Added (${added.length})** — further down the list, in place of the dropped and de-duplicated books: ${added.map(([id, cat]) => `${label(id)} (\`${cat}\`)`).join("; ") || "none"}.`);
+    L();
+    L(`**Removed (${removed.length}):** ${removed.map(([id]) => `${label(id)} — ${cell(excluded.find((e) => e.id === id)?.reason ?? "not selected")}`).join("; ") || "none"}.`);
+    L();
+    L(`**Category changed (${moved.length}):** ${moved.map(([id, cat]) => `${label(id)} ${previous.get(id)} → ${cat}`).join("; ") || "none"}.`);
+    L();
+  }
+  L("## Translations");
+  L();
+  L("| Book | Original author | Translator | Translator died |");
+  L("|---|---|---|---|");
+  for (const r of translated) L(`| ${cell(r.row.title)} | ${cell(r.row.author)} | ${cell(r.row.translator ?? "")} | ${r.c.translators.map((p) => `${p.year}${p.facts?.death ? " (Wikidata)" : " (Gutenberg)"}`).join(", ")} |`);
   L();
   L("## New books by category");
   L();
@@ -451,7 +585,7 @@ async function main() {
   L("|---|---|---|");
   for (const r of linked) L(`| ${cell(r.row.title)} | ${cell(r.row.author)} | ${r.row.sources[0].url} |`);
   L();
-  L("## Selected, but no fitting category");
+  L("## Selected, but not imported");
   L();
   L("| Book | Author | Downloads | Why |");
   L("|---|---|---|---|");

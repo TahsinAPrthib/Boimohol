@@ -134,7 +134,9 @@ export default async function AdminBooksPage(props: {
             প্রতিটি বইয়ের ঘর: <code>title</code>, <code>titleBangla</code>, <code>author</code>, <code>category</code>{" "}
             (বিভাগের slug: {categories.map((c) => c.slug).join(", ")}), <code>description</code>, <code>language</code>,{" "}
             <code>publishYear</code>, <code>authorDeathYear</code>, <code>isPublicDomain</code>। অজানা বছর{" "}
-            <code>null</code>। একই লেখকের একই নামের বই (ইংরেজি বা বাংলা নামে) আগে থাকলে সেটি বাদ যাবে।
+            <code>null</code>। ঐচ্ছিক <code>translator</code> (অনূদিত বা পুনর্কথিত বইয়ের অনুবাদক, বইয়ের পাতায় দেখানো হয়) ও{" "}
+            <code>searchAliases</code> (খোঁজার জন্য লুকানো বিকল্প নামের তালিকা)। একই লেখকের একই নামের বই (ইংরেজি বা বাংলা
+            নামে) আগে থাকলে সেটি বাদ যাবে।
           </p>
           <p className="max-w-prose font-body text-sm text-ink/70">
             পাবলিক ডোমেইনের বইয়ে ঐচ্ছিক <code>sources</code>: বাইরের সাইটে বিনামূল্যের কপির তালিকা, প্রতিটিতে{" "}
@@ -142,6 +144,12 @@ export default async function AdminBooksPage(props: {
             <code>{`"sources": [{ "url": "https://bn.wikisource.org/wiki/...", "rightsBasis": "লেখক ১৯৪১ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ" }]`}</code>
             । বইটি ক্যাটালগে আগে থেকেই থাকলে নতুন করে যোগ হবে না, তবে তার নতুন লিংকগুলো আগের বইটিতে যোগ হবে — যদি
             সেটি পাবলিক ডোমেইন হিসেবে চিহ্নিত থাকে।
+          </p>
+          <p className="max-w-prose font-body text-sm text-ink/70">
+            আগে থেকে থাকা বই সংশোধনের সারি: <code>match</code> (বইটির <code>title</code>, <code>titleBangla</code>,{" "}
+            <code>author</code>), সঙ্গে <code>set</code> (শুধু <code>translator</code>, <code>titleBangla</code> বা{" "}
+            <code>searchAliases</code>; <code>null</code> দিলে মুছে যায়) এবং/অথবা <code>sources</code> — আগের লিংকের{" "}
+            <code>rightsBasis</code> বদলায়, নতুন লিংক যোগ হয়। যাচাইয়ে এগুলো “হালনাগাদ হবে” হিসেবে দেখানো হয়।
           </p>
           <AdminBookImport categoryNames={Object.fromEntries(categories.map((c) => [c.slug, c.nameBangla]))} />
         </div>
