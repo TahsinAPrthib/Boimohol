@@ -52,7 +52,9 @@ All screenshots are of public pages on the live site, taken while signed out.
 ### Library
 - Public-domain books only, as a PDF hosted here or a link to a free copy on Wikisource (any language), Project Gutenberg or the Internet Archive. Links to any other site are refused. Each copy states publicly why it is free (for example, the author's death year and the source).
 - The library labels each book as hosted here or external. External links open in a new tab and send no referrer.
-- The library, category pages and search filter by language (বাংলা / ইংরেজি / সব). Bangla books are listed first, and long lists are paged, 48 books at a time.
+- Books with a copy on Bangla Wikisource can be read here, at `/books/[id]/read`: a contents page, one chapter per page with previous/next and a shareable address, and an adjustable text size. The text is fetched live from the Wikisource API, cleaned on the server and cached for about a week; nothing is hosted. Every page credits Wikisource under CC BY-SA 4.0, and when the text was transcribed from a PDF scan on Wikimedia Commons, that scan is linked with its size. The reader remembers where you stopped (on your account when signed in, in the browser otherwise), and reading counts toward the reading streak.
+- Project Gutenberg links go to the book's landing page, as Gutenberg's linking policy asks; nothing is fetched from Gutenberg.
+- The library, category pages and search filter by language (বাংলা / অন্যান্য ভাষা / সব). Bangla books are listed first, and long lists are paged, 48 books at a time.
 - The free catalogue is prepared offline by scripts that read Bangla Wikisource and Wikidata (complete, proofread texts whose authors died in 1965 or earlier) and Project Gutenberg's official catalog feed. They write files for the admin import plus a review report; nothing is written to the database.
 - Downloads are counted only in aggregate. Who downloaded what is never recorded, and clicks on external links aren't counted at all.
 
@@ -150,6 +152,19 @@ Books, listings and requests store a precomputed `searchText`. A migration backf
 There is deliberately no code path for paid files. The PDFs themselves were prepared from Bangla Wikisource exports. Where an edition carried a later publisher's front matter, such as a 1961 copyright notice, that front matter was removed.
 
 **Why.** Each check sits on the server path that a forged request would also have to take.
+
+### Reading pages anyone can edit
+**Problem.** The in-site reader shows Wikisource pages inside Boi Mohol, and anyone can edit a Wikisource page. Its HTML can't be trusted.
+
+**What was done.** Every page goes through a strict allowlist on the server (`src/lib/wikisource/sanitize.ts`, built on `sanitize-html`) before it is cached or shown:
+- Only text-formatting tags survive. Scripts, styles, frames, forms, SVG, MathML and media are removed with everything inside them.
+- No inline styles and no event handlers. Classes come only from a short list of our own; Wikisource's centring, indents and poem layout are translated into those.
+- Links within the work point at the reader, links to other Wikisource pages point at Wikisource, and every other link becomes plain text. Images are allowed only from `upload.wikimedia.org`. Ids are prefixed, so a page can't shadow ours.
+- Wikisource's own header, page numbers and licence boxes are removed; the reader adds its own navigation and attribution.
+
+The API client follows Wikimedia's etiquette: a User-Agent with a contact address, GET requests with `maxlag`, one request at a time, and no retry loop. A page is fetched at most once a week. If Wikisource can't be reached, the reader shows the older copy or a link to the page on Wikisource.
+
+**How it was checked.** 52 unit tests feed the sanitizer hostile markup (script and style elements, event handlers, `javascript:` and `data:` links in several spellings, mutation-XSS patterns, `noscript`/`textarea` breakouts, `srcset`, `base` and `meta` refresh, deep nesting). In a real browser, a stand-in Wikisource served a page full of such markup. Nothing ran, no dialog opened, nothing was requested from the attacker's host, and the page wasn't redirected or covered.
 
 ### Google-only sign-up and safe account linking
 **Problem.** Email/password sign-ups never verified their email address. Linking a Google sign-in to an existing account by matching emails would therefore be unsafe in both directions. If the address had been registered by someone else, the Google user would be handed that stranger's account. If the address was really the Google user's, whoever registered it first would keep password access to an account that is now linked to the real owner's Google identity.
@@ -254,19 +269,20 @@ Environment variables (names only; `.env.example` explains each):
 
 ## Testing
 
-**Unit tests.** `npm test` runs 114 tests with Node's built-in test runner, through `tsx`. They cover the pure modules where the rules live:
+**Unit tests.** `npm test` runs 174 tests with Node's built-in test runner, through `tsx`. They cover the pure modules where the rules live:
 
 | Area | Tests |
 |---|---|
-| Search: normalisation (encodings, khanda ta, zero-width characters, spacing), `LIKE` escaping, ranking | 21 |
+| The reader's sanitizer against hostile HTML, its link and image rules, and reader addresses | 52 |
+| Search: normalisation (encodings, khanda ta, zero-width characters, spacing), `LIKE` escaping, ranking, hidden search names | 22 |
 | Bangla numbers, prices and dates in Bangladesh time, with no Latin digits | 18 |
 | Wishlist ↔ listing matching | 15 |
 | Account rules: sign-up validation, the password stamp, the last-admin rule, Google names and emails | 9 |
-| Book import rows (including links to free copies) and the admin book form | 13 |
+| Book import rows (including links to free copies), update rows and the admin book form | 18 |
 | Duplicate detection, matching an import row to an existing book, and book IDs | 11 |
 | The public-domain rule, including the year boundary | 6 |
 | Links to free copies elsewhere: the three trusted sites, lookalikes, credentials, schemes, normalisation | 6 |
-| Language filter, Bangla-first ordering and paging | 7 |
+| Language filter, Bangla-first ordering and paging | 9 |
 | Grapheme-safe text snippets (never cutting a Bangla conjunct) | 4 |
 | The signed connect-Google cookie (forgery, expiry, junk) | 4 |
 

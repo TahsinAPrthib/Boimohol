@@ -81,6 +81,22 @@ export function BookDetailSkeleton() {
   );
 }
 
+// The in-site reader: a title, then a page of text.
+export function ReaderSkeleton() {
+  return (
+    <Loading className="mx-auto max-w-2xl px-4 py-8">
+      <Line className="w-32" />
+      <div className="skeleton mt-4 h-8 w-64 max-w-full rounded-book" />
+      <Line className="mt-3 w-40" />
+      <div className="mt-10 flex flex-col gap-3">
+        {Array.from({ length: 12 }, (_, i) => (
+          <Line key={i} className={`h-4 ${i % 5 === 4 ? "w-2/3" : "w-full"}`} />
+        ))}
+      </div>
+    </Loading>
+  );
+}
+
 // Stacked cards: requests, conversations.
 export function CardListSkeleton({ count = 4 }: { count?: number }) {
   return (

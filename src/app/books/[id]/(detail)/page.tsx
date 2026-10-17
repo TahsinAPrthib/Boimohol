@@ -14,6 +14,7 @@ import WishlistButton from "@/components/WishlistButton";
 import BookFreeCopies from "@/components/BookFreeCopies";
 import ConfirmAction from "@/components/ConfirmAction";
 import { deleteReview } from "@/actions/reviews";
+import { readerSource } from "@/lib/wikisource/reader";
 
 export default async function BookPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -33,6 +34,7 @@ export default async function BookPage(props: { params: Promise<{ id: string }> 
   const free = book.isPublicDomain && canBePublicDomain(book.authorDeathYear);
   const freeFile = free ? book.files.find((f) => f.publicId) ?? null : null;
   const freeSources = free ? book.sources : [];
+  const readHref = readerSource(book) ? `/books/${encodeURIComponent(book.id)}/read` : null;
 
   let shelfStatus: "WANT" | "READING" | "FINISHED" | null = null;
   let wishlisted = false;
@@ -87,6 +89,7 @@ export default async function BookPage(props: { params: Promise<{ id: string }> 
           <BookFreeCopies
             file={freeFile && freeFile.publicId ? { ...freeFile, publicId: freeFile.publicId } : null}
             sources={freeSources}
+            readHref={readHref}
           />
 
           <div className="mt-5 flex flex-col items-start gap-3">

@@ -10,8 +10,8 @@ export type AccountDeletionResult =
 
 // Deletes the account and everything that is only theirs: listings (and
 // their photos, here and on Cloudinary), reviews, book requests (with the
-// replies to them), replies they wrote, shelf, wishlist, reading activity and
-// blocks. What other people hold is kept: messages they received stay in the
+// replies to them), replies they wrote, shelf, wishlist, reading activity, places in
+// the in-site reader and blocks. What other people hold is kept: messages they received stay in the
 // conversation, shown as from a deleted user (Message.senderId, like
 // Conversation.buyerId/listingId and Report.reporterId, becomes NULL).
 //
@@ -61,6 +61,7 @@ export async function deleteAccount(
       prisma.shelfItem.deleteMany({ where: { userId: user.id } }),
       prisma.wishlistItem.deleteMany({ where: { userId: user.id } }),
       prisma.readingActivity.deleteMany({ where: { userId: user.id } }),
+      prisma.readingPosition.deleteMany({ where: { userId: user.id } }),
       prisma.block.deleteMany({ where: { OR: [{ blockerId: user.id }, { blockedId: user.id }] } }),
       // Photos go with them (cascade); conversations about them stay.
       prisma.listing.deleteMany({ where: { sellerId: user.id } }),

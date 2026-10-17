@@ -201,6 +201,144 @@
   .reveal-in {
     animation: reveal-up 800ms cubic-bezier(0.2, 0.65, 0.25, 1) both;
   }
+
+  /* The in-site reader (/books/[id]/read). Wikisource text, already cleaned
+     on the server: only the tags and the ws-* classes allowed by
+     src/lib/wikisource/sanitize.ts reach here. Sizes are in em, so the
+     reader's text-size control scales everything together. */
+  .reader-text {
+    font-family: var(--font-tiro), serif;
+    line-height: 1.9;
+    overflow-wrap: break-word;
+    hyphens: manual;
+  }
+  .reader-text p {
+    margin: 0 0 0.9em;
+  }
+  .reader-text h2,
+  .reader-text h3,
+  .reader-text h4,
+  .reader-text h5,
+  .reader-text h6 {
+    margin: 1.4em 0 0.6em;
+    line-height: 1.4;
+  }
+  .reader-text h2 {
+    font-size: 1.35em;
+  }
+  .reader-text h3 {
+    font-size: 1.2em;
+  }
+  .reader-text h4,
+  .reader-text h5,
+  .reader-text h6 {
+    font-size: 1.05em;
+  }
+  .reader-text a {
+    @apply text-cloth underline underline-offset-2;
+  }
+  .reader-text a.ws-external::after {
+    content: " ↗";
+    font-size: 0.75em;
+  }
+  .reader-text img {
+    display: inline-block;
+    max-width: 100%;
+    height: auto;
+  }
+  /* Wide tables scroll sideways inside the text instead of widening the
+     page on a phone. */
+  .reader-text table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    margin: 1em 0;
+    border-collapse: collapse;
+  }
+  .reader-text td,
+  .reader-text th {
+    padding: 0.15em 0.5em;
+    vertical-align: top;
+  }
+  .reader-text hr {
+    width: 4em;
+    margin: 1.6em auto;
+    border: 0;
+    border-top: 1px solid rgba(42, 36, 32, 0.35);
+  }
+  .reader-text blockquote {
+    margin: 1em 0 1em 1.5em;
+  }
+  .reader-text ul {
+    margin: 0 0 0.9em 1.5em;
+    list-style: disc;
+  }
+  .reader-text ol {
+    margin: 0 0 0.9em 1.5em;
+    list-style: decimal;
+  }
+  .reader-text pre {
+    white-space: pre-wrap;
+    font-family: inherit;
+  }
+  .reader-text sup,
+  .reader-text sub {
+    line-height: 0;
+  }
+  .reader-text .ws-center {
+    text-align: center;
+  }
+  .reader-text .ws-right {
+    text-align: right;
+  }
+  .reader-text .ws-left {
+    text-align: left;
+  }
+  .reader-text .ws-block-center {
+    width: fit-content;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .reader-text .ws-indent {
+    display: inline-block;
+    width: 1.75em;
+  }
+  .reader-text .ws-indent-block {
+    margin-left: 1.75em;
+  }
+  .reader-text .ws-poem-indent {
+    display: inline-block;
+    margin-left: 1.5em;
+  }
+  .reader-text .ws-gap {
+    height: 1.5em;
+  }
+  .reader-text .ws-big {
+    font-size: 1.2em;
+  }
+  .reader-text .ws-bigger {
+    font-size: 1.5em;
+    line-height: 1.4;
+  }
+  .reader-text .ws-small {
+    font-size: 0.85em;
+  }
+  .reader-text .ws-bold {
+    font-weight: 700;
+  }
+  .reader-text .ws-italic {
+    font-style: italic;
+  }
+  .reader-text .ws-smallcaps {
+    font-variant: small-caps;
+  }
+  .reader-text .ws-references {
+    font-size: 0.85em;
+  }
+  .reader-text .ws-ref {
+    font-size: 0.75em;
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {

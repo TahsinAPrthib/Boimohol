@@ -1,3 +1,4 @@
+import Link from "next/link";
 import BookDownloadButton from "@/components/BookDownloadButton";
 import { SOURCE_LABEL, type SourceKind } from "@/lib/book-sources";
 
@@ -10,15 +11,41 @@ type FreeSource = { id: string; kind: SourceKind; url: string; rightsBasis: stri
 //
 // Each copy says why it is free. When they all say the same thing, the note
 // is shown once rather than repeated under every button.
-export default function BookFreeCopies({ file, sources }: { file: FreeFile | null; sources: FreeSource[] }) {
+//
+// A Wikisource work can also be read here (`readHref`, the in-site reader),
+// which comes first. Gutenberg links stay on the ebook's landing page, not
+// its read-online HTML: Project Gutenberg asks sites to link there and
+// redirects direct links to its files (gutenberg.org/policy/linking.html,
+// checked 2026-10-17).
+export default function BookFreeCopies({
+  file,
+  sources,
+  readHref = null,
+}: {
+  file: FreeFile | null;
+  sources: FreeSource[];
+  readHref?: string | null;
+}) {
   if (!file && sources.length === 0) return null;
 
   const notes = [file?.rightsBasis, ...sources.map((s) => s.rightsBasis)].filter((n): n is string => Boolean(n));
   const sharedNote = new Set(notes).size === 1 ? notes[0] : null;
+  // Only one primary button in the box.
+  const primaryTaken = Boolean(file || readHref);
 
   return (
     <div className="mt-5 rounded-book border-2 border-sage/50 bg-sage/10 p-4" data-free-copies>
       <ul className="flex flex-col gap-4">
+        {readHref && (
+          <li>
+            <div className="flex flex-wrap items-center gap-3">
+              <Link href={readHref} className="btn-primary" data-read-here>
+                এখানেই পড়ুন
+              </Link>
+              <span className="font-body text-sm text-ink/60">বই মহলেই, উইকিসংকলনের লেখা থেকে</span>
+            </div>
+          </li>
+        )}
         {file && (
           <li>
             <BookDownloadButton fileId={file.id} publicId={file.publicId} fileSizeBytes={file.fileSizeBytes} />
@@ -33,7 +60,7 @@ export default function BookFreeCopies({ file, sources }: { file: FreeFile | nul
                 href={s.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`${!file && i === 0 ? "btn-primary" : "btn-secondary"} inline-flex items-center gap-2`}
+                className={`${!primaryTaken && i === 0 ? "btn-primary" : "btn-secondary"} inline-flex items-center gap-2`}
               >
                 বিনামূল্যে পড়ুন — {SOURCE_LABEL[s.kind]}
                 <svg

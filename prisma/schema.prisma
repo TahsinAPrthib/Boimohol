@@ -113,6 +113,7 @@ model User {
   reviews              Review[]
   shelfItems           ShelfItem[]
   readingActivity      ReadingActivity[]
+  readingPositions     ReadingPosition[]
   listings             Listing[]          @relation("ListingSeller")
   listingsRemoved      Listing[]          @relation("ListingAdminRemovals")
   moderationTaken      ModerationAction[] @relation("ModerationByAdmin")
@@ -143,37 +144,38 @@ model Category {
 }
 
 model Book {
-  id              String         @id @default(cuid())
-  title           String
-  titleBangla     String?
-  author          String
-  categoryId      String
-  category        Category       @relation(fields: [categoryId], references: [id])
-  description     String
-  language        String         @default("bn")
-  isPublicDomain  Boolean        @default(false)
-  publishYear     Int?
+  id               String            @id @default(cuid())
+  title            String
+  titleBangla      String?
+  author           String
+  categoryId       String
+  category         Category          @relation(fields: [categoryId], references: [id])
+  description      String
+  language         String            @default("bn")
+  isPublicDomain   Boolean           @default(false)
+  publishYear      Int?
   // Null when the author is living or the year isn't known. Under Bangladeshi
   // law a book can only be public domain once this is set and old enough --
   // see src/lib/public-domain.ts.
-  authorDeathYear Int?
+  authorDeathYear  Int?
   // Who wrote this text in its language, when the book is a translation or a
   // retelling (a Bangla translation of a Sanskrit or foreign work; an English
   // translation on Gutenberg). Shown on the book page.
-  translator      String?
+  translator       String?
   // Other names the book can be found by in search but which are never shown,
   // e.g. a Bangla transliteration of an English title ("প্রাইড অ্যান্ড প্রেজুডিস").
-  searchAliases   String[]       @default([])
+  searchAliases    String[]          @default([])
   // Normalized title + Bangla title + author (+ translator and aliases) for
   // site search; always written through bookSearchText() in src/lib/search.ts.
-  searchText      String         @default("")
-  createdAt       DateTime       @default(now())
-  reviews         Review[]
-  shelfItems      ShelfItem[]
-  starterPicks    StarterPick[]
-  files           BookFile[]
-  sources         BookSource[]
-  wishlistItems   WishlistItem[]
+  searchText       String            @default("")
+  createdAt        DateTime          @default(now())
+  reviews          Review[]
+  shelfItems       ShelfItem[]
+  starterPicks     StarterPick[]
+  files            BookFile[]
+  sources          BookSource[]
+  readingPositions ReadingPosition[]
+  wishlistItems    WishlistItem[]
 
   @@index([categoryId])
 }
@@ -485,4 +487,34 @@ enum ModerationActionType {
   SUSPEND_USER
   UNSUSPEND_USER
   DELETE_USER
+}
+
+// Where a signed-in reader stopped in a book's in-site reader
+// (/books/[id]/read). Readers who aren't signed in keep this in their own
+// browser instead.
+model ReadingPosition {
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bookId    String
+  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  // The page's path below the work's main page ("প্রথম খণ্ড/এক"); "" for
+  // the main page.
+  chapter   String
+  // How far down that page, 0 to 1.
+  progress  Float    @default(0)
+  updatedAt DateTime @updatedAt
+
+  @@id([userId, bookId])
+  @@index([bookId])
+}
+
+// Wikisource pages fetched for the in-site reader, already cleaned, kept
+// about a week so a page isn't fetched from Wikisource on every view
+// (src/lib/wikisource/reader.ts). Rows older than a month are pruned.
+model ReaderCache {
+  key       String   @id
+  data      Json
+  fetchedAt DateTime @default(now())
+
+  @@index([fetchedAt])
 }
