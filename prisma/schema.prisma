@@ -508,13 +508,19 @@ model ReadingPosition {
   @@index([bookId])
 }
 
-// Wikisource pages fetched for the in-site reader, already cleaned, kept
-// about a week so a page isn't fetched from Wikisource on every view
-// (src/lib/wikisource/reader.ts). Rows older than a month are pruned.
+// Wikisource pages fetched for the in-site reader, already cleaned. Fetched
+// again once a week; an older copy is shown if Wikisource can't be reached.
+// Bounded (src/lib/wikisource/cache.ts): a row not read for 30 days is
+// deleted, and the least recently read go first once the total passes a
+// cap. The cleanup runs on writes and daily (/api/cron/reader-cache).
 model ReaderCache {
   key       String   @id
   data      Json
   fetchedAt DateTime @default(now())
+  // When it was last shown, to the day (refreshed at most once a day).
+  readAt    DateTime @default(now())
+  // Size of `data` as JSON text, in bytes: what the cap counts.
+  bytes     Int      @default(0)
 
-  @@index([fetchedAt])
+  @@index([readAt])
 }

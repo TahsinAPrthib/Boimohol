@@ -1,18 +1,18 @@
 import "server-only";
-import type { Prisma } from "@prisma/client";
-import { prisma } from "@/lib/prisma";
+import { cache } from "react";
 import { canBePublicDomain } from "@/lib/public-domain";
+import { readCache, readCacheMany, writeCache } from "./cache";
 import { fetchPage, fetchScanInfo, fetchSubpages, WikisourceMissing, WikisourceUnavailable, type ScanFile } from "./api";
 import { linksBelow, sanitizeWikisourceHtml, SANITIZER_VERSION, scanFiles } from "./sanitize";
 import { pathInWork, titleInWork, workRootFromUrl } from "./titles";
 
 // The in-site reader's data: a work's contents and its pages, fetched live
-// from the Wikisource API, cleaned (sanitize.ts) and kept in ReaderCache for
-// about a week. When Wikisource can't be reached, an older copy is shown if
-// there is one; otherwise the page offers the link to Wikisource.
+// from the Wikisource API, cleaned (sanitize.ts) and cached (cache.ts):
+// fetched again once a week. When Wikisource can't be reached, an older copy
+// is shown if the cache still has one; otherwise the page offers the link
+// to Wikisource.
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
-const PRUNE_AFTER_MS = 30 * 24 * 60 * 60 * 1000;
 const MAX_SECTION_FETCHES = 12;
 const MAX_PAGE_CHARS = 4_000_000;
 
@@ -44,24 +44,12 @@ export function readerSource(book: {
   return null;
 }
 
-async function store(key: string, value: unknown) {
-  const data = value as Prisma.InputJsonValue;
-  const fetchedAt = new Date();
-  await prisma.readerCache.upsert({ where: { key }, create: { key, data, fetchedAt }, update: { data, fetchedAt } });
-  // Now and then, drop what nobody has read for a month.
-  if (Math.random() < 0.02) {
-    prisma.readerCache
-      .deleteMany({ where: { fetchedAt: { lt: new Date(Date.now() - PRUNE_AFTER_MS) } } })
-      .catch((err) => console.error(`[reader] pruning the cache failed: ${err instanceof Error ? err.message : err}`));
-  }
-}
-
 async function cached<T>(key: string, load: () => Promise<T>): Promise<Loaded<T>> {
-  const row = await prisma.readerCache.findUnique({ where: { key } });
+  const row = await readCache(key);
   if (row && Date.now() - row.fetchedAt.getTime() < WEEK_MS) return { ok: true, value: row.data as T, stale: false };
   try {
     const value = await load();
-    await store(key, value);
+    await writeCache(key, value);
     return { ok: true, value, stale: false };
   } catch (err) {
     if (err instanceof WikisourceMissing) return { ok: false, reason: "missing" };
@@ -77,7 +65,7 @@ async function scanInfo(names: string[]): Promise<ScanFile[]> {
   const pdfs = [...new Set(names)].filter((n) => /\.pdf$/i.test(n)).slice(0, 10);
   if (pdfs.length === 0) return [];
   const keyOf = (n: string) => `scan:${n}`;
-  const rows = await prisma.readerCache.findMany({ where: { key: { in: pdfs.map(keyOf) } } });
+  const rows = await readCacheMany(pdfs.map(keyOf));
   const known = new Map(
     rows.filter((r) => Date.now() - r.fetchedAt.getTime() < WEEK_MS).map((r) => [r.key, (r.data as { file: ScanFile | null }).file])
   );
@@ -86,7 +74,7 @@ async function scanInfo(names: string[]): Promise<ScanFile[]> {
     try {
       for (const { name, file } of await fetchScanInfo(unknown)) {
         known.set(keyOf(name), file);
-        await store(keyOf(name), { file });
+        await writeCache(keyOf(name), { file });
       }
     } catch (err) {
       console.error(`[reader] scan lookup failed: ${err instanceof Error ? err.message : err}`);
@@ -142,7 +130,7 @@ async function buildContents(bookId: string, storedRoot: string): Promise<Conten
   if (scanNames.size === 0 && entries.length > 0) {
     const first = await fetchPage(titleInWork(root, entries[0].path));
     for (const n of scanFiles(first.html)) scanNames.add(n);
-    await store(pageKey(bookId, first.title), await chapterFrom(bookId, root, entries[0].path, first));
+    await writeCache(pageKey(bookId, first.title), await chapterFrom(bookId, root, entries[0].path, first));
   }
 
   const front = sanitizeWikisourceHtml(main.html, { bookId, root, current: root });
@@ -152,16 +140,12 @@ async function buildContents(bookId: string, storedRoot: string): Promise<Conten
 const contentsKey = (bookId: string, root: string) => `v${SANITIZER_VERSION}:contents:${bookId}:${root}`;
 const pageKey = (bookId: string, title: string) => `v${SANITIZER_VERSION}:page:${bookId}:${title}`;
 
-// The contents if they are already cached (any age), without fetching:
-// enough to tell, cheaply, whether a path is one of the work's pages.
-export async function cachedContents(bookId: string, storedRoot: string): Promise<Contents | null> {
-  const row = await prisma.readerCache.findUnique({ where: { key: contentsKey(bookId, storedRoot) }, select: { data: true } });
-  return row ? (row.data as Contents) : null;
-}
-
 export function getContents(bookId: string, storedRoot: string): Promise<Loaded<Contents>> {
   return cached(contentsKey(bookId, storedRoot), () => buildContents(bookId, storedRoot));
 }
+
+// Once per request, however many layouts and pages ask.
+export const loadContents = cache(getContents);
 
 async function chapterFrom(bookId: string, root: string, path: string, page: { title: string; html: string }): Promise<ChapterPage> {
   if (page.html.length > MAX_PAGE_CHARS) throw new WikisourceUnavailable("page too large");

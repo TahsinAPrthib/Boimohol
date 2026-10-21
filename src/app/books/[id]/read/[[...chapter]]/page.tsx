@@ -6,7 +6,7 @@ import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import { getSessionUserId } from "@/lib/authz";
 import { loadBook } from "@/lib/loaders";
-import { getChapter, getContents, readerSource, type TocEntry } from "@/lib/wikisource/reader";
+import { getChapter, loadContents, readerSource, type TocEntry } from "@/lib/wikisource/reader";
 import { READER_SIZE_COOKIE, readSizeStep } from "@/lib/wikisource/reader-prefs";
 import { pathFromSegments, readerHref, titleInWork, wikisourceUrl } from "@/lib/wikisource/titles";
 import ReaderFrame from "@/components/reader/ReaderFrame";
@@ -29,22 +29,28 @@ const loadReader = cache(async (id: string) => {
   const source = book ? readerSource(book) : null;
   return book && source ? { book, source } : null;
 });
-const contentsOf = cache((bookId: string, root: string) => getContents(bookId, root));
+
+const NOT_FOUND_TITLE = "পাতাটি পাওয়া যায়নি · বই মহল";
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const { id, chapter } = await props.params;
   const reader = await loadReader(id);
   if (!reader) return {};
-  const name = reader.book.titleBangla || reader.book.title;
-  const path = pathFromSegments(chapter ?? []);
-  let label = "";
-  if (path) {
-    const contents = await contentsOf(reader.book.id, reader.source.root);
-    label = contents.ok ? (contents.value.entries.find((e) => e.path === path)?.label ?? "") : "";
-  }
   // Wikisource is the place for search engines to find the text; here it
   // is a reading view, and crawling it would only fetch from Wikisource.
-  return { title: `${label ? `${label} — ` : ""}${name} · বই মহলে পড়ুন`, robots: { index: false, follow: false } };
+  const robots = { index: false, follow: false };
+  const name = reader.book.titleBangla || reader.book.title;
+  const path = pathFromSegments(chapter ?? []);
+  // The layouts answer these with the not-found page; its title, too.
+  if (path === null) return { title: NOT_FOUND_TITLE, robots };
+  let label = "";
+  if (path) {
+    const contents = await loadContents(reader.book.id, reader.source.root);
+    const entry = contents.ok ? contents.value.entries.find((e) => e.path === path) : undefined;
+    if (contents.ok && !entry) return { title: NOT_FOUND_TITLE, robots };
+    label = entry?.label ?? "";
+  }
+  return { title: `${label ? `${label} — ` : ""}${name} · বই মহলে পড়ুন`, robots };
 }
 
 export default async function ReaderPage(props: Props) {
@@ -61,7 +67,7 @@ export default async function ReaderPage(props: Props) {
   const name = book.titleBangla || book.title;
   const byline = `${book.author}${book.translator ? ` · অনুবাদ: ${book.translator}` : ""}`;
 
-  const contents = await contentsOf(book.id, source.root);
+  const contents = await loadContents(book.id, source.root);
   if (!contents.ok) {
     return (
       <Shell bookId={book.id} name={name} byline={byline} heading>
