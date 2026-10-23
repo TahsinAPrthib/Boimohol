@@ -13,13 +13,20 @@ import BookFileUploader from "@/components/BookFileUploader";
 import BookFileDeleteButton from "@/components/BookFileDeleteButton";
 import BookFileRightsEditor from "@/components/BookFileRightsEditor";
 import BookSourcesEditor from "@/components/BookSourcesEditor";
+import BookCoverEditor from "@/components/BookCoverEditor";
 import SearchBox from "@/components/SearchBox";
 import NoResults from "@/components/NoResults";
 import { hrefWith, readQuery, searchFilter } from "@/lib/search";
 
 // ?filter=needs-pdf: books that may carry a library PDF but don't yet --
 // marked public domain, passing the death-year rule, and with no file.
+// ?filter=needs-cover: the same, for a real cover.
 const NEEDS_PDF = "needs-pdf";
+const NEEDS_COVER = "needs-cover";
+
+// Setting a cover waits for Cloudinary to fetch the image, and an import's
+// covers are fetched a few per call from this page (src/actions/covers.ts).
+export const maxDuration = 60;
 
 export default async function AdminBooksPage(props: {
   searchParams: Promise<{ q?: string | string[]; filter?: string }>;
@@ -31,7 +38,7 @@ export default async function AdminBooksPage(props: {
   const [books, categories] = await Promise.all([
     prisma.book.findMany({
       include: {
-        category: { select: { nameBangla: true } },
+        category: { select: { nameBangla: true, colorKey: true } },
         files: {
           select: {
             id: true,
@@ -59,20 +66,23 @@ export default async function AdminBooksPage(props: {
   const q = readQuery(searchParams.q);
   const search = searchFilter(q);
   const needsPdf = searchParams.filter === NEEDS_PDF;
+  const needsCover = searchParams.filter === NEEDS_COVER;
   const matching = search
     ? new Set((await prisma.book.findMany({ where: search, select: { id: true } })).map((b) => b.id))
     : null;
   const shown = books.filter(
     (b) =>
       (!matching || matching.has(b.id)) &&
-      (!needsPdf || (b.isPublicDomain && canBePublicDomain(b.authorDeathYear) && b.files.length === 0))
+      (!needsPdf || (b.isPublicDomain && canBePublicDomain(b.authorDeathYear) && b.files.length === 0)) &&
+      (!needsCover || (b.isPublicDomain && canBePublicDomain(b.authorDeathYear) && !b.coverPublicId))
   );
-  const narrowed = Boolean(search) || needsPdf;
+  const narrowed = Boolean(search) || needsPdf || needsCover;
 
   const cutoff = publicDomainCutoffYear();
   const markedPublicDomain = books.filter((b) => b.isPublicDomain);
   const withFile = books.filter((b) => b.files.length > 0).length;
   const withSource = books.filter((b) => b.sources.length > 0).length;
+  const withCover = books.filter((b) => b.coverPublicId).length;
   // Books whose stored flag the rule no longer backs up -- e.g. one fixed by
   // the migration everywhere except where a PDF was already attached.
   const ruleBreakers = books.filter((b) => breaksPublicDomainRule(b));
@@ -87,7 +97,7 @@ export default async function AdminBooksPage(props: {
       </p>
       <p className="mb-6 border-b-2 border-ink/10 pb-6 font-body text-sm text-ink/50">
         মোট {bn(books.length)}টি বই · পাবলিক ডোমেইন {bn(markedPublicDomain.length)}টি · ফাইল আছে {bn(withFile)}টিতে · বাইরের কপির
-        লিংক আছে {bn(withSource)}টিতে ·{" "}
+        লিংক আছে {bn(withSource)}টিতে · আসল প্রচ্ছদ আছে {bn(withCover)}টিতে ·{" "}
         <Link href="/admin/categories" className="font-semibold text-cloth hover:underline">
           বিভাগের শুরুর বই →
         </Link>
@@ -106,8 +116,8 @@ export default async function AdminBooksPage(props: {
                   {b.titleBangla || b.title}
                 </a>{" "}
                 — {b.authorDeathYear === null ? "লেখকের মৃত্যুর বছর দেওয়া নেই" : `লেখক মারা গেছেন ${bnYear(b.authorDeathYear)} সালে`}
-                {b.files.length + b.sources.length > 0
-                  ? "; আগে পিডিএফ ও বাইরের লিংক সরিয়ে তারপর চিহ্ন তুলে দিন"
+                {b.files.length + b.sources.length > 0 || b.coverPublicId
+                  ? "; আগে পিডিএফ, বাইরের লিংক ও আসল প্রচ্ছদ সরিয়ে তারপর চিহ্ন তুলে দিন"
                   : "; সম্পাদনা করে চিহ্ন তুলে দিন"}
               </li>
             ))}
@@ -151,6 +161,12 @@ export default async function AdminBooksPage(props: {
             <code>searchAliases</code>; <code>null</code> দিলে মুছে যায়) এবং/অথবা <code>sources</code> — আগের লিংকের{" "}
             <code>rightsBasis</code> বদলায়, নতুন লিংক যোগ হয়। যাচাইয়ে এগুলো “হালনাগাদ হবে” হিসেবে দেখানো হয়।
           </p>
+          <p className="max-w-prose font-body text-sm text-ink/70">
+            পাবলিক ডোমেইনের বইয়ে (নতুন বা সংশোধনের সারিতে) ঐচ্ছিক <code>cover</code>: আসল প্রচ্ছদের ছবি,{" "}
+            <code>url</code> (upload.wikimedia.org-এর ছবি, পিডিএফ বা ডিজেভিইউ স্ক্যানের একটি পাতার ছবি, কমন্সের ফাইলের
+            পাতা, বা gutenberg.org-এর প্রচ্ছদ) ও <code>rightsBasis</code>। বইগুলো সংরক্ষণের পর ছবিগুলো কয়েকটি করে আনা হয়;
+            কোনোটি না এলে বাকিগুলো থামে না, আর ব্যর্থগুলো আবার চেষ্টা করা যায়।
+          </p>
           <AdminBookImport categoryNames={Object.fromEntries(categories.map((c) => [c.slug, c.nameBangla]))} />
         </div>
       </details>
@@ -161,8 +177,9 @@ export default async function AdminBooksPage(props: {
           {[
             { label: "সব বই", filter: undefined },
             { label: "পাবলিক ডোমেইন, পিডিএফ নেই", filter: NEEDS_PDF },
+            { label: "পাবলিক ডোমেইন, আসল প্রচ্ছদ নেই", filter: NEEDS_COVER },
           ].map((chip) => {
-            const active = (chip.filter === NEEDS_PDF) === needsPdf;
+            const active = chip.filter === (needsPdf ? NEEDS_PDF : needsCover ? NEEDS_COVER : undefined);
             return (
               <Link
                 key={chip.label}
@@ -181,15 +198,20 @@ export default async function AdminBooksPage(props: {
       </div>
 
       {shown.length === 0 && search ? (
-        <NoResults query={q} where={needsPdf ? "পিডিএফ ছাড়া পাবলিক ডোমেইনের বইয়ে" : undefined} />
+        <NoResults
+          query={q}
+          where={needsPdf ? "পিডিএফ ছাড়া পাবলিক ডোমেইনের বইয়ে" : needsCover ? "আসল প্রচ্ছদ ছাড়া পাবলিক ডোমেইনের বইয়ে" : undefined}
+        />
       ) : shown.length === 0 ? (
-        <p className="font-body text-ink/50">{needsPdf ? "পাবলিক ডোমেইনের সব বইয়েই পিডিএফ আছে।" : "কোনো বই নেই।"}</p>
+        <p className="font-body text-ink/50">
+          {needsPdf ? "পাবলিক ডোমেইনের সব বইয়েই পিডিএফ আছে।" : needsCover ? "পাবলিক ডোমেইনের সব বইয়েই আসল প্রচ্ছদ আছে।" : "কোনো বই নেই।"}
+        </p>
       ) : (
         <ul className="flex flex-col gap-4">
           {shown.map((book) => {
             const file = book.files[0];
             const breaksRule = breaksPublicDomainRule(book);
-            const hasFreeCopy = Boolean(file) || book.sources.length > 0;
+            const hasFreeCopy = Boolean(file) || book.sources.length > 0 || Boolean(book.coverPublicId);
             const eligible = book.isPublicDomain && canBePublicDomain(book.authorDeathYear);
             return (
               <li
@@ -241,7 +263,7 @@ export default async function AdminBooksPage(props: {
                       : `লেখক মারা গেছেন ${bnYear(book.authorDeathYear)} সালে`}
                     ।{" "}
                     {hasFreeCopy
-                      ? "আগে পিডিএফ ও বাইরের লিংক সরিয়ে ফেলুন, তারপর সম্পাদনা করে চিহ্ন তুলে দিন। এগুলো এখন সাইটে দেখানো হচ্ছে না।"
+                      ? "আগে পিডিএফ, বাইরের লিংক ও আসল প্রচ্ছদ সরিয়ে ফেলুন, তারপর সম্পাদনা করে চিহ্ন তুলে দিন। পিডিএফ ও লিংক এখন সাইটে দেখানো হচ্ছে না।"
                       : "সম্পাদনা করে চিহ্ন তুলে দিন।"}
                   </p>
                 )}
@@ -306,6 +328,20 @@ export default async function AdminBooksPage(props: {
                           rightsBasis: s.rightsBasis,
                           addedBy: s.addedBy?.username ?? null,
                         }))}
+                      />
+                    </div>
+                  )}
+                  {(eligible || book.coverPublicId) && (
+                    <div className="mt-3 border-t-2 border-ink/10 pt-3">
+                      <BookCoverEditor
+                        bookId={book.id}
+                        eligible={eligible}
+                        book={{ title: book.title, titleBangla: book.titleBangla, author: book.author, colorKey: book.category.colorKey }}
+                        cover={
+                          book.coverPublicId && book.coverSourceUrl
+                            ? { publicId: book.coverPublicId, sourceUrl: book.coverSourceUrl, rightsBasis: book.coverRightsBasis ?? "" }
+                            : null
+                        }
                       />
                     </div>
                   )}

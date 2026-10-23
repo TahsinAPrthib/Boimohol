@@ -3,6 +3,7 @@ import { bnYear } from "@/lib/bangla";
 import { canBePublicDomain, publicDomainCutoffYear } from "@/lib/public-domain";
 import { rightsBasisSchema } from "@/lib/rights";
 import { parseSourceUrl, SOURCE_KINDS } from "@/lib/book-sources";
+import { parseCoverUrl } from "@/lib/covers";
 
 // Validation for a book, shared by the admin form and the JSON import. The
 // public-domain rule is part of the schema, so neither path can skip it.
@@ -119,6 +120,29 @@ function sourcesRule(data: { isPublicDomain: boolean; sources?: { url: string; k
   });
 }
 
+// A real cover for an import row: an image on an allowed source
+// (src/lib/covers.ts) and why it is free. Only a public-domain book may have
+// one; the server fetches it into Cloudinary after the rows are saved.
+const importCoverSchema = z
+  .object({
+    url: z
+      .string({ required_error: "প্রচ্ছদের ঠিকানা (url) আবশ্যক।" })
+      .trim()
+      .max(2000, "প্রচ্ছদের ঠিকানাটি অনেক বড়।")
+      .superRefine((url, ctx) => {
+        const parsed = parseCoverUrl(url);
+        if (!parsed.ok) ctx.addIssue({ code: z.ZodIssueCode.custom, message: parsed.error });
+      }),
+    rightsBasis: rightsBasisSchema,
+  })
+  .strict("প্রচ্ছদে অজানা ঘর আছে; শুধু url ও rightsBasis দেওয়া যায়।");
+
+function coverRule(data: { isPublicDomain: boolean; authorDeathYear?: number | null; cover?: unknown }, ctx: z.RefinementCtx) {
+  if (data.cover && !(data.isPublicDomain && canBePublicDomain(data.authorDeathYear))) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["cover"], message: "পাবলিক ডোমেইনের বই ছাড়া অন্য বইয়ে প্রচ্ছদের ছবি দেওয়া যায় না।" });
+  }
+}
+
 // One row of an import file. Stricter than the form: unknown fields are an
 // error (a misspelt "authorDeathYear" must not silently become null) and the
 // flag must be a real true/false.
@@ -131,16 +155,19 @@ export const bookImportRowSchema = base
     }),
     language: base.shape.language.default("bn"),
     sources: z.array(importSourceSchema).max(10, "একটি বইয়ে সর্বোচ্চ ১০টি বাইরের কপি দেওয়া যায়।").optional(),
+    cover: importCoverSchema.optional(),
   })
   .strict("অজানা ঘর আছে; বানান দেখুন।")
   .superRefine(publicDomainRule)
-  .superRefine(sourcesRule);
+  .superRefine(sourcesRule)
+  .superRefine(coverRule);
 
 // A correction to a book already in the catalog, in an import file: "match"
 // names the book (as duplicate detection does: author plus either title),
 // "set" changes the fields it lists -- a key left out stays as it is, null
 // clears it -- and "sources" adds links or rewrites the rights note of links
-// the book already has. Nothing else about the book changes.
+// the book already has, and "cover" gives it a real cover (the server checks
+// the book is public domain). Nothing else about the book changes.
 export const bookUpdateRowSchema = z
   .object({
     match: z
@@ -159,10 +186,12 @@ export const bookUpdateRowSchema = z
       .strict("set-এ অজানা ঘর আছে; শুধু translator, titleBangla ও searchAliases বদলানো যায়।")
       .optional(),
     sources: z.array(importSourceSchema).max(10, "একটি বইয়ে সর্বোচ্চ ১০টি বাইরের কপি দেওয়া যায়।").optional(),
+    cover: importCoverSchema.optional(),
   })
   .strict("অজানা ঘর আছে; বানান দেখুন।")
   .superRefine((data, ctx) => {
-    if (!data.set && !data.sources?.length) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "হালনাগাদের সারিতে set বা sources থাকতে হবে।" });
+    if (!data.set && !data.sources?.length && !data.cover)
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "হালনাগাদের সারিতে set, sources বা cover থাকতে হবে।" });
     sourcesRule({ isPublicDomain: true, sources: data.sources }, ctx);
   });
 

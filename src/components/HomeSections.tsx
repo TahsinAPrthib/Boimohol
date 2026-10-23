@@ -124,6 +124,7 @@ export default async function HomeSections({ viewerId }: { viewerId: string | nu
                   id={book.id}
                   title={book.title}
                   titleBangla={book.titleBangla}
+                  coverPublicId={book.coverPublicId}
                   author={book.author}
                   colorKey={book.category.colorKey}
                   averageRating={averageOf(book.reviews)}

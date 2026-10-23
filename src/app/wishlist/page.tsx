@@ -100,6 +100,7 @@ export default async function WishlistPage() {
                 id={item.book.id}
                 title={item.book.title}
                 titleBangla={item.book.titleBangla}
+                coverPublicId={item.book.coverPublicId}
                 author={item.book.author}
                 colorKey={item.book.category.colorKey}
                 averageRating={averageOf(item.book.reviews)}

@@ -5,12 +5,14 @@ import { useRouter } from "next/navigation";
 import { importBooks, previewImport, type ImportPreview } from "@/actions/admin-books";
 import { bn } from "@/lib/bangla";
 import { SOURCE_LABEL } from "@/lib/book-sources";
+import CoverImportProgress, { useCoverImport } from "@/components/CoverImportProgress";
 
 const MAX_FILE_BYTES = 1_000_000;
 
 // Pick a JSON file -> the server checks every row and shows what would
 // happen -> "import" sends the same file again; the server re-checks it from
-// scratch and saves only the rows that are still valid.
+// scratch and saves only the rows that are still valid. Covers the rows name
+// are fetched after that, a few at a time, with their progress shown.
 export default function AdminBookImport({ categoryNames }: { categoryNames: Record<string, string> }) {
   const router = useRouter();
   const [fileText, setFileText] = useState<string | null>(null);
@@ -22,7 +24,8 @@ export default function AdminBookImport({ categoryNames }: { categoryNames: Reco
   // while a preview is still settling.
   const [previewing, startPreview] = useTransition();
   const [importing, startImport] = useTransition();
-  const pending = previewing || importing;
+  const cover = useCoverImport();
+  const pending = previewing || importing || cover.running;
 
   async function onFile(file: File | undefined) {
     setPreview(null);
@@ -50,6 +53,7 @@ export default function AdminBookImport({ categoryNames }: { categoryNames: Reco
       setResult(done);
       setPreview(null);
       if (done.ok) router.refresh();
+      if (done.ok && done.coverJobs?.length) cover.start(done.coverJobs);
     });
   }
 
@@ -57,6 +61,7 @@ export default function AdminBookImport({ categoryNames }: { categoryNames: Reco
   const linkCount = shown?.valid.reduce((n, r) => n + r.sources.length, 0) ?? 0;
   const linkedCount = shown?.linked.length ?? 0;
   const updatedCount = shown?.updated.length ?? 0;
+  const coverCount = shown?.covers.length ?? 0;
   const actionable = (shown?.valid.length ?? 0) + linkedCount + updatedCount;
   const buttonLabel = [
     shown?.valid.length || actionable === 0 ? `${bn(shown?.valid.length ?? 0)}টি বই যোগ করুন` : null,
@@ -111,8 +116,11 @@ export default function AdminBookImport({ categoryNames }: { categoryNames: Reco
                   · <span className="font-semibold text-cloth">আগের বই হালনাগাদ হবে {bn(updatedCount)}টি</span>
                 </>
               )}
+              {coverCount > 0 && <> · আসল প্রচ্ছদ আনা হবে {bn(coverCount)}টি</>}
             </p>
           )}
+
+          {result && <CoverImportProgress cover={cover} />}
 
           {!result && (
             <button
@@ -152,6 +160,19 @@ export default function AdminBookImport({ categoryNames }: { categoryNames: Reco
                       <li key={c}>{c}</li>
                     ))}
                   </ul>
+                </li>
+              ))}
+            </ReportList>
+          )}
+
+          {!result && coverCount > 0 && (
+            <ReportList title={`আসল প্রচ্ছদ আনা হবে (${bn(coverCount)}টি) — বইগুলো সংরক্ষণের পর`}>
+              {shown.covers.map((r) => (
+                <li key={r.row} className="flex flex-wrap justify-between gap-x-3 border-b border-ink/10 py-2" data-cover-row>
+                  <span>
+                    সারি {bn(r.row)}: <span className="font-semibold text-ink">{r.title}</span> — {r.author}
+                  </span>
+                  <span className="text-ink/60">{r.change === "replace" ? "আগের প্রচ্ছদ বদলাবে" : "নতুন"}</span>
                 </li>
               ))}
             </ReportList>

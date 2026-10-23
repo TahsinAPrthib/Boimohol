@@ -165,6 +165,14 @@ model Book {
   // Other names the book can be found by in search but which are never shown,
   // e.g. a Bangla transliteration of an English title ("প্রাইড অ্যান্ড প্রেজুডিস").
   searchAliases    String[]          @default([])
+  // A real cover (src/lib/covers.ts): the cover or title page of the book's
+  // own public-domain scan on Wikimedia, or a Project Gutenberg scan of an
+  // original edition, copied into Cloudinary. Only for books that pass the
+  // public-domain rule. The page it came from and why it is free are shown
+  // with it, as for PDFs.
+  coverPublicId    String?
+  coverSourceUrl   String?
+  coverRightsBasis String?
   // Normalized title + Bangla title + author (+ translator and aliases) for
   // site search; always written through bookSearchText() in src/lib/search.ts.
   searchText       String            @default("")

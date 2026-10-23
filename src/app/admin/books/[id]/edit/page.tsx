@@ -27,7 +27,7 @@ export default async function EditBookPage(props: { params: Promise<{ id: string
         mode="edit"
         cutoffYear={publicDomainCutoffYear()}
         categories={categories}
-        hasFreeCopy={book._count.files + book._count.sources > 0}
+        hasFreeCopy={book._count.files + book._count.sources > 0 || Boolean(book.coverPublicId)}
         initial={{
           title: book.title,
           titleBangla: book.titleBangla,

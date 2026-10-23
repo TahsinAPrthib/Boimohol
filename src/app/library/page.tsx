@@ -118,6 +118,7 @@ export default async function LibraryPage(props: {
                 id={book.id}
                 title={book.title}
                 titleBangla={book.titleBangla}
+                coverPublicId={book.coverPublicId}
                 author={book.author}
                 colorKey={book.category.colorKey}
                 averageRating={

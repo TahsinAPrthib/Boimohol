@@ -56,6 +56,7 @@ export default async function CategoryPage(props: {
           id={book.id}
           title={book.title}
           titleBangla={book.titleBangla}
+          coverPublicId={book.coverPublicId}
           author={book.author}
           colorKey={category.colorKey}
           averageRating={averageOf(book.reviews)}
@@ -101,6 +102,7 @@ export default async function CategoryPage(props: {
                   <BookCover
                     title={pick.book.title}
                     titleBangla={pick.book.titleBangla}
+                    coverPublicId={pick.book.coverPublicId}
                     author={pick.book.author}
                     colorKey={category.colorKey}
                   />

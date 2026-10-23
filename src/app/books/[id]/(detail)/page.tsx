@@ -12,6 +12,7 @@ import ReviewForm from "@/components/ReviewForm";
 import ShelfButtons from "@/components/ShelfButtons";
 import WishlistButton from "@/components/WishlistButton";
 import BookFreeCopies from "@/components/BookFreeCopies";
+import { coverSourceLabel } from "@/lib/covers";
 import ConfirmAction from "@/components/ConfirmAction";
 import { deleteReview } from "@/actions/reviews";
 import { readerSource } from "@/lib/wikisource/reader";
@@ -55,13 +56,26 @@ export default async function BookPage(props: { params: Promise<{ id: string }> 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
       <div className="grid grid-cols-1 gap-8 sm:grid-cols-[200px_1fr]">
-        <BookCover
-          title={book.title}
-          titleBangla={book.titleBangla}
-          author={book.author}
-          colorKey={book.category.colorKey}
-          className="max-w-[200px]"
-        />
+        <div className="w-full max-w-[200px]">
+          <BookCover
+            title={book.title}
+            titleBangla={book.titleBangla}
+            coverPublicId={book.coverPublicId}
+            context="detail"
+            priority
+            author={book.author}
+            colorKey={book.category.colorKey}
+          />
+          {book.coverPublicId && book.coverSourceUrl && (
+            <p className="mt-2 font-body text-xs leading-snug text-ink/55" data-cover-credit>
+              প্রচ্ছদের উৎস:{" "}
+              <a href={book.coverSourceUrl} target="_blank" rel="noopener noreferrer" className="underline hover:text-cloth">
+                {coverSourceLabel(book.coverSourceUrl)}
+              </a>
+              {book.coverRightsBasis && <span className="mt-0.5 block text-ink/45">{book.coverRightsBasis}</span>}
+            </p>
+          )}
+        </div>
 
         <div>
           <Link

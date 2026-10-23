@@ -109,6 +109,8 @@ export default async function ProfilePage() {
                       <BookCover
                         title={item.book.title}
                         titleBangla={item.book.titleBangla}
+                        coverPublicId={item.book.coverPublicId}
+                        context="small"
                         author={item.book.author}
                         colorKey={item.book.category.colorKey}
                       />

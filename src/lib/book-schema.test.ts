@@ -118,6 +118,34 @@ describe("book update rows", () => {
   });
 });
 
+describe("real covers in import rows", () => {
+  const cover = {
+    url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Gora.pdf/page5-960px-Gora.pdf.jpg",
+    rightsBasis: "১৯১০ সালের সংস্করণের নামপত্র, কমন্সের স্ক্যান থেকে। লেখক ১৯৪১ সালে মারা গেছেন।",
+  };
+  const match = { title: "Gora", titleBangla: "গোরা", author: "রবীন্দ্রনাথ ঠাকুর" };
+
+  test("a public-domain book may have one, new or already in the catalog", () => {
+    assert.ok(bookImportRowSchema.safeParse({ ...row, cover }).success);
+    assert.ok(bookUpdateRowSchema.safeParse({ match, cover }).success);
+  });
+
+  test("a book under copyright may not", () => {
+    const r = bookImportRowSchema.safeParse({ ...row, isPublicDomain: false, cover });
+    assert.equal(r.success, false);
+    assert.ok(!r.success && r.error.issues.some((i) => i.path[0] === "cover"));
+    assert.equal(bookImportRowSchema.safeParse({ ...row, author: "কাজী নজরুল ইসলাম", authorDeathYear: 1976, isPublicDomain: false, cover }).success, false);
+  });
+
+  test("the image must come from an allowed source, with a note and nothing else", () => {
+    assert.equal(bookImportRowSchema.safeParse({ ...row, cover: { ...cover, url: "https://m.media-amazon.com/images/I/x.jpg" } }).success, false);
+    assert.equal(bookUpdateRowSchema.safeParse({ match, cover: { ...cover, url: "https://example.com/x.jpg" } }).success, false);
+    assert.equal(bookImportRowSchema.safeParse({ ...row, cover: { url: cover.url } }).success, false);
+    assert.equal(bookImportRowSchema.safeParse({ ...row, cover: { ...cover, rightsBasis: " " } }).success, false);
+    assert.equal(bookImportRowSchema.safeParse({ ...row, cover: { ...cover, artist: "x" } }).success, false);
+  });
+});
+
 describe("book form", () => {
   const form = { title: "Gora", titleBangla: "", author: "রবীন্দ্রনাথ ঠাকুর", categoryId: "c1", description: "বই", language: "bn", publishYear: "", authorDeathYear: "1941", isPublicDomain: "on" };
 

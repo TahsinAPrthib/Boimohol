@@ -40,7 +40,7 @@ All screenshots are of public pages on the live site, taken while signed out.
 - Book pages with an overall rating plus optional aspect ratings (plot, writing, pacing). Reviews can be edited or deleted by their authors.
 - A personal shelf (want to read / reading / finished), a reading streak and a yearly goal with progress.
 - A wishlist that flags marketplace listings matching a wished-for book.
-- Generated covers for every book. No cover art is copied from elsewhere.
+- Real covers for public-domain books, taken only from the book's own public-domain scan: the cover or title page of its scan on Wikimedia Commons or Wikisource, or a Project Gutenberg cover that was scanned from an original edition. The book page credits the source ("প্রচ্ছদের উৎস: উইকিমিডিয়া কমন্স") with a rights note. Every other book has a generated cover in the same frame, so a shelf of both reads as one shelf. No modern publisher's cover art is used, and nothing is hotlinked.
 
 ### Marketplace and chat
 - Listings to sell, exchange or give away, with condition, price in taka, area and photos.
@@ -55,7 +55,7 @@ All screenshots are of public pages on the live site, taken while signed out.
 - Books with a copy on Bangla Wikisource can be read here, at `/books/[id]/read`: a contents page, one chapter per page with previous/next and a shareable address, and an adjustable text size. The text is fetched live from the Wikisource API, cleaned on the server and cached, with a size cap (see below); nothing is hosted. Every page credits Wikisource under CC BY-SA 4.0, and when the text was transcribed from a PDF scan on Wikimedia Commons, that scan is linked with its size. The reader remembers where you stopped (on your account when signed in, in the browser otherwise), and reading counts toward the reading streak.
 - Project Gutenberg links go to the book's landing page, as Gutenberg's linking policy asks; nothing is fetched from Gutenberg.
 - The library, category pages and search filter by language (বাংলা / অন্যান্য ভাষা / সব). Bangla books are listed first, and long lists are paged, 48 books at a time.
-- The free catalogue is prepared offline by scripts that read Bangla Wikisource and Wikidata (complete, proofread texts whose authors died in 1965 or earlier) and Project Gutenberg's official catalog feed. They write files for the admin import plus a review report; nothing is written to the database.
+- The free catalogue is prepared offline by scripts that read Bangla Wikisource and Wikidata (complete, proofread texts whose authors died in 1965 or earlier) and Project Gutenberg's official catalog feed. They write files for the admin import plus a review report; nothing is written to the database. Real covers are prepared the same way by `scripts/covers-prepare.ts`. For a Wikisource work it takes the cover or title page of the scan the work was transcribed from, which Wikimedia renders from the PDF or DjVu as an image. For a Gutenberg book it takes the cover only when that is a scan of an original edition, and for other books it searches Commons. Every image is checked by eye and recorded in `scripts/covers/decisions.ts`, and the result is `data/covers-import-1.json` and `-2.json` plus `data/covers-report.md`. Of 1,434 public-domain books, 686 get a real cover. Most of the others have only Gutenberg's generated template, a producer's modern composite, or a scan whose title page is stamped over by a library.
 - Downloads are counted only in aggregate. Who downloaded what is never recorded, and clicks on external links aren't counted at all.
 
 ### Search
@@ -73,6 +73,7 @@ All screenshots are of public pages on the live site, taken while signed out.
 - **Books:** add, edit and delete books, plus bulk JSON import with validation and duplicate detection. Import rows can carry links to free copies elsewhere; a row matching a book already in the catalog adds its links to that book instead of creating a duplicate.
 - **Categories:** choose each category's "start here" book from its own books, with a note on why it's a good first read.
 - **Library files:** upload a PDF, or add, edit and remove links to free copies elsewhere, each with a required rights note. Books whose public-domain flag the rule no longer supports get a warning.
+- **Covers:** set, replace or remove a public-domain book's real cover, from an image address on Wikimedia or Gutenberg or by uploading an image along with the page it came from, always with a rights note. Import rows can name a cover too: once the rows are saved, the page fetches the images two per request with a progress bar, so each request stays well inside Vercel's time limit. A failure doesn't stop the rest and can be retried.
 - **Reports:** a queue where reported content can be removed, or its owner suspended, in one step.
 - **Users:** search users, open any user's page to remove listings and delete reviews or requests, suspend or delete the account, and see the moderation history.
 - Every moderation step is logged with who did it and when. Admin pages return 404 to everyone else, and the admin role is re-read from the database on every request.
@@ -146,7 +147,8 @@ Books, listings and requests store a precomputed `searchText`. A migration backf
 - **Book records:** creating, editing or importing a book cannot mark it public domain if the death year doesn't allow it.
 - **Uploads:** only admins can upload. The role is re-read from the database before an upload is signed. After upload, the server checks Cloudinary's own record of the file: the right folder, a `.pdf`, and 50 MB or less. Anything else is deleted.
 - **External copies:** a link is accepted only for an eligible book and only on wikisource.org, gutenberg.org or archive.org. The address is parsed, never pattern-matched, so lookalike hosts, embedded credentials, ports and non-web schemes are refused. Links are stored normalised, so the same copy can't be added twice. The same checks run in the admin form, the server actions and the JSON import.
-- **Rights note:** every file and every link needs a written note explaining why it is free, and the book page shows it.
+- **Covers:** a real cover is accepted only for an eligible book, only from upload.wikimedia.org (or Wikimedia's thumbnail host), a commons.wikimedia.org file page or gutenberg.org, parsed the same way as links. Cloudinary fetches the image from the source itself (the server falls back to downloading it with an identifying User-Agent when Wikimedia throttles Cloudinary), and the result is checked against Cloudinary's record: an image, 10 MB or less, big enough and shaped like a book. A cover is deleted from Cloudinary when it is replaced or removed, and a book can't be un-marked or deleted while it has one.
+- **Rights note:** every file, link and cover needs a written note explaining why it is free, and the book page shows it.
 - **Downloads:** pages offer a free copy only if the book passes the rule *today*. A stored flag can't outlive the rule, and a book can't be un-marked while a PDF or link is still attached.
 
 There is deliberately no code path for paid files. The PDFs themselves were prepared from Bangla Wikisource exports. Where an edition carried a later publisher's front matter, such as a 1961 copyright notice, that front matter was removed.
@@ -273,7 +275,7 @@ Environment variables (names only; `.env.example` explains each):
 
 ## Testing
 
-**Unit tests.** `npm test` runs 174 tests with Node's built-in test runner, through `tsx`. They cover the pure modules where the rules live:
+**Unit tests.** `npm test` runs 189 tests with Node's built-in test runner, through `tsx`. They cover the pure modules where the rules live:
 
 | Area | Tests |
 |---|---|
@@ -282,7 +284,8 @@ Environment variables (names only; `.env.example` explains each):
 | Bangla numbers, prices and dates in Bangladesh time, with no Latin digits | 18 |
 | Wishlist ↔ listing matching | 15 |
 | Account rules: sign-up validation, the password stamp, the last-admin rule, Google names and emails | 9 |
-| Book import rows (including links to free copies), update rows and the admin book form | 18 |
+| Book import rows (including links to free copies and covers), update rows and the admin book form | 21 |
+| Real covers: the allowed sources, lookalike hosts, credits, delivery sizes and the checks on an uploaded image | 12 |
 | Duplicate detection, matching an import row to an existing book, and book IDs | 11 |
 | The public-domain rule, including the year boundary | 6 |
 | Links to free copies elsewhere: the three trusted sites, lookalikes, credentials, schemes, normalisation | 6 |
@@ -306,5 +309,5 @@ These scripts were run during development and aren't part of the repository.
 ## Copyright notes
 
 - `BookFile.rightsVerified` is set only by the upload path, after every check has passed. There is no code path for paid files.
-- Book covers are always generated. No real cover art is copied or hotlinked.
+- Real covers come only from a public-domain book's own scan (Commons, Wikisource) or a Gutenberg scan of an original edition, never from a bookshop, a modern publisher or Gutenberg's generated covers. Pictorial cover art is a separate work: it is used only when its artist died in 1965 or earlier, or when it is unsigned on an edition published by then. Images are copied into Cloudinary, never hotlinked.
 - Before adding a title or a reading link to the library, check the author's death year against the rule above. Be especially careful with authors who died within about the last 60 years.

@@ -125,6 +125,7 @@ export default async function SearchPage(props: { searchParams: Promise<{ q?: st
                     id={book.id}
                     title={book.title}
                     titleBangla={book.titleBangla}
+                    coverPublicId={book.coverPublicId}
                     author={book.author}
                     colorKey={book.category.colorKey}
                     averageRating={averageOf(book.reviews)}

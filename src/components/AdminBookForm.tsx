@@ -156,8 +156,8 @@ export default function AdminBookForm({
           </p>
           {hasFreeCopy && (
             <p className="mt-2 font-body text-xs font-semibold text-oxblood">
-              এই বইয়ের বিনামূল্যের কপি (পিডিএফ বা বাইরের সাইটের লিংক) লাইব্রেরিতে আছে। চিহ্ন তুলে দিতে চাইলে আগে
-              সেগুলো সরিয়ে ফেলুন।
+              এই বইয়ের বিনামূল্যের কপি (পিডিএফ বা বাইরের সাইটের লিংক) বা আসল প্রচ্ছদের ছবি লাইব্রেরিতে আছে। চিহ্ন
+              তুলে দিতে চাইলে আগে সেগুলো সরিয়ে ফেলুন।
             </p>
           )}
           {errors.isPublicDomain && <p className="field-error">{errors.isPublicDomain}</p>}
