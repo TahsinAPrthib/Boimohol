@@ -84,6 +84,9 @@ const PALETTE: Record<string, { bg: string; light: string; text: string; accent:
   ink: { bg: "#2A2420", light: "#463C34", text: "#EAE3D3", accent: "#C68A1F" },
 };
 const PAPER = { bg: "#EFE8DA", light: "#F6F1E6", text: "#2A2420" };
+// Science fiction is a night sky whatever its category's colour, in palette
+// tokens only: the darkest cloth, paper stars, a turmeric planet.
+const NIGHT = { sky: "#253F54", star: "#EAE3D3", planet: "#C68A1F" };
 
 // FNV-1a: a stable 32-bit hash of the book's id.
 export function hashSeed(s: string): number {
@@ -234,7 +237,14 @@ export function coverDesign({
   let light: string;
   let text: string;
   let orn: string;
-  if (f.paper) {
+  let accent = colors.accent;
+  if (family === "scifi") {
+    bg = NIGHT.sky;
+    light = NIGHT.sky;
+    text = NIGHT.star;
+    orn = NIGHT.star;
+    accent = NIGHT.planet;
+  } else if (f.paper) {
     // Paper, lettered in ink; the category's own colour only in the rules.
     bg = tone === 2 ? shade(PAPER.bg, 0.97) : PAPER.bg;
     light = PAPER.light;
@@ -261,7 +271,7 @@ export function coverDesign({
       "--cv-light": light,
       "--cv-text": text,
       "--cv-orn": orn,
-      "--cv-acc": colors.accent,
+      "--cv-acc": accent,
       ...(family === "children" ? { "--cv-tilt": `${tilt.toFixed(1)}deg` } : {}),
     },
   };

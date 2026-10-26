@@ -113,9 +113,21 @@ function Thriller({ v, rand, top }: { v: number; rand: () => number; top: boolea
   );
 }
 
-// বিজ্ঞান ও কল্পকাহিনি: tilted orbits, a ringed planet, a scatter of stars.
+// বিজ্ঞান কল্পকাহিনি: a night sky -- a field of stars with a few bright
+// ones -- and tilted orbits round a ringed planet.
 function SciFi({ rand, top }: { rand: () => number; top: boolean }) {
-  const stars: [number, number][] = Array.from({ length: 14 }, () => [16 + rand() * 176, 8 + rand() * 284]);
+  // Faint stars anywhere; the bright ones and the sparkles on the side away
+  // from the title, where they can't be mistaken for marks on its letters.
+  const [y0, y1] = top ? [165, 290] : [10, 135];
+  const stars: [number, number][] = Array.from({ length: 26 }, (_, i) => [14 + rand() * 180, i < 18 ? 6 + rand() * 288 : y0 + rand() * (y1 - y0)]);
+  let sparkles = "";
+  for (let i = 0; i < 3; i++) {
+    const x = r1(20 + rand() * 166);
+    const y = r1(y0 + rand() * (y1 - y0));
+    const s = 4 + rand() * 3;
+    const q = r1(s * 0.22);
+    sparkles += `M${x} ${r1(y - s)}L${r1(x + q)} ${r1(y - q)}L${r1(x + s)} ${y}L${r1(x + q)} ${r1(y + q)}L${x} ${r1(y + s)}L${r1(x - q)} ${r1(y + q)}L${r1(x - s)} ${y}L${r1(x - q)} ${r1(y - q)}Z`;
+  }
   const cx = r1(75 + rand() * 50);
   const cy = r1(top ? 205 + rand() * 30 : 80 + rand() * 30);
   const tilt = (-25 + rand() * 50) * (Math.PI / 180);
@@ -128,8 +140,9 @@ function SciFi({ rand, top }: { rand: () => number; top: boolean }) {
   const deg = r1((tilt * 180) / Math.PI);
   return (
     <>
-      <path d={dots(stars.slice(0, 9))} strokeWidth="1.6" strokeLinecap="round" opacity=".55" />
-      <path d={dots(stars.slice(9))} strokeWidth="3" strokeLinecap="round" opacity=".4" />
+      <path d={dots(stars.slice(0, 18))} strokeWidth="1.3" strokeLinecap="round" opacity=".7" />
+      <path d={dots(stars.slice(18))} strokeWidth="2.6" strokeLinecap="round" opacity=".5" />
+      <path d={sparkles} fill="currentColor" stroke="none" opacity=".85" />
       <g transform={`rotate(${deg} ${cx} ${cy})`} strokeWidth="1.1" opacity=".5">
         <ellipse cx={cx} cy={cy} rx="28" ry="9" />
         <ellipse cx={cx} cy={cy} rx="50" ry="16" />

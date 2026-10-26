@@ -35,6 +35,21 @@ describe("generated cover design", () => {
     assert.equal(essay.vars["--cv-text"], "#2A2420");
   });
 
+  test("science fiction is a night sky in palette tokens, never travel's green", () => {
+    const tokens = new Set(["#EAE3D3", "#DED4BC", "#2A2420", "#253F54", "#3A5D78", "#7C2D2D", "#C68A1F", "#5F7355"]);
+    const travelSkies = new Set(
+      Array.from({ length: 20 }, (_, i) => coverDesign({ seed: `bhromon-${i}`, category: "bhromon", colorKey: "sage", title: "x" }).vars["--cv-bg"])
+    );
+    for (let i = 0; i < 20; i++) {
+      const d = coverDesign({ seed: `biggan-${i}`, category: "biggan-kolpokahini", colorKey: "sage", title: "x" });
+      for (const name of ["--cv-bg", "--cv-light", "--cv-text", "--cv-orn", "--cv-acc"]) {
+        assert.ok(tokens.has(d.vars[name].toUpperCase()), `${name} ${d.vars[name]} is not a palette token`);
+      }
+      assert.equal(d.vars["--cv-bg"], "#253F54");
+      assert.ok(!travelSkies.has(d.vars["--cv-bg"]));
+    }
+  });
+
   test("an essay's band and its title never share the foot of the cover", () => {
     for (let i = 0; i < 40; i++) {
       const d = coverDesign({ seed: `probondho-${i}`, category: "probondho", colorKey: "ink", title: "গোরা" });

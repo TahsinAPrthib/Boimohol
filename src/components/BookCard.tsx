@@ -45,10 +45,14 @@ export default function BookCard({
         {titleBangla || title}
       </p>
       <p className="font-body text-xs text-ink/50">{author}</p>
-      <div className="mt-1 flex items-center gap-1.5">
-        <StarRating value={averageRating} readOnly size="sm" />
-        {reviewCount > 0 && <span className="font-body text-xs text-ink/40">({bn(reviewCount)})</span>}
-      </div>
+      {/* No rating row until a book has a review: a shelf of empty stars
+          reads as an unused library. The book page has its own empty state. */}
+      {reviewCount > 0 && (
+        <div className="mt-1 flex items-center gap-1.5">
+          <StarRating value={averageRating} readOnly size="sm" />
+          <span className="font-body text-xs text-ink/40">({bn(reviewCount)})</span>
+        </div>
+      )}
       {tags.length > 0 && (
         <ul className="mt-1.5 flex flex-wrap gap-1">
           {tags.map((t) => (

@@ -275,7 +275,7 @@ Environment variables (names only; `.env.example` explains each):
 
 ## Testing
 
-**Unit tests.** `npm test` runs 199 tests with Node's built-in test runner, through `tsx`. They cover the pure modules where the rules live:
+**Unit tests.** `npm test` runs 200 tests with Node's built-in test runner, through `tsx`. They cover the pure modules where the rules live:
 
 | Area | Tests |
 |---|---|
@@ -286,7 +286,7 @@ Environment variables (names only; `.env.example` explains each):
 | Account rules: sign-up validation, the password stamp, the last-admin rule, Google names and emails | 9 |
 | Book import rows (including links to free copies and covers), update rows and the admin book form | 21 |
 | Real covers: the allowed sources, lookalike hosts, credits, delivery sizes and the checks on an uploaded image | 12 |
-| Generated covers: the same design for the same book, variety along a shelf, title sizing for Bangla vowel signs | 10 |
+| Generated covers: the same design for the same book, variety along a shelf, palette-only night sky, title sizing for Bangla vowel signs | 11 |
 | Duplicate detection, matching an import row to an existing book, and book IDs | 11 |
 | The public-domain rule, including the year boundary | 6 |
 | Links to free copies elsewhere: the three trusted sites, lookalikes, credentials, schemes, normalisation | 6 |

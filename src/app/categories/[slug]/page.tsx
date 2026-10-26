@@ -115,9 +115,11 @@ export default async function CategoryPage(props: {
                     {pick.book.titleBangla || pick.book.title}
                   </Link>
                   <p className="mt-1 font-body text-ink/60">{pick.book.author}</p>
-                  <div className="mt-2">
-                    <StarRating value={averageOf(pick.book.reviews)} readOnly size="sm" />
-                  </div>
+                  {pick.book.reviews.length > 0 && (
+                    <div className="mt-2">
+                      <StarRating value={averageOf(pick.book.reviews)} readOnly size="sm" />
+                    </div>
+                  )}
                   <p className="mt-4 max-w-prose font-body text-ink/80">{pick.note}</p>
                 </div>
               </div>
