@@ -38,7 +38,7 @@ export default async function AdminBooksPage(props: {
   const [books, categories] = await Promise.all([
     prisma.book.findMany({
       include: {
-        category: { select: { nameBangla: true, colorKey: true } },
+        category: { select: { nameBangla: true, colorKey: true, slug: true } },
         files: {
           select: {
             id: true,
@@ -336,7 +336,7 @@ export default async function AdminBooksPage(props: {
                       <BookCoverEditor
                         bookId={book.id}
                         eligible={eligible}
-                        book={{ title: book.title, titleBangla: book.titleBangla, author: book.author, colorKey: book.category.colorKey }}
+                        book={{ id: book.id, categorySlug: book.category.slug, title: book.title, titleBangla: book.titleBangla, author: book.author, colorKey: book.category.colorKey }}
                         cover={
                           book.coverPublicId && book.coverSourceUrl
                             ? { publicId: book.coverPublicId, sourceUrl: book.coverSourceUrl, rightsBasis: book.coverRightsBasis ?? "" }

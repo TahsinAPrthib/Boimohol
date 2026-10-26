@@ -107,6 +107,8 @@ export default async function ProfilePage() {
                   {items.map((item) => (
                     <Link key={item.id} href={`/books/${item.book.id}`} className="group">
                       <BookCover
+                        bookId={item.book.id}
+                        categorySlug={item.book.category.slug}
                         title={item.book.title}
                         titleBangla={item.book.titleBangla}
                         coverPublicId={item.book.coverPublicId}

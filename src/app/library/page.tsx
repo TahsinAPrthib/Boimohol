@@ -45,7 +45,7 @@ export default async function LibraryPage(props: {
   const loaded = await prisma.book.findMany({
     where: { id: { in: pageIds } },
     include: {
-      category: { select: { colorKey: true } },
+      category: { select: { colorKey: true, slug: true } },
       reviews: { select: { rating: true } },
       files: { where: freeFile, select: { id: true }, take: 1 },
       sources: { select: { kind: true }, orderBy: [{ kind: "asc" }, { createdAt: "asc" }] },
@@ -121,6 +121,7 @@ export default async function LibraryPage(props: {
                 coverPublicId={book.coverPublicId}
                 author={book.author}
                 colorKey={book.category.colorKey}
+                categorySlug={book.category.slug}
                 averageRating={
                   book.reviews.length
                     ? book.reviews.reduce((s, r) => s + r.rating, 0) / book.reviews.length

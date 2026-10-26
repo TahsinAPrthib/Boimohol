@@ -26,7 +26,7 @@ export default function BookCoverEditor({
   bookId: string;
   eligible: boolean;
   cover: EditableCover | null;
-  book: { title: string; titleBangla: string | null; author: string; colorKey: string };
+  book: { id: string; categorySlug: string; title: string; titleBangla: string | null; author: string; colorKey: string };
 }) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
@@ -65,7 +65,16 @@ export default function BookCoverEditor({
       {cover ? (
         <div className="flex items-start gap-3">
           <div className="w-16 shrink-0">
-            <BookCover {...book} coverPublicId={cover.publicId} context="small" />
+            <BookCover
+              bookId={book.id}
+              categorySlug={book.categorySlug}
+              title={book.title}
+              titleBangla={book.titleBangla}
+              author={book.author}
+              colorKey={book.colorKey}
+              coverPublicId={cover.publicId}
+              context="small"
+            />
           </div>
           <div className="flex min-w-0 flex-col gap-1">
             <p className="font-body text-sm text-ink/80">

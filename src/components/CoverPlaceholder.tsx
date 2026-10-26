@@ -1,11 +1,6 @@
-const PALETTE: Record<string, { bg: string; bgLight: string; text: string }> = {
-  cloth: { bg: "#253F54", bgLight: "#3A5D78", text: "#EAE3D3" },
-  "cloth-light": { bg: "#3A5D78", bgLight: "#517594", text: "#EAE3D3" },
-  oxblood: { bg: "#7C2D2D", bgLight: "#984040", text: "#EAE3D3" },
-  turmeric: { bg: "#C68A1F", bgLight: "#D6A342", text: "#2A2420" },
-  sage: { bg: "#5F7355", bgLight: "#78906B", text: "#EAE3D3" },
-  ink: { bg: "#2A2420", bgLight: "#463C34", text: "#EAE3D3" },
-};
+import type { CSSProperties } from "react";
+import CoverArt from "@/components/CoverArt";
+import { coverDesign } from "@/lib/cover-design";
 
 const graphemes = typeof Intl.Segmenter === "function" ? new Intl.Segmenter("bn", { granularity: "grapheme" }) : null;
 
@@ -20,62 +15,62 @@ function initialGlyph(title: string) {
   return first && !first.done ? first.value.segment : Array.from(trimmed)[0];
 }
 
-// Shared cover/spine placeholder — colored by category (or a caller-chosen
-// default), styled like an actual cloth-bound cover, never a hotlinked
-// image. Used by both BookCover (catalog books) and ListingCover
-// (freeform marketplace listings, which may have no category).
+// A generated cover, never a hotlinked image. Books get their category's
+// visual language, varied by their id (src/lib/cover-design.ts and
+// CoverArt), so the books without a real cover read as one series;
+// marketplace listings (ListingCover) and books without a category get the
+// classic cloth cover. Colours come from the palette through CSS variables;
+// layout, lettering and the small-size rules live in globals.css.
 export default function CoverPlaceholder({
   title,
   author,
   colorKey = "cloth",
   className = "",
+  seed,
+  category,
+  ornament = true,
 }: {
   title: string;
   author: string;
   colorKey?: string;
   className?: string;
+  // What makes this cover differ from its neighbours: the book's id.
+  seed?: string;
+  // The category's slug, which picks the visual language.
+  category?: string | null;
+  // False under a real cover image, where the generated cover is only the
+  // fallback: its colours and title without the ornament, to keep pages light.
+  ornament?: boolean;
 }) {
-  const colors = PALETTE[colorKey] ?? PALETTE.cloth;
+  const design = coverDesign({ seed: seed ?? title, category, colorKey, title });
 
   return (
     <div
-      className={`cover relative flex aspect-[2/3] w-full flex-col justify-between overflow-hidden rounded-book shadow-shelf ${className}`}
-      style={{
-        backgroundColor: colors.bg,
-        backgroundImage: `linear-gradient(160deg, ${colors.bgLight} 0%, ${colors.bg} 55%)`,
-      }}
+      className={`cover cover-gen relative flex aspect-[2/3] w-full flex-col overflow-hidden rounded-book shadow-shelf ${className}`}
+      style={design.vars as CSSProperties}
+      data-family={design.family}
+      data-layout={design.layout}
+      data-variant={design.variant}
+      data-plate={design.plate || undefined}
+      data-paper={design.paper || undefined}
       aria-hidden="true"
     >
+      {ornament && <CoverArt design={design} />}
+
       {/* spine edge */}
-      <div className="cover-spine absolute inset-y-0 left-0 shadow-spine" style={{ backgroundColor: colors.bgLight }} />
+      <div className="cover-spine absolute inset-y-0 left-0 shadow-spine" />
 
       {/* decorative frame, like a cloth-bound cover's blind-stamped border */}
-      <div
-        className="cover-frame pointer-events-none absolute rounded-[2px] border"
-        style={{ borderColor: `${colors.text}33` }}
-      />
+      {design.family === "classic" && <div className="cover-frame pointer-events-none absolute rounded-[2px] border" />}
 
-      <div className="cover-body relative flex min-h-0 flex-1 flex-col justify-between">
-        <span
-          className="cover-glyph font-display opacity-40"
-          style={{ color: colors.text }}
-        >
-          {initialGlyph(title)}
-        </span>
+      <div className="cover-body relative flex min-h-0 flex-1 flex-col">
+        <span className="cover-glyph font-display">{initialGlyph(title)}</span>
 
         <div className="cover-text">
-          <p
-            className="cover-title font-display"
-            style={{ color: colors.text }}
-          >
+          <p className="cover-title font-display" data-size={design.titleSize}>
             {title}
           </p>
-          <p
-            className="cover-author font-body"
-            style={{ color: `${colors.text}CC` }}
-          >
-            {author}
-          </p>
+          <p className="cover-author font-body">{author}</p>
         </div>
       </div>
     </div>

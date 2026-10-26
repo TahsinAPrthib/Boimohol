@@ -23,7 +23,7 @@ export default async function WishlistPage() {
       include: {
         book: {
           include: {
-            category: { select: { colorKey: true } },
+            category: { select: { colorKey: true, slug: true } },
             reviews: { select: { rating: true } },
           },
         },
@@ -103,6 +103,7 @@ export default async function WishlistPage() {
                 coverPublicId={item.book.coverPublicId}
                 author={item.book.author}
                 colorKey={item.book.category.colorKey}
+                categorySlug={item.book.category.slug}
                 averageRating={averageOf(item.book.reviews)}
                 reviewCount={item.book.reviews.length}
               />

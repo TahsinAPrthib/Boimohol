@@ -44,7 +44,7 @@ export default async function HomeSections({ viewerId }: { viewerId: string | nu
       if (groups.length === 0) return [];
       const books = await prisma.book.findMany({
         where: { id: { in: groups.map((g) => g.bookId) } },
-        include: { category: { select: { colorKey: true } }, reviews: { select: { rating: true } } },
+        include: { category: { select: { colorKey: true, slug: true } }, reviews: { select: { rating: true } } },
       });
       // findMany doesn't keep the popularity order, so restore it.
       const byId = new Map(books.map((b) => [b.id, b]));
@@ -127,6 +127,7 @@ export default async function HomeSections({ viewerId }: { viewerId: string | nu
                   coverPublicId={book.coverPublicId}
                   author={book.author}
                   colorKey={book.category.colorKey}
+                  categorySlug={book.category.slug}
                   averageRating={averageOf(book.reviews)}
                   reviewCount={book.reviews.length}
                 />

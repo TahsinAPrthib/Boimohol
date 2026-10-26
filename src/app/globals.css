@@ -104,30 +104,66 @@
     transform-origin: 50% 100%;
   }
 
-  /* CoverPlaceholder. Everything is sized from the cover's own width (cqw)
-     and capped at the original fixed sizes, so a cover 171px or wider looks
-     exactly as before and a smaller one is the same design scaled down,
-     instead of text spilling past the frame. Titles and authors stop at
-     whole lines with an ellipsis; a word too long for the line breaks. */
+  /* Generated covers (CoverPlaceholder, CoverArt, src/lib/cover-design.ts).
+     Everything is sized from the cover's own width (cqw), capped at the
+     sizes a 171px cover has, so a small cover is the same design scaled
+     down instead of text spilling past the frame. The ornament SVG is 200
+     units wide, so one unit is 0.5cqw: paddings below line up with it.
+     Titles and authors stop at whole lines with an ellipsis; a word too long
+     for the line breaks. */
   .cover {
     container-type: inline-size;
   }
 
+  .cover-gen {
+    color: var(--cv-text);
+    background-color: var(--cv-bg);
+    /* Cloth: a faint weave over the light falling across the board. */
+    background-image:
+      repeating-linear-gradient(90deg, rgb(255 255 255 / 0.03) 0 1px, transparent 1px 3px),
+      repeating-linear-gradient(0deg, rgb(0 0 0 / 0.045) 0 1px, transparent 1px 3px),
+      linear-gradient(160deg, var(--cv-light) 0%, var(--cv-bg) 55%);
+  }
+
+  .cover-gen[data-paper] {
+    background-image: linear-gradient(170deg, var(--cv-light) 0%, var(--cv-bg) 70%);
+    outline: 1px solid rgb(42 36 32 / 0.14);
+    outline-offset: -1px;
+  }
+
+  .cover-art {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    color: var(--cv-orn);
+    pointer-events: none;
+  }
+
   .cover-spine {
     width: min(0.5rem, 4.7cqw);
+    background-color: var(--cv-light);
+  }
+
+  .cover-gen[data-paper] .cover-spine {
+    background-color: rgb(42 36 32 / 0.09);
   }
 
   .cover-frame {
     inset: min(0.75rem, 7cqw);
+    border-color: var(--cv-text);
+    opacity: 0.2;
   }
 
   .cover-body {
     padding: min(1rem, 9.4cqw) min(1rem, 9.4cqw) min(1rem, 9.4cqw) min(1.5rem, 14cqw);
+    justify-content: space-between;
   }
 
   .cover-glyph {
     font-size: min(1.875rem, 17.5cqw);
     line-height: 1;
+    opacity: 0.4;
   }
 
   .cover-title,
@@ -138,10 +174,41 @@
     overflow-wrap: anywhere;
   }
 
+  /* The title's size is picked from its own length and longest word
+     (titleSize), so short titles are set large and long ones wrap at spaces
+     rather than inside a word. Lines are balanced at spaces only: with
+     "anywhere", every letter would count as a break and balancing would
+     split words; break-word still breaks a word too long for any line. */
   .cover-title {
     font-size: min(1.125rem, 10.5cqw);
     line-height: 1.375;
     -webkit-line-clamp: 5;
+    overflow-wrap: break-word;
+    text-wrap: balance;
+  }
+
+  .cover-title[data-size="xs"] {
+    font-size: min(2.25rem, 21cqw);
+    line-height: 1.3;
+    -webkit-line-clamp: 2;
+  }
+
+  .cover-title[data-size="s"] {
+    font-size: min(1.75rem, 16.5cqw);
+    line-height: 1.3;
+    -webkit-line-clamp: 3;
+  }
+
+  .cover-title[data-size="m"] {
+    font-size: min(1.375rem, 13cqw);
+    line-height: 1.33;
+    -webkit-line-clamp: 4;
+  }
+
+  .cover-title[data-size="xl"] {
+    font-size: min(1rem, 9.2cqw);
+    line-height: 1.38;
+    -webkit-line-clamp: 6;
   }
 
   .cover-author {
@@ -149,6 +216,160 @@
     font-size: clamp(0.5625rem, 7cqw, 0.75rem);
     line-height: 1.333;
     -webkit-line-clamp: 2;
+    opacity: 0.8;
+  }
+
+  /* Where the title sits. The classic cover keeps its initial at the head
+     and its title at the foot. */
+  .cover-gen:not([data-family="classic"]) .cover-glyph {
+    display: none;
+  }
+
+  .cover-gen[data-layout="top"] .cover-body,
+  .cover-gen[data-layout="top-c"] .cover-body {
+    justify-content: flex-start;
+  }
+
+  .cover-gen[data-layout="mid"] .cover-body {
+    justify-content: center;
+  }
+
+  .cover-gen[data-layout="low"]:not([data-family="classic"]) .cover-body,
+  .cover-gen[data-layout="low-c"] .cover-body {
+    justify-content: flex-end;
+  }
+
+  .cover-gen[data-layout="top-c"] .cover-text,
+  .cover-gen[data-layout="mid"] .cover-text,
+  .cover-gen[data-layout="low-c"] .cover-text {
+    text-align: center;
+  }
+
+  /* কবিতা: inside the ruled frame, a fleuron over the title. */
+  .cover-gen[data-family="poetry"] .cover-body {
+    padding: 20cqw 16cqw 20cqw 19cqw;
+  }
+
+  .cover-gen[data-family="poetry"] .cover-text::before {
+    content: "";
+    display: block;
+    width: 20cqw;
+    height: 5.5cqw;
+    margin: 0 auto 3.5cqw;
+    background-color: var(--cv-orn);
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 16'%3E%3Cpath d='M30 2l6 6-6 6-6-6z'/%3E%3Cpath d='M4 8h14M42 8h14' stroke='black' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='21.5' cy='8' r='2'/%3E%3Ccircle cx='38.5' cy='8' r='2'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+  }
+
+  .cover-gen[data-family="poetry"][data-layout="top-c"] .cover-body {
+    padding-top: 24cqw;
+  }
+
+  /* উপন্যাস: the title on a label between the bands. */
+  .cover-gen[data-family="novel"] .cover-body {
+    padding: 24cqw 14cqw 24cqw 17cqw;
+  }
+
+  .cover-gen[data-plate][data-family="novel"] .cover-text {
+    padding: 4.5cqw 4cqw;
+    border: 1px solid var(--cv-orn);
+    outline: 1px solid var(--cv-orn);
+    outline-offset: min(3px, 1.6cqw);
+    background-color: rgb(0 0 0 / 0.16);
+  }
+
+  /* প্রবন্ধ: paper and type only; a short rule between title and author. */
+  .cover-gen[data-family="essay"] .cover-body {
+    padding: 12cqw 12cqw 12cqw 16cqw;
+  }
+
+  .cover-gen[data-family="essay"][data-variant="0"] .cover-body {
+    padding-top: 36cqw;
+  }
+
+  .cover-gen[data-family="essay"][data-variant="1"] .cover-body {
+    padding-bottom: 34cqw;
+  }
+
+  .cover-gen[data-family="essay"] .cover-author {
+    margin-top: 3cqw;
+    padding-top: 3cqw;
+    background: linear-gradient(var(--cv-orn), var(--cv-orn)) no-repeat left top / 12cqw 1px;
+  }
+
+  /* রহস্য ও বিজ্ঞান: a heavy sans title over the motif. */
+  .cover-gen[data-family="thriller"] .cover-title,
+  .cover-gen[data-family="scifi"] .cover-title {
+    font-family: var(--font-hind), sans-serif;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  .cover-gen[data-family="thriller"] .cover-body,
+  .cover-gen[data-family="scifi"] .cover-body {
+    padding: 11cqw 10cqw 11cqw 15cqw;
+  }
+
+  /* আত্ম-উন্নয়ন: the title in the sky above the sun. */
+  .cover-gen[data-family="selfhelp"] .cover-body {
+    padding: 14cqw 12cqw 14cqw 15cqw;
+  }
+
+  /* ইতিহাস ও জীবনী: the initial in the cameo, the title beneath. */
+  .cover-gen[data-family="history"] .cover-glyph {
+    display: block;
+    position: absolute;
+    left: 50%;
+    top: 36%;
+    transform: translate(-50%, -50%);
+    color: var(--cv-orn);
+    font-size: 24cqw;
+    opacity: 0.9;
+  }
+
+  .cover-gen[data-family="history"] .cover-body {
+    padding: 88cqw 11cqw 10cqw 15cqw;
+  }
+
+  /* ছোটগল্প: the title clear of the tiles. */
+  .cover-gen[data-family="stories"] .cover-body {
+    padding: 12cqw 11cqw 12cqw 15cqw;
+  }
+
+  .cover-gen[data-family="stories"][data-layout="low"] .cover-body {
+    padding-top: 64cqw;
+  }
+
+  .cover-gen[data-family="stories"]:not([data-layout="low"]) .cover-body {
+    padding-bottom: 50cqw;
+  }
+
+  /* নাটক: the title on the stage, between the curtains. */
+  .cover-gen[data-family="drama"] .cover-body {
+    padding: 25cqw 21cqw 22cqw 24cqw;
+  }
+
+  /* শিশুসাহিত্য: a paper card, set a little askew. */
+  .cover-gen[data-family="children"] .cover-body {
+    padding: 34cqw 14cqw 38cqw 17cqw;
+  }
+
+  .cover-gen[data-family="children"] .cover-text {
+    padding: 7cqw 5cqw;
+    color: #2a2420;
+    background-color: #f6f1e6;
+    border-radius: 20% 24% 22% 26% / 26% 22% 28% 24%;
+    box-shadow: 0 1px 0 rgb(42 36 32 / 0.25);
+    transform: rotate(var(--cv-tilt, 0deg));
+  }
+
+  /* পুরাণ ও লোককথা: the title under the lotus. */
+  .cover-gen[data-family="myth"] .cover-body {
+    padding: 80cqw 12cqw 11cqw 15cqw;
+  }
+
+  .cover-gen[data-family="travel"] .cover-body {
+    padding: 12cqw 11cqw 12cqw 15cqw;
   }
 
   /* Thumbnails: the title is always printed beside these, so the cover gives
@@ -165,13 +386,23 @@
       display: none;
     }
 
-    .cover-body {
+    /* As specific as the most specific family rule above, so it wins. */
+    .cover-gen[data-family][data-layout][data-variant] .cover-body {
+      padding: 0;
       align-items: center;
       justify-content: center;
     }
 
-    .cover-glyph {
+    .cover-gen:not([data-family="classic"]) .cover-glyph {
+      display: block;
+    }
+
+    .cover-gen .cover-glyph {
       font-size: 40cqw;
+    }
+
+    .cover-gen[data-family="history"] .cover-glyph {
+      font-size: 24cqw;
     }
   }
 

@@ -58,6 +58,8 @@ export default async function BookPage(props: { params: Promise<{ id: string }> 
       <div className="grid grid-cols-1 gap-8 sm:grid-cols-[200px_1fr]">
         <div className="w-full max-w-[200px]">
           <BookCover
+            bookId={book.id}
+            categorySlug={book.category.slug}
             title={book.title}
             titleBangla={book.titleBangla}
             coverPublicId={book.coverPublicId}

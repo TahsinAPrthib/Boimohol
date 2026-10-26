@@ -9,6 +9,7 @@ export default function BookCard({
   titleBangla,
   author,
   colorKey = "cloth",
+  categorySlug,
   coverPublicId,
   averageRating = 0,
   reviewCount = 0,
@@ -19,6 +20,7 @@ export default function BookCard({
   titleBangla?: string | null;
   author: string;
   colorKey?: string;
+  categorySlug?: string | null;
   // The real cover, if the book has one (null: the generated cover).
   coverPublicId: string | null;
   averageRating?: number;
@@ -29,6 +31,8 @@ export default function BookCard({
   return (
     <Link href={`/books/${id}`} className="group flex flex-col">
       <BookCover
+        bookId={id}
+        categorySlug={categorySlug}
         title={title}
         titleBangla={titleBangla}
         author={author}

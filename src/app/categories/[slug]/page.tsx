@@ -59,6 +59,7 @@ export default async function CategoryPage(props: {
           coverPublicId={book.coverPublicId}
           author={book.author}
           colorKey={category.colorKey}
+          categorySlug={category.slug}
           averageRating={averageOf(book.reviews)}
           reviewCount={book.reviews.length}
         />
@@ -100,6 +101,8 @@ export default async function CategoryPage(props: {
               <div className="grid grid-cols-1 gap-6 bg-paper-dark p-6 sm:grid-cols-[160px_1fr]">
                 <Link href={`/books/${pick.book.id}`} className="mx-auto w-full max-w-[160px] sm:mx-0">
                   <BookCover
+                    bookId={pick.book.id}
+                    categorySlug={category.slug}
                     title={pick.book.title}
                     titleBangla={pick.book.titleBangla}
                     coverPublicId={pick.book.coverPublicId}

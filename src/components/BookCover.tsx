@@ -14,6 +14,8 @@ import { COVER_SIZES, coverSrcSet, coverUrl, type CoverContext } from "@/lib/cov
 // The cover shows the Bangla title when the book has one, like the text
 // under it on cards and the book page; English-only books keep their title.
 export default function BookCover({
+  bookId,
+  categorySlug,
   title,
   titleBangla,
   author,
@@ -23,6 +25,10 @@ export default function BookCover({
   context = "card",
   priority = false,
 }: {
+  // The book's id and its category's slug pick the generated cover's design
+  // (src/lib/cover-design.ts).
+  bookId?: string;
+  categorySlug?: string | null;
   title: string;
   titleBangla?: string | null;
   author: string;
@@ -35,13 +41,14 @@ export default function BookCover({
   priority?: boolean;
 }) {
   const shownTitle = titleBangla?.trim() || title;
-  if (!coverPublicId) return <CoverPlaceholder title={shownTitle} author={author} colorKey={colorKey} className={className} />;
+  const generated = { title: shownTitle, author, colorKey, seed: bookId, category: categorySlug };
+  if (!coverPublicId) return <CoverPlaceholder {...generated} className={className} />;
 
   const { sizes, widths } = COVER_SIZES[context];
   return (
     <div className={`cover relative aspect-[2/3] w-full overflow-hidden rounded-book bg-paper-dark shadow-shelf ${className}`} data-real-cover>
       <div className="absolute inset-0">
-        <CoverPlaceholder title={shownTitle} author={author} colorKey={colorKey} />
+        <CoverPlaceholder {...generated} ornament={false} />
       </div>
       {/* eslint-disable-next-line @next/next/no-img-element -- Cloudinary sizes and formats it (src/lib/covers.ts); the image optimizer is off */}
       <img

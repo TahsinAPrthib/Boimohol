@@ -76,7 +76,7 @@ export default async function SearchPage(props: { searchParams: Promise<{ q?: st
     // The whole catalog is small, so every match is fetched and ranked here.
     prisma.book.findMany({
       where: { ...search, ...languageWhere(lang) },
-      include: { category: { select: { colorKey: true } }, reviews: { select: { rating: true } } },
+      include: { category: { select: { colorKey: true, slug: true } }, reviews: { select: { rating: true } } },
       orderBy: { title: "asc" },
     }),
     prisma.listing.findMany({
@@ -128,6 +128,7 @@ export default async function SearchPage(props: { searchParams: Promise<{ q?: st
                     coverPublicId={book.coverPublicId}
                     author={book.author}
                     colorKey={book.category.colorKey}
+                    categorySlug={book.category.slug}
                     averageRating={averageOf(book.reviews)}
                     reviewCount={book.reviews.length}
                   />

@@ -40,7 +40,7 @@ All screenshots are of public pages on the live site, taken while signed out.
 - Book pages with an overall rating plus optional aspect ratings (plot, writing, pacing). Reviews can be edited or deleted by their authors.
 - A personal shelf (want to read / reading / finished), a reading streak and a yearly goal with progress.
 - A wishlist that flags marketplace listings matching a wished-for book.
-- Real covers for public-domain books, taken only from the book's own public-domain scan: the cover or title page of its scan on Wikimedia Commons or Wikisource, or a Project Gutenberg cover that was scanned from an original edition. The book page credits the source ("প্রচ্ছদের উৎস: উইকিমিডিয়া কমন্স") with a rights note. Every other book has a generated cover in the same frame, so a shelf of both reads as one shelf. No modern publisher's cover art is used, and nothing is hotlinked.
+- Real covers for public-domain books, taken only from the book's own public-domain scan: the cover or title page of its scan on Wikimedia Commons or Wikisource, or a Project Gutenberg cover that was scanned from an original edition. The book page credits the source ("প্রচ্ছদের উৎস: উইকিমিডিয়া কমন্স") with a rights note. Every other book has a generated cover in the same frame, designed as one series: each category has its own visual language, drawn in SVG and CSS (a ruled frame with corner flourishes for poetry, a proscenium for drama, plain paper for essays, bright shapes round a title card for children's books, and so on), varied by the book's id so neighbouring books differ while each book always looks the same. The title's size is chosen from its own length and its longest word, so Bangla titles wrap at spaces. No modern publisher's cover art is used, and nothing is hotlinked.
 
 ### Marketplace and chat
 - Listings to sell, exchange or give away, with condition, price in taka, area and photos.
@@ -275,7 +275,7 @@ Environment variables (names only; `.env.example` explains each):
 
 ## Testing
 
-**Unit tests.** `npm test` runs 189 tests with Node's built-in test runner, through `tsx`. They cover the pure modules where the rules live:
+**Unit tests.** `npm test` runs 199 tests with Node's built-in test runner, through `tsx`. They cover the pure modules where the rules live:
 
 | Area | Tests |
 |---|---|
@@ -286,6 +286,7 @@ Environment variables (names only; `.env.example` explains each):
 | Account rules: sign-up validation, the password stamp, the last-admin rule, Google names and emails | 9 |
 | Book import rows (including links to free copies and covers), update rows and the admin book form | 21 |
 | Real covers: the allowed sources, lookalike hosts, credits, delivery sizes and the checks on an uploaded image | 12 |
+| Generated covers: the same design for the same book, variety along a shelf, title sizing for Bangla vowel signs | 10 |
 | Duplicate detection, matching an import row to an existing book, and book IDs | 11 |
 | The public-domain rule, including the year boundary | 6 |
 | Links to free copies elsewhere: the three trusted sites, lookalikes, credentials, schemes, normalisation | 6 |
