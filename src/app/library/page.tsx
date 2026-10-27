@@ -8,7 +8,8 @@ import NoResults from "@/components/NoResults";
 import LanguageChips from "@/components/LanguageChips";
 import Pager from "@/components/Pager";
 import { hrefWith, readQuery, searchFilter } from "@/lib/search";
-import { banglaFirst, languageParam, languagePhrase, languageWhere, pageOf, readLanguage, readPage } from "@/lib/book-language";
+import { languageParam, languagePhrase, languageWhere, readLanguage, readPage } from "@/lib/book-language";
+import { curatedFirstPage } from "@/lib/book-listing";
 
 export default async function LibraryPage(props: {
   searchParams: Promise<{ category?: string; q?: string | string[]; lang?: string | string[]; page?: string | string[] }>;
@@ -38,10 +39,8 @@ export default async function LibraryPage(props: {
     ...languageWhere(lang),
     ...search,
   };
-  // Order the whole list by its titles (Bangla books first), then load one
-  // page of it: the library runs to well over a thousand books.
-  const listed = await prisma.book.findMany({ where, select: { id: true, title: true, titleBangla: true, language: true } });
-  const { items: pageIds, page, pages } = pageOf(banglaFirst(listed).map((b) => b.id), readPage(searchParams.page));
+  // Curated books first, then the rest by title; one page of it.
+  const { ids: pageIds, page, pages } = await curatedFirstPage(where, readPage(searchParams.page));
   const loaded = await prisma.book.findMany({
     where: { id: { in: pageIds } },
     include: {

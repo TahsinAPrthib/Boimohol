@@ -10,6 +10,10 @@ datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
+  // A throwaway database that `prisma migrate dev` wipes and rebuilds; never
+  // the app's own. `npm run prisma:migrate` checks it first
+  // (scripts/prisma-guard.mjs). Nothing else reads it, so deploys need none.
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 enum Role {
@@ -176,6 +180,13 @@ model Book {
   // Normalized title + Bangla title + author (+ translator and aliases) for
   // site search; always written through bookSearchText() in src/lib/search.ts.
   searchText       String            @default("")
+  // Chosen for the catalog (the original books and the curated imports)
+  // rather than imported in bulk from a whole catalog: listed first on the
+  // home page, the library and the category pages. Search covers every book.
+  curated          Boolean           @default(true)
+  // The order of the books imported in bulk: always written through
+  // bookSortTitle() in src/lib/book-language.ts.
+  sortTitle        String            @default("")
   createdAt        DateTime          @default(now())
   reviews          Review[]
   shelfItems       ShelfItem[]
@@ -186,6 +197,12 @@ model Book {
   wishlistItems    WishlistItem[]
 
   @@index([categoryId])
+  // Curated books first, then the rest by title (the library and category pages).
+  @@index([curated, sortTitle])
+  @@index([categoryId, curated, sortTitle])
+  // Site search: a trigram index lets LIKE '%...%' on the normalized text use
+  // an index instead of reading every book (the pg_trgm extension).
+  @@index([searchText(ops: raw("gin_trgm_ops"))], type: Gin)
 }
 
 // Represents an uploaded readable file for a book (feature #4).

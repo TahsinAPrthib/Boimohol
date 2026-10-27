@@ -33,12 +33,14 @@ export default async function HomeSections({ viewerId }: { viewerId: string | nu
     })
   );
 
+  // The most shelved books, curated ones first (books imported in bulk from a
+  // whole catalog come after them): the top twelve, six shown.
   const shelvedPromise = prisma.shelfItem
     .groupBy({
       by: ["bookId"],
       _count: { bookId: true },
       orderBy: [{ _count: { bookId: "desc" } }, { bookId: "asc" }],
-      take: 6,
+      take: 12,
     })
     .then(async (groups) => {
       if (groups.length === 0) return [];
@@ -48,7 +50,8 @@ export default async function HomeSections({ viewerId }: { viewerId: string | nu
       });
       // findMany doesn't keep the popularity order, so restore it.
       const byId = new Map(books.map((b) => [b.id, b]));
-      return groups.map((g) => byId.get(g.bookId)).filter((b) => b !== undefined);
+      const popular = groups.map((g) => byId.get(g.bookId)).filter((b) => b !== undefined);
+      return [...popular.filter((b) => b.curated), ...popular.filter((b) => !b.curated)].slice(0, 6);
     });
 
   let data;

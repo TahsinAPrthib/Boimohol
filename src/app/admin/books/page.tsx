@@ -1,13 +1,17 @@
 import { notFound } from "next/navigation";
+import type { Prisma } from "@prisma/client";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { bn, bnYear } from "@/lib/bangla";
 import { getAdminUserId } from "@/lib/authz";
 import { formatFileSize, pdfUrl } from "@/lib/cloudinary-url";
 import { breaksPublicDomainRule, canBePublicDomain, publicDomainCutoffYear } from "@/lib/public-domain";
+import { readPage } from "@/lib/book-language";
 import { createBook } from "@/actions/admin-books";
 import AdminBookForm from "@/components/AdminBookForm";
 import AdminBookImport from "@/components/AdminBookImport";
+import AdminBulkImport from "@/components/AdminBulkImport";
+import Pager from "@/components/Pager";
 import AdminBookDeleteButton from "@/components/AdminBookDeleteButton";
 import BookFileUploader from "@/components/BookFileUploader";
 import BookFileDeleteButton from "@/components/BookFileDeleteButton";
@@ -23,20 +27,58 @@ import { hrefWith, readQuery, searchFilter } from "@/lib/search";
 // ?filter=needs-cover: the same, for a real cover.
 const NEEDS_PDF = "needs-pdf";
 const NEEDS_COVER = "needs-cover";
+// The catalog runs to tens of thousands of books: one page at a time.
+const ADMIN_PAGE = 50;
 
 // Setting a cover waits for Cloudinary to fetch the image, and an import's
 // covers are fetched a few per call from this page (src/actions/covers.ts).
 export const maxDuration = 60;
 
 export default async function AdminBooksPage(props: {
-  searchParams: Promise<{ q?: string | string[]; filter?: string }>;
+  searchParams: Promise<{ q?: string | string[]; filter?: string; page?: string | string[] }>;
 }) {
   // 404 rather than 403: a non-admin should not learn this route exists.
   const adminId = await getAdminUserId();
   if (!adminId) notFound();
 
-  const [books, categories] = await Promise.all([
+  // Search and the filter narrow the list below; the totals and the
+  // rule-breaker warning above it stay about the whole catalog.
+  const searchParams = await props.searchParams;
+  const q = readQuery(searchParams.q);
+  const search = searchFilter(q);
+  const needsPdf = searchParams.filter === NEEDS_PDF;
+  const needsCover = searchParams.filter === NEEDS_COVER;
+  const narrowed = Boolean(search) || needsPdf || needsCover;
+  const cutoff = publicDomainCutoffYear();
+  const eligible = { isPublicDomain: true, authorDeathYear: { lte: cutoff } };
+  const where: Prisma.BookWhereInput = {
+    ...search,
+    ...(needsPdf ? { ...eligible, files: { none: {} } } : {}),
+    ...(needsCover ? { ...eligible, coverPublicId: null } : {}),
+  };
+
+  const [total, markedPublicDomain, withFile, withSource, withCover, ruleBreakers, matching, categories] = await Promise.all([
+    prisma.book.count(),
+    prisma.book.count({ where: { isPublicDomain: true } }),
+    prisma.book.count({ where: { files: { some: {} } } }),
+    prisma.book.count({ where: { sources: { some: {} } } }),
+    prisma.book.count({ where: { coverPublicId: { not: null } } }),
+    // Books whose stored flag the rule no longer backs up -- e.g. one fixed by
+    // the migration everywhere except where a PDF was already attached.
     prisma.book.findMany({
+      where: { isPublicDomain: true, OR: [{ authorDeathYear: null }, { authorDeathYear: { gt: cutoff } }] },
+      select: { id: true, title: true, titleBangla: true, authorDeathYear: true, coverPublicId: true, _count: { select: { files: true, sources: true } } },
+      orderBy: { title: "asc" },
+    }),
+    prisma.book.count({ where }),
+    prisma.category.findMany({ orderBy: { name: "asc" }, select: { id: true, slug: true, nameBangla: true } }),
+  ]);
+  const pages = Math.max(1, Math.ceil(matching / ADMIN_PAGE));
+  const page = Math.min(readPage(searchParams.page), pages);
+  const books = await prisma.book.findMany({
+      where,
+      skip: (page - 1) * ADMIN_PAGE,
+      take: ADMIN_PAGE,
       include: {
         category: { select: { nameBangla: true, colorKey: true, slug: true } },
         files: {
@@ -55,37 +97,8 @@ export default async function AdminBooksPage(props: {
           orderBy: { createdAt: "asc" },
         },
       },
-      orderBy: [{ isPublicDomain: "desc" }, { title: "asc" }],
-    }),
-    prisma.category.findMany({ orderBy: { name: "asc" }, select: { id: true, slug: true, nameBangla: true } }),
-  ]);
-
-  // Search and the filter narrow the list below; the totals and the
-  // rule-breaker warning above it stay about the whole catalog.
-  const searchParams = await props.searchParams;
-  const q = readQuery(searchParams.q);
-  const search = searchFilter(q);
-  const needsPdf = searchParams.filter === NEEDS_PDF;
-  const needsCover = searchParams.filter === NEEDS_COVER;
-  const matching = search
-    ? new Set((await prisma.book.findMany({ where: search, select: { id: true } })).map((b) => b.id))
-    : null;
-  const shown = books.filter(
-    (b) =>
-      (!matching || matching.has(b.id)) &&
-      (!needsPdf || (b.isPublicDomain && canBePublicDomain(b.authorDeathYear) && b.files.length === 0)) &&
-      (!needsCover || (b.isPublicDomain && canBePublicDomain(b.authorDeathYear) && !b.coverPublicId))
-  );
-  const narrowed = Boolean(search) || needsPdf || needsCover;
-
-  const cutoff = publicDomainCutoffYear();
-  const markedPublicDomain = books.filter((b) => b.isPublicDomain);
-  const withFile = books.filter((b) => b.files.length > 0).length;
-  const withSource = books.filter((b) => b.sources.length > 0).length;
-  const withCover = books.filter((b) => b.coverPublicId).length;
-  // Books whose stored flag the rule no longer backs up -- e.g. one fixed by
-  // the migration everywhere except where a PDF was already attached.
-  const ruleBreakers = books.filter((b) => breaksPublicDomainRule(b));
+      orderBy: [{ isPublicDomain: "desc" }, { title: "asc" }, { id: "asc" }],
+  });
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
@@ -96,7 +109,7 @@ export default async function AdminBooksPage(props: {
         বিনামূল্যে দেওয়া যাচ্ছে তার ব্যাখ্যা লেখা বাধ্যতামূলক।
       </p>
       <p className="mb-6 border-b-2 border-ink/10 pb-6 font-body text-sm text-ink/50">
-        মোট {bn(books.length)}টি বই · পাবলিক ডোমেইন {bn(markedPublicDomain.length)}টি · ফাইল আছে {bn(withFile)}টিতে · বাইরের কপির
+        মোট {bn(total)}টি বই · পাবলিক ডোমেইন {bn(markedPublicDomain)}টি · ফাইল আছে {bn(withFile)}টিতে · বাইরের কপির
         লিংক আছে {bn(withSource)}টিতে · আসল প্রচ্ছদ আছে {bn(withCover)}টিতে ·{" "}
         <Link href="/admin/categories" className="font-semibold text-cloth hover:underline">
           বিভাগের শুরুর বই →
@@ -112,11 +125,11 @@ export default async function AdminBooksPage(props: {
           <ul className="mt-2 list-disc pl-5">
             {ruleBreakers.map((b) => (
               <li key={b.id}>
-                <a href={`#book-${b.id}`} className="font-semibold underline">
+                <a href={`${hrefWith("/admin/books", { q: b.title })}#book-${b.id}`} className="font-semibold underline">
                   {b.titleBangla || b.title}
                 </a>{" "}
                 — {b.authorDeathYear === null ? "লেখকের মৃত্যুর বছর দেওয়া নেই" : `লেখক মারা গেছেন ${bnYear(b.authorDeathYear)} সালে`}
-                {b.files.length + b.sources.length > 0 || b.coverPublicId
+                {b._count.files + b._count.sources > 0 || b.coverPublicId
                   ? "; আগে পিডিএফ, বাইরের লিংক ও আসল প্রচ্ছদ সরিয়ে তারপর চিহ্ন তুলে দিন"
                   : "; সম্পাদনা করে চিহ্ন তুলে দিন"}
               </li>
@@ -171,6 +184,23 @@ export default async function AdminBooksPage(props: {
         </div>
       </details>
 
+      <details className="mb-8 rounded-book border-2 border-ink/10 bg-paper-dark p-4">
+        <summary className="cursor-pointer font-display text-xl text-ink">বড় ফাইল থেকে আমদানি (পুরো ক্যাটালগ)</summary>
+        <div className="mt-4 flex flex-col gap-4">
+          <p className="max-w-prose font-body text-sm text-ink/70">
+            হাজার হাজার বইয়ের ফাইলের জন্য, যেমন প্রজেক্ট গুটেনবার্গের পুরো ক্যাটালগ (<code>data/gutenberg-all-*.json</code>)।
+            সারিগুলো ওপরের আমদানির মতোই, যাচাইও একই: একই ঘর, একই ডুপ্লিকেট-যাচাই, প্রতিটি লিংকের সাথে “কেন বিনামূল্যে” নোট।
+            ফাইলটি আপনার ব্রাউজারেই পড়া হয় আর {bn(250)}টি করে সারি সার্ভারে যায়; প্রতিটি ভাগ পুরোটা সংরক্ষিত হয়, নয়তো কিছুই না।
+            মাঝপথে থেমে গেলে একই ফাইল আবার বেছে নিয়ে যেখানে থেমেছিল সেখান থেকে চালানো যায়।
+          </p>
+          <p className="max-w-prose font-body text-sm text-ink/70">
+            এভাবে আনা বই “কিউরেট করা” নয়: হোম পেজ, লাইব্রেরি ও বিভাগের পাতায় বাছাই করা বইগুলো আগে আসে, এগুলো পরে; খোঁজায় সব বই
+            সমানভাবে আসে।
+          </p>
+          <AdminBulkImport />
+        </div>
+      </details>
+
       <div className="mb-6 flex flex-col gap-3 border-t-2 border-ink/10 pt-6">
         <SearchBox label="ক্যাটালগে বই খুঁজুন" placeholder="বইয়ের নাম বা লেখক" />
         <div className="flex flex-wrap items-center gap-2">
@@ -193,22 +223,22 @@ export default async function AdminBooksPage(props: {
               </Link>
             );
           })}
-          {narrowed && <span className="font-body text-sm text-ink/60">{bn(shown.length)}টি বই দেখানো হচ্ছে</span>}
+          {narrowed && <span className="font-body text-sm text-ink/60">{bn(matching)}টি বই মিলেছে</span>}
         </div>
       </div>
 
-      {shown.length === 0 && search ? (
+      {books.length === 0 && search ? (
         <NoResults
           query={q}
           where={needsPdf ? "পিডিএফ ছাড়া পাবলিক ডোমেইনের বইয়ে" : needsCover ? "আসল প্রচ্ছদ ছাড়া পাবলিক ডোমেইনের বইয়ে" : undefined}
         />
-      ) : shown.length === 0 ? (
+      ) : books.length === 0 ? (
         <p className="font-body text-ink/50">
           {needsPdf ? "পাবলিক ডোমেইনের সব বইয়েই পিডিএফ আছে।" : needsCover ? "পাবলিক ডোমেইনের সব বইয়েই আসল প্রচ্ছদ আছে।" : "কোনো বই নেই।"}
         </p>
       ) : (
         <ul className="flex flex-col gap-4">
-          {shown.map((book) => {
+          {books.map((book) => {
             const file = book.files[0];
             const breaksRule = breaksPublicDomainRule(book);
             const hasFreeCopy = Boolean(file) || book.sources.length > 0 || Boolean(book.coverPublicId);
@@ -240,6 +270,11 @@ export default async function AdminBooksPage(props: {
                     ) : (
                       <span className="rounded-book bg-ink/20 px-2 py-1 font-body text-xs font-semibold text-ink/70">
                         কপিরাইটযুক্ত
+                      </span>
+                    )}
+                    {!book.curated && (
+                      <span className="rounded-book border border-ink/20 px-2 py-1 font-body text-xs font-semibold text-ink/60">
+                        বড় ফাইল থেকে আমদানি
                       </span>
                     )}
                     {file && (
@@ -351,6 +386,9 @@ export default async function AdminBooksPage(props: {
           })}
         </ul>
       )}
+      <div className="mt-8">
+        <Pager path="/admin/books" params={{ q, filter: searchParams.filter }} page={page} pages={pages} />
+      </div>
     </div>
   );
 }

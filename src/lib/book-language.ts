@@ -54,11 +54,48 @@ export function banglaFirst<T extends Listed>(books: T[]): T[] {
   return [...bangla, ...rest];
 }
 
+// What the database orders the books imported in bulk by (Book.sortTitle),
+// compared the way banglaFirst compares English titles: leading quote marks
+// and symbols don't count, nor case or accents -- “Élan” is filed under e.
+// Migration 20261027090000_book_sort_title mirrors this in SQL.
+export function bookSortTitle(title: string): string {
+  return title
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .normalize("NFC")
+    .replace(/^[^\p{L}\p{N}]+/u, "")
+    .trim()
+    .toLowerCase();
+}
+
 export const PAGE_SIZE = 48;
 
 export function readPage(raw: string | string[] | undefined): number {
   const value = Number(Array.isArray(raw) ? raw[0] : raw);
   return Number.isInteger(value) && value > 1 ? value : 1;
+}
+
+// One page of a list made of the curated books (ordered here, by
+// banglaFirst) followed by the rest (ordered and paged by the database): the
+// curated books on the page, as [start, end) in their order, and how many of
+// the rest to skip and take. A page past the end shows the last page.
+export function splitPage(
+  curatedCount: number,
+  restCount: number,
+  page: number,
+  size = PAGE_SIZE
+): { page: number; pages: number; curated: [number, number]; rest: { skip: number; take: number } } {
+  const total = curatedCount + restCount;
+  const pages = Math.max(1, Math.ceil(total / size));
+  const current = Math.min(Math.max(1, page), pages);
+  const start = (current - 1) * size;
+  const end = Math.min(start + size, total);
+  return {
+    page: current,
+    pages,
+    curated: [Math.min(start, curatedCount), Math.min(end, curatedCount)],
+    rest: { skip: Math.max(0, start - curatedCount), take: Math.max(0, end - Math.max(start, curatedCount)) },
+  };
 }
 
 // One page of an ordered list; a page past the end shows the last page.

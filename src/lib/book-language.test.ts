@@ -1,6 +1,6 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
-import { banglaFirst, inLanguage, LANGUAGE_FILTERS, languageParam, languageWhere, pageOf, readLanguage, readPage } from "./book-language";
+import { banglaFirst, bookSortTitle, inLanguage, LANGUAGE_FILTERS, languageParam, languageWhere, PAGE_SIZE, pageOf, readLanguage, readPage, splitPage } from "./book-language";
 
 describe("language filter", () => {
   test("bn and other filter; the old en links mean other; anything else is all", () => {
@@ -70,6 +70,42 @@ describe("paging", () => {
     assert.deepEqual(pageOf(items, 2, 4), { items: [4, 5, 6, 7], page: 2, pages: 3 });
     assert.deepEqual(pageOf(items, 9, 4), { items: [8, 9], page: 3, pages: 3 });
     assert.deepEqual(pageOf([], 1, 4), { items: [], page: 1, pages: 1 });
+  });
+
+  test("curated books first, then the rest paged by the database", () => {
+    // 5 curated and 10 more, 4 to a page.
+    assert.deepEqual(splitPage(5, 10, 1, 4), { page: 1, pages: 4, curated: [0, 4], rest: { skip: 0, take: 0 } });
+    assert.deepEqual(splitPage(5, 10, 2, 4), { page: 2, pages: 4, curated: [4, 5], rest: { skip: 0, take: 3 } });
+    assert.deepEqual(splitPage(5, 10, 3, 4), { page: 3, pages: 4, curated: [5, 5], rest: { skip: 3, take: 4 } });
+    assert.deepEqual(splitPage(5, 10, 9, 4), { page: 4, pages: 4, curated: [5, 5], rest: { skip: 7, take: 3 } });
+    assert.deepEqual(splitPage(0, 0, 1, 4), { page: 1, pages: 1, curated: [0, 0], rest: { skip: 0, take: 0 } });
+  });
+
+  test("bulk books sort without leading quote marks and symbols, case or accents", () => {
+    const titles = ["!Tention", "“1914”", "'Tis Sixty Years Since", "Élan", "alice", "Zoe", "\"A Catchcart or a Riggs?\""];
+    const sorted = [...titles].sort((a, b) => (bookSortTitle(a) < bookSortTitle(b) ? -1 : 1));
+    assert.deepEqual(sorted, ["“1914”", "\"A Catchcart or a Riggs?\"", "alice", "Élan", "!Tention", "'Tis Sixty Years Since", "Zoe"]);
+    assert.equal(bookSortTitle("  Élan Vital"), "elan vital");
+  });
+
+  test("the sort key leaves Bangla letters and vowel signs alone", () => {
+    assert.equal(bookSortTitle("গীতাঞ্জলি"), "গীতাঞ্জলি");
+    assert.equal(bookSortTitle("‘পার্টিসন’-প্রহেলিকা"), "পার্টিসন’-প্রহেলিকা");
+  });
+
+  test("the pages together list every book once, in order", () => {
+    for (const [curated, rest] of [[0, 9], [7, 0], [3, 13], [8, 8], [48, 1], [1, 95]]) {
+      const seen: string[] = [];
+      const { pages } = splitPage(curated, rest, 1);
+      for (let page = 1; page <= pages; page++) {
+        const s = splitPage(curated, rest, page);
+        for (let i = s.curated[0]; i < s.curated[1]; i++) seen.push(`c${i}`);
+        for (let i = s.rest.skip; i < s.rest.skip + s.rest.take; i++) seen.push(`r${i}`);
+        if (page < pages) assert.equal(s.curated[1] - s.curated[0] + s.rest.take, PAGE_SIZE);
+      }
+      const all = [...Array.from({ length: curated }, (_, i) => `c${i}`), ...Array.from({ length: rest }, (_, i) => `r${i}`)];
+      assert.deepEqual(seen, all);
+    }
   });
 });
 

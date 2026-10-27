@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { canBePublicDomain } from "../src/lib/public-domain";
 import { bookSearchText } from "../src/lib/search";
+import { bookSortTitle } from "../src/lib/book-language";
 
 const prisma = new PrismaClient();
 
@@ -93,6 +94,14 @@ const categories = [
     nameBangla: "পুরাণ ও লোককথা",
     description: "পুরাণ ও মহাকাব্যের কাহিনি, উপকথা, রূপকথা আর লোককথা।",
     colorKey: "oxblood",
+  },
+  // Added by migration 20261026120000: books that fit no other category.
+  {
+    slug: "onnanno",
+    name: "Other",
+    nameBangla: "অন্যান্য",
+    description: "রান্না, চিকিৎসা, আইন, সংগীত, শিক্ষা আর নানা বিষয়ের বই, যেগুলো আর কোনো বিভাগে পড়ে না।",
+    colorKey: "cloth",
   },
 ];
 
@@ -287,6 +296,7 @@ async function main() {
           isPublicDomain: b.isPublicDomain ?? false,
           categoryId: category.id,
           searchText: bookSearchText(b),
+          sortTitle: bookSortTitle(b.title),
         },
       });
 

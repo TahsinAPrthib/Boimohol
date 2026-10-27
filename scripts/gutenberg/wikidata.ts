@@ -8,7 +8,10 @@ import { deathOf, itemIds, label, type Death, type Entity } from "../wikisource/
 // nameBn: the Bangla Wikipedia article's title when there is one (the name
 // readers know: "মার্ক টোয়েন"), else Wikidata's Bangla label (which is
 // sometimes the legal name: "স্যামুয়েল ল্যাঙ্গহোর্ণ ক্লিমেন্স").
-export type PersonFacts = { id: string; death: Death | null; languages: string[]; nameBn: string | null; nameEn: string | null };
+// languages: every language Wikidata gives (spoken, native, written in);
+// native and writing keep the native language (P103) and the languages of
+// their writing (P6886) apart, for telling a translation.
+export type PersonFacts = { id: string; death: Death | null; languages: string[]; native: string[]; writing: string[]; nameBn: string | null; nameEn: string | null };
 const bnName = (e: Fetched) => e.sitelinks?.bnwiki?.title?.replace(/\s*\([^)]*\)\s*$/, "").trim() || label(e, "bn");
 export type WorkFacts = { id: string; bnwiki: string | null; languages: string[]; nameBn: string | null; nameEn: string | null };
 
@@ -111,7 +114,7 @@ export async function peopleByWikipedia(urls: string[]): Promise<Map<string, Per
       const k = wikiKey(u);
       if (!k || k[0] !== site) continue;
       const e = found.get(`${site}:${k[1]}`);
-      if (e) out.set(u, { id: e.id, death: deathOf(e), languages: languagesOf(e), nameBn: bnName(e), nameEn: label(e, "en") });
+      if (e) out.set(u, { id: e.id, death: deathOf(e), languages: languagesOf(e), native: itemIds(e, "P103"), writing: itemIds(e, "P6886"), nameBn: bnName(e), nameEn: label(e, "en") });
     }
   }
   return out;

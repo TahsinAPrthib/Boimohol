@@ -1,6 +1,6 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
-import { bookIdFor, clashesWith, findExisting, indexByKeys, keySetOf, normalizeForMatch } from "./book-catalog";
+import { bookIdBase, bookIdFor, clashesWith, findExisting, indexByKeys, keySetOf, normalizeForMatch } from "./book-catalog";
 
 const existing = [
   { title: "Pather Panchali", titleBangla: "পথের পাঁচালী", author: "বিভূতিভূষণ বন্দ্যোপাধ্যায়" },
@@ -45,6 +45,13 @@ describe("book ids", () => {
 
   test("a title with no Latin letters still gets a usable id", () => {
     assert.equal(bookIdFor("kobita", "গীতাঞ্জলি", new Set()), "kobita-book");
+  });
+
+  test("every id for a title starts with its base, so the taken ones can be looked up by prefix", () => {
+    const taken = new Set(["uponnash-gora", "uponnash-gora-2"]);
+    assert.equal(bookIdBase("uponnash", "Gora"), "uponnash-gora");
+    assert.ok(bookIdFor("uponnash", "Gora", taken).startsWith(bookIdBase("uponnash", "Gora")));
+    assert.equal(bookIdBase("kobita", "Leaves of Grass: 1855"), "kobita-leaves-of-grass-1855");
   });
 });
 

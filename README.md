@@ -54,13 +54,20 @@ All screenshots are of public pages on the live site, taken while signed out.
 - The library labels each book as hosted here or external. External links open in a new tab and send no referrer.
 - Books with a copy on Bangla Wikisource can be read here, at `/books/[id]/read`: a contents page, one chapter per page with previous/next and a shareable address, and an adjustable text size. The text is fetched live from the Wikisource API, cleaned on the server and cached, with a size cap (see below); nothing is hosted. Every page credits Wikisource under CC BY-SA 4.0, and when the text was transcribed from a PDF scan on Wikimedia Commons, that scan is linked with its size. The reader remembers where you stopped (on your account when signed in, in the browser otherwise), and reading counts toward the reading streak.
 - Project Gutenberg links go to the book's landing page, as Gutenberg's linking policy asks; nothing is fetched from Gutenberg.
-- The library, category pages and search filter by language (বাংলা / অন্যান্য ভাষা / সব). Bangla books are listed first, and long lists are paged, 48 books at a time.
+- The library, category pages and search filter by language (বাংলা / অন্যান্য ভাষা / সব). Long lists are paged, 48 books at a time. The home page, the library and the category pages list the curated books first, Bangla first, then the books imported in bulk from a whole catalog, by title. Search ranks every book by how well it matches.
 - The free catalogue is prepared offline by scripts that read Bangla Wikisource and Wikidata (complete, proofread texts whose authors died in 1965 or earlier) and Project Gutenberg's official catalog feed. They write files for the admin import plus a review report; nothing is written to the database. Real covers are prepared the same way by `scripts/covers-prepare.ts`. For a Wikisource work it takes the cover or title page of the scan the work was transcribed from, which Wikimedia renders from the PDF or DjVu as an image. For a Gutenberg book it takes the cover only when that is a scan of an original edition, and for other books it searches Commons. Every image is checked by eye and recorded in `scripts/covers/decisions.ts`, and the result is `data/covers-import-1.json` and `-2.json` plus `data/covers-report.md`. Of 1,434 public-domain books, 686 get a real cover. Most of the others have only Gutenberg's generated template, a producer's modern composite, or a scan whose title page is stamped over by a library.
+- Beyond the chosen books, `scripts/gutenberg-all.ts` prepares every book in Gutenberg's catalog that passes the same rules:
+  - English or Bangla text by named authors;
+  - every author, and the translator of a translation, known to have died in 1965 or earlier;
+  - no audio, data, periodicals or indexes;
+  - no single volumes of a set whose complete edition is there, and one edition per work.
+
+  Of 79,609 catalog entries, 35,285 new books pass. They are in `data/gutenberg-all-1.json` to `-4.json`, with counts for every rule in `data/gutenberg-all-report.md`. Each has a neutral one-line description (author, original language, subject or form, translator; never the plot), its English title, its translator credited, and its Gutenberg link with a rights note. They are imported as not curated. A book that fits none of the categories goes to অন্যান্য, with a description that names its subject (medicine, education, law, music and so on). A live check of 50 chosen at random is in `data/gutenberg-all-spot-check.md`.
 - Downloads are counted only in aggregate. Who downloaded what is never recorded, and clicks on external links aren't counted at all.
 
 ### Search
 - Site-wide search at `/search`, grouping books, listings and requests. There are also search boxes on the category, library, marketplace and requests pages.
-- Matching is Bangla-aware (see [the case study](#bangla-aware-search)), and results are ranked: exact, then prefix, then word-prefix, then anywhere.
+- Matching is Bangla-aware (see [the case study](#bangla-aware-search)), and results are ranked: exact, then prefix, then word-prefix, then anywhere; among equals, Bangla books and then curated ones come first. The ranking runs in the database, and a trigram index (`pg_trgm`) on the normalised search text serves the match, so search stays quick across the whole catalog (see [below](#growing-the-library-to-the-whole-gutenberg-catalog)).
 
 ### Accounts and moderation
 - Sign-up through Google only. Existing email/password accounts still log in, and any account can set a password in settings.
@@ -70,7 +77,8 @@ All screenshots are of public pages on the live site, taken while signed out.
 - A privacy page written to match the code: what is stored, who can see it, what deletion removes and keeps, and what Google sends.
 
 ### Admin
-- **Books:** add, edit and delete books, plus bulk JSON import with validation and duplicate detection. Import rows can carry links to free copies elsewhere; a row matching a book already in the catalog adds its links to that book instead of creating a duplicate.
+- **Books:** add, edit and delete books, plus bulk JSON import with validation and duplicate detection. Import rows can carry links to free copies elsewhere; a row matching a book already in the catalog adds its links to that book instead of creating a duplicate. The book list is paged, 50 at a time.
+- **Large-file import:** for a whole catalog of tens of thousands of rows. The file is read in the browser and sent to the server 250 rows at a time, so each request ends well inside Vercel's time limit. Each batch is saved whole or not at all. A progress bar shows the running totals, a dry run reports what would be added, and a failed request is retried twice. After a failure or a closed tab, choosing the same file again carries on from the last saved batch, and a batch sent twice only finds duplicates. The rows and their checks are the ordinary import's: the same fields, the same duplicate detection and a rights note on every link. Books imported this way are marked as not curated.
 - **Categories:** choose each category's "start here" book from its own books, with a note on why it's a good first read.
 - **Library files:** upload a PDF, or add, edit and remove links to free copies elsewhere, each with a required rights note. Books whose public-domain flag the rule no longer supports get a warning.
 - **Covers:** set, replace or remove a public-domain book's real cover, from an image address on Wikimedia or Gutenberg or by uploading an image along with the page it came from, always with a rights note. Import rows can name a cover too: once the rows are saved, the page fetches the images two per request with a progress bar, so each request stays well inside Vercel's time limit. A failure doesn't stop the rest and can be retried.
@@ -207,7 +215,42 @@ The cache lives in the site's own Postgres, and a full database would break ever
 
 The local `.env` points only at the development side. Production values exist only in Vercel, scoped to the Production environment, so preview deployments receive none of them. That matters because every build runs `prisma migrate deploy`: a preview build holding production credentials would migrate production from an unmerged branch. The test fixtures refuse to run unless the database host is the development branch. The demo account and its published password are skipped when seeding production.
 
+Prisma wipes its "shadow" database before every use. That makes any Prisma command that takes one dangerous when it is pointed at a real database, and in October 2026 one emptied the development branch. `scripts/prisma-guard.mjs` now guards this in two places:
+- `npm run prisma:migrate` runs `prisma migrate dev` only when `SHADOW_DATABASE_URL` names a throwaway database: its name contains "shadow" and it sits on another server than the app's database. Development's and production's databases are both `neondb`, so neither can pass.
+- In Claude Code sessions, a hook (`.claude/settings.json`) refuses commands that reset the database, push the schema over it or replay migrations into a shadow database, and any command that carries a database URL of its own.
+
+Migrations are written with `npm run db:diff`, which only reads the development schema, and applied with `prisma migrate deploy`.
+
 **Why.** Real users' data and the test data should never be able to touch each other.
+
+### Growing the library to the whole Gutenberg catalog
+**Problem.** The free library grew from about 1,500 chosen books to 36,800 when every Gutenberg book that passes the rules was added. Several parts had been written for the smaller catalog:
+- the library and category pages loaded every matching book and sorted and paged them in JavaScript;
+- search loaded every match before ranking;
+- each import compared its rows against every book in the catalog;
+- the admin list rendered every book on one page;
+- the JSON import took at most 500 rows per request.
+
+At this size, Bangla books also had to stay first, and the chosen books ahead of the bulk ones.
+
+**What was done.**
+- **Curated books first.** Books carry a `curated` flag: true for every book chosen so far, false for the bulk import. The curated books (a few thousand at most) are still ordered in JavaScript, Bangla first. The rest are counted and paged by the database, using indexes on `(curated, sortTitle)` and `(categoryId, curated, sortTitle)`, so a page reads at most 48 of them. `sortTitle` is the title without leading quote marks or symbols, case or accents, the same comparison the curated order uses, so titles like “"1914"” don't all come first.
+- **Search in the database.** Search ranks in SQL (exact, prefix, word-prefix, anywhere, then Bangla, then curated) and reads only the 24 books it shows. A trigram index serves `LIKE '%…%'` on the normalised text.
+- **Imports look up only what they need.** An import fetches just the books that could clash with its rows: those whose search text contains a row's author, plus the ids that share a new id's prefix.
+- **Admin.** The admin list is paged, 50 books at a time.
+- **A large-file import:** batches of 250 rows sent from the browser, resumable (see Admin above).
+
+**Result,** measured on the development database holding a copy of production's data, before and after importing the 35,285 new books. Times are medians of five requests from Bangladesh to a database in Singapore, so most of each is network round trips:
+
+| | Curated only (1,493 books) | Whole catalog (36,778 books) |
+|---|---|---|
+| Home page | 292 ms | 310 ms |
+| Library, page 1 | 926 ms | 1,035 ms |
+| Category page (উপন্যাস, now with 9,127 more books) | 481 ms | 515–580 ms |
+| Search "dickens" | 259 ms | 285 ms |
+| Search "the" (matches 19,000 books) | 317 ms | 269 ms |
+
+In the database itself, a search through the trigram index takes about 1 ms. Page 400 of the library takes 13 ms. The whole database grew by about 51 MB, to 63 MB. The import ran in about 4½ minutes, at 1.2 to 1.9 seconds per batch, far inside Vercel's 60-second limit. The cost that remains is in counting the bulk books for the pager, which reads the Book table. That takes 3 to 7 ms when cached, but adds about half a second to the first request after the database wakes up.
 
 ### A 568 ms server wait that was distance, not N+1
 **Problem.** Before the first deployment, a production build ran on a laptop in Dhaka (`npm run build && npm start`) against the Neon database in Singapore. Chrome DevTools showed **568 ms** of "Waiting for server response". A wait that long often points to an N+1 query pattern, so the queries were audited. Each page made 3–6 batched queries, never one per row. So the time wasn't going on the number of queries but on round trips: every one of them went from Dhaka to Singapore and back.
@@ -275,7 +318,7 @@ Environment variables (names only; `.env.example` explains each):
 
 ## Testing
 
-**Unit tests.** `npm test` runs 200 tests with Node's built-in test runner, through `tsx`. They cover the pure modules where the rules live:
+**Unit tests.** `npm test` runs 205 tests with Node's built-in test runner, through `tsx`. They cover the pure modules where the rules live:
 
 | Area | Tests |
 |---|---|
@@ -287,10 +330,10 @@ Environment variables (names only; `.env.example` explains each):
 | Book import rows (including links to free copies and covers), update rows and the admin book form | 21 |
 | Real covers: the allowed sources, lookalike hosts, credits, delivery sizes and the checks on an uploaded image | 12 |
 | Generated covers: the same design for the same book, variety along a shelf, palette-only night sky, title sizing for Bangla vowel signs | 11 |
-| Duplicate detection, matching an import row to an existing book, and book IDs | 11 |
+| Duplicate detection, matching an import row to an existing book, and book IDs | 12 |
 | The public-domain rule, including the year boundary | 6 |
 | Links to free copies elsewhere: the three trusted sites, lookalikes, credentials, schemes, normalisation | 6 |
-| Language filter, Bangla-first ordering and paging | 9 |
+| Language filter, Bangla-first ordering and paging, with curated books before bulk ones and the bulk sort key | 13 |
 | Grapheme-safe text snippets (never cutting a Bangla conjunct) | 4 |
 | The signed connect-Google cookie (forgery, expiry, junk) | 4 |
 

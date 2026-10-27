@@ -49,6 +49,16 @@ export function findExisting<T extends Named>(book: Named, index: Map<string, T>
 // Same shape as the seed's ids (category slug + title), but limited to URL-safe
 // characters. A clash with an existing id gets -2, -3, ...
 export function bookIdFor(categorySlug: string, title: string, taken: Set<string>): string {
+  const base = bookIdBase(categorySlug, title);
+  let id = base;
+  for (let n = 2; taken.has(id); n++) id = `${base}-${n}`;
+  taken.add(id);
+  return id;
+}
+
+// The id before any "-2", "-3" suffix: every id bookIdFor can give a title
+// starts with it, so the ids already taken can be looked up by this prefix.
+export function bookIdBase(categorySlug: string, title: string): string {
   const slug = title
     .normalize("NFKD")
     .replace(/[̀-ͯ]/g, "")
@@ -57,9 +67,5 @@ export function bookIdFor(categorySlug: string, title: string, taken: Set<string
     .replace(/^-+|-+$/g, "")
     .slice(0, 80)
     .replace(/-+$/g, "");
-  const base = `${categorySlug}-${slug || "book"}`;
-  let id = base;
-  for (let n = 2; taken.has(id); n++) id = `${base}-${n}`;
-  taken.add(id);
-  return id;
+  return `${categorySlug}-${slug || "book"}`;
 }

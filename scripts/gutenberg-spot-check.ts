@@ -1,12 +1,17 @@
 // Re-checks a sample of the Gutenberg import live: each book's Gutenberg page
 // is reachable and is that book, and every author's and translator's death
-// year is asked of Wikidata again (not from the cache). 20 page requests,
-// two seconds apart.
+// year is asked of Wikidata again (not from the cache). One page request
+// per book, two seconds apart.
 //
-//   npx tsx scripts/gutenberg-spot-check.ts      (after gutenberg-import.ts)
+//   npx tsx scripts/gutenberg-spot-check.ts         (after gutenberg-import.ts)
+//   npx tsx scripts/gutenberg-spot-check.ts --all   (after gutenberg-all.ts)
 //
-// Writes data/gutenberg-spot-check.md.
-import { readFileSync, writeFileSync } from "node:fs";
+// Writes data/gutenberg-spot-check.md, or with --all
+// data/gutenberg-all-spot-check.md: there each book's row in the import
+// files is checked too (its Gutenberg link and rights note, an English
+// title, the translator credited), and its category and description are
+// listed for reading.
+import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { askLiveOnly, networkCalls, USER_AGENT } from "./wikisource/http";
 import { peopleByWikipedia } from "./gutenberg/wikidata";
 
@@ -14,10 +19,39 @@ askLiveOnly();
 const PD_CUTOFF = new Date().getUTCFullYear() - 61;
 type P = { name: string; wikipedia: string[]; year: number };
 type Sample = { id: number; title: string; authors: P[]; translators: P[] };
+type ImportRow = { title: string; translator?: string | null; category: string; description: string; sources?: { url: string; rightsBasis: string }[] };
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const ALL = process.argv.includes("--all");
+const cell = (s: string) => s.replace(/\|/g, "\\|").replace(/\n/g, " ");
+
+// The rows of the whole-catalog import files, by Gutenberg ebook number.
+function allRows(): Map<number, ImportRow> {
+  const out = new Map<number, ImportRow>();
+  for (const f of readdirSync("data").filter((n) => /^gutenberg-all-\d+\.json$/.test(n))) {
+    for (const row of JSON.parse(readFileSync(`data/${f}`, "utf8")) as ImportRow[]) {
+      const id = Number(row.sources?.[0]?.url.match(/gutenberg\.org\/ebooks\/(\d+)$/)?.[1]);
+      if (id) out.set(id, row);
+    }
+  }
+  return out;
+}
+
+// What a row needs besides the rules every import checks for itself.
+function rowProblems(s: Sample, row: ImportRow | undefined): string[] {
+  if (!row) return ["not in the import files"];
+  const problems: string[] = [];
+  const source = row.sources?.[0];
+  if (source?.url !== `https://www.gutenberg.org/ebooks/${s.id}`) problems.push("no Gutenberg link");
+  if (!source?.rightsBasis.includes("প্রজেক্ট গুটেনবার্গ")) problems.push("rights note doesn't name Project Gutenberg");
+  if (!/[A-Za-z]/.test(row.title)) problems.push("title isn't in English");
+  if (s.translators.length > 0 && (!row.translator || !source?.rightsBasis.includes("অনুবাদক"))) problems.push("translator not credited");
+  if (/[0-9]/.test(row.description)) problems.push("description has Latin digits");
+  return problems;
+}
 
 async function main() {
-  const sample = JSON.parse(readFileSync("data/.gutenberg-cache/spot-check-sample.json", "utf8")) as Sample[];
+  const sample = JSON.parse(readFileSync(`data/.gutenberg-cache/${ALL ? "spot-check-all-sample" : "spot-check-sample"}.json`, "utf8")) as Sample[];
+  const rowsById = ALL ? allRows() : new Map<number, ImportRow>();
   const people = sample.flatMap((s) => [...s.authors, ...s.translators]);
   const facts = await peopleByWikipedia([...new Set(people.flatMap((p) => p.wikipedia.filter((u) => /\/\/en\.wikipedia\.org\//.test(u))))]);
 
@@ -50,24 +84,33 @@ async function main() {
       return `${role} ${p.name}: ${p.year}${live === null ? " (not on Wikidata; catalog year)" : live === p.year ? " ✓ Wikidata" : ` (Wikidata ${live})`}`;
     });
 
+    const row = rowsById.get(s.id);
+    if (ALL) problems.push(...rowProblems(s, row));
     const ok = problems.length === 0;
     if (ok) passed++;
     else notes.push(`- **${s.title}**: ${problems.join("; ")}`);
-    rows.push(`| ${i + 1} | [${s.title.replace(/\|/g, "\\|")}](${url}) | ${died.join("<br>")} | ${pageNote} | ${ok ? "✓ pass" : "✗ see below"} |`);
+    const book = `[${cell(s.title)}](${url})${row?.translator ? `<br>tr. ${cell(row.translator)}` : ""}`;
+    rows.push(
+      ALL
+        ? `| ${i + 1} | ${book} | ${row?.category ?? "—"} | ${cell(row?.description ?? "—")} | ${died.join("<br>")} | ${pageNote} | ${ok ? "✓ pass" : "✗ see below"} |`
+        : `| ${i + 1} | ${book} | ${died.join("<br>")} | ${pageNote} | ${ok ? "✓ pass" : "✗ see below"} |`
+    );
     console.log(`  ${i + 1}/${sample.length} ${ok ? "pass" : "FAIL"} ${s.title}`);
   }
 
   writeFileSync(
-    "data/gutenberg-spot-check.md",
+    ALL ? "data/gutenberg-all-spot-check.md" : "data/gutenberg-spot-check.md",
     [
-      "# Spot-check, Gutenberg import",
+      ALL ? "# Spot-check, whole-catalog Gutenberg import" : "# Spot-check, Gutenberg import",
       "",
-      `Checked ${new Date().toISOString().slice(0, 10)} by \`scripts/gutenberg-spot-check.ts\`, live (${networkCalls} Wikidata requests, ${sample.length} Gutenberg page requests). A sample of ${sample.length} new books.`,
+      `Checked ${new Date().toISOString().slice(0, 10)} by \`scripts/gutenberg-spot-check.ts${ALL ? " --all" : ""}\`, live (${networkCalls} Wikidata requests, ${sample.length} Gutenberg page requests). A ${ALL ? "random " : ""}sample of ${sample.length} new books.`,
       "",
-      `**${passed} of ${sample.length} passed.** Each book's page answered and is that book, and every author and translator died in ${PD_CUTOFF} or earlier, with Wikidata (asked again) agreeing where it has the person.`,
+      `**${passed} of ${sample.length} passed.** Each book's page answered and is that book, and every author and translator died in ${PD_CUTOFF} or earlier, with Wikidata (asked again) agreeing where it has the person.` +
+        (ALL ? " Each row links its Gutenberg page with a rights note naming Project Gutenberg, has an English title, and credits its translator." : ""),
       "",
-      "| # | Book | Died | Gutenberg page | Result |",
-      "|---|---|---|---|---|",
+      ...(ALL
+        ? ["| # | Book | Category | Description | Died | Gutenberg page | Result |", "|---|---|---|---|---|---|---|"]
+        : ["| # | Book | Died | Gutenberg page | Result |", "|---|---|---|---|---|"]),
       ...rows,
       "",
       ...(notes.length ? ["Problems found:", "", ...notes] : ["No problems found."]),

@@ -7,11 +7,12 @@ import { prisma } from "@/lib/prisma";
 import { getAdminUserId } from "@/lib/authz";
 import { bn } from "@/lib/bangla";
 import { describeDbError } from "@/lib/db-errors";
-import { bookIdFor, bookKeys, clashesWith, findExisting, indexByKeys, keySetOf } from "@/lib/book-catalog";
+import { bookIdBase, bookIdFor, bookKeys, clashesWith, findExisting, indexByKeys, keySetOf } from "@/lib/book-catalog";
 import { bookFormSchema, bookImportRowSchema, bookUpdateRowSchema, fieldErrorsOf, type BookFieldErrors } from "@/lib/book-schema";
 import { parseCoverUrl } from "@/lib/covers";
 import type { CoverJob } from "@/actions/covers";
-import { bookSearchText } from "@/lib/search";
+import { bookSearchText, escapeLike, normalizeForSearch } from "@/lib/search";
+import { bookSortTitle } from "@/lib/book-language";
 import { parseSourceUrl, SOURCE_LABEL, type SourceKind } from "@/lib/book-sources";
 import { canBePublicDomain, publicDomainCutoffYear } from "@/lib/public-domain";
 
@@ -48,10 +49,27 @@ function formInput(formData: FormData) {
   };
 }
 
-// The catalogue is small enough to load every book's identity in one query;
-// duplicate checks then run in memory with Unicode-aware matching.
-function allBookIdentities() {
-  return prisma.book.findMany({ select: { id: true, title: true, titleBangla: true, author: true } });
+// The books a new or changed book could clash with. A clash shares the
+// book's author, and every book's search text holds its normalized author, so
+// this reads a handful of rows however large the catalog (the trigram index on
+// searchText); duplicate checks then run in memory with Unicode-aware matching.
+const bookIdentity = { id: true, title: true, titleBangla: true, author: true } as const;
+function byAuthors(authors: string[]): Prisma.BookWhereInput | null {
+  const needles = [...new Set(authors.map(normalizeForSearch).filter(Boolean))];
+  return needles.length ? { OR: needles.map((a) => ({ searchText: { contains: escapeLike(a) } })) } : null;
+}
+async function identitiesByAuthor(author: string) {
+  const where = byAuthors([author]);
+  return where ? prisma.book.findMany({ where, select: bookIdentity }) : [];
+}
+
+// The ids already taken that bookIdFor could give these titles: all of them
+// start with the title's id base.
+async function takenIdsFor(bases: string[]): Promise<Set<string>> {
+  const unique = [...new Set(bases)];
+  if (unique.length === 0) return new Set();
+  const rows = await prisma.book.findMany({ where: { OR: unique.map((b) => ({ id: { startsWith: escapeLike(b) } })) }, select: { id: true } });
+  return new Set(rows.map((r) => r.id));
 }
 
 function revalidateBookPages(bookId?: string) {
@@ -72,15 +90,15 @@ export async function createBook(_prev: BookFormState, formData: FormData): Prom
   try {
     const [category, existing] = await Promise.all([
       prisma.category.findUnique({ where: { id: categoryId }, select: { id: true, slug: true } }),
-      allBookIdentities(),
+      identitiesByAuthor(data.author),
     ]);
     if (!category) return { success: false, fieldErrors: { categoryId: "বিভাগটি খুঁজে পাওয়া যায়নি।" } };
     if (clashesWith(data, keySetOf(existing))) {
       return { success: false, message: DUPLICATE, fieldErrors: { title: DUPLICATE } };
     }
 
-    const id = bookIdFor(category.slug, data.title, new Set(existing.map((b) => b.id)));
-    await prisma.book.create({ data: { ...data, id, categoryId: category.id, searchText: bookSearchText(data) } });
+    const id = bookIdFor(category.slug, data.title, await takenIdsFor([bookIdBase(category.slug, data.title)]));
+    await prisma.book.create({ data: { ...data, id, categoryId: category.id, searchText: bookSearchText(data), sortTitle: bookSortTitle(data.title) } });
     revalidateBookPages(id);
     return { success: true, message: "বইটি যোগ করা হয়েছে।", bookId: id };
   } catch (err) {
@@ -102,7 +120,7 @@ export async function updateBook(bookId: string, _prev: BookFormState, formData:
     const [book, category, existing] = await Promise.all([
       prisma.book.findUnique({ where: { id: bookId }, select: { id: true, coverPublicId: true, _count: { select: { files: true, sources: true } } } }),
       prisma.category.findUnique({ where: { id: categoryId }, select: { id: true } }),
-      allBookIdentities(),
+      identitiesByAuthor(data.author),
     ]);
     if (!book) return { success: false, message: "বইটি খুঁজে পাওয়া যায়নি।" };
     if (!category) return { success: false, fieldErrors: { categoryId: "বিভাগটি খুঁজে পাওয়া যায়নি।" } };
@@ -119,7 +137,7 @@ export async function updateBook(bookId: string, _prev: BookFormState, formData:
     // refused by the schema while the flag is on, so this is the only path.)
     const result = await prisma.book.updateMany({
       where: { id: bookId, ...(data.isPublicDomain ? {} : { files: { none: {} }, sources: { none: {} }, coverPublicId: null }) },
-      data: { ...data, categoryId: category.id, searchText: bookSearchText(data) },
+      data: { ...data, categoryId: category.id, searchText: bookSearchText(data), sortTitle: bookSortTitle(data.title) },
     });
     if (result.count === 0) return { success: false, message: HAS_PDF, fieldErrors: { isPublicDomain: HAS_PDF } };
 
@@ -238,64 +256,81 @@ type Analysis = {
   coverNotes: { bookId: string; sourceUrl: string; rightsBasis: string }[];
 };
 
-const emptyAnalysis = (message: string): Analysis => ({
-  preview: emptyPreview(message),
-  rows: [],
-  sources: [],
-  bookUpdates: [],
-  sourceUpdates: [],
-  coverJobs: [],
-  coverNotes: [],
-});
 const sameList = (a: string[], b: string[]) => a.length === b.length && a.every((x, i) => x === b[i]);
 const reasonsOf = (error: z.ZodError) => [
   ...new Set(error.issues.map((i) => (i.code === "unrecognized_keys" ? `${i.message}: ${i.keys.join(", ")}` : i.message))),
 ];
 
-// Validates a whole file without writing anything. Three queries in total
-// (categories, existing books, existing links) however many rows -- never one
-// per row.
-async function analyzeImport(jsonText: string): Promise<Analysis> {
-  if (typeof jsonText !== "string" || jsonText.length > MAX_IMPORT_CHARS) return emptyAnalysis("ফাইলটি অনেক বড়; ১ মেগাবাইটের কম রাখুন।");
+// A file's rows, or why it can't be read.
+function parseImportList(jsonText: string): { list: unknown[] } | { error: string } {
+  if (typeof jsonText !== "string" || jsonText.length > MAX_IMPORT_CHARS) return { error: "ফাইলটি অনেক বড়; ১ মেগাবাইটের কম রাখুন।" };
   let parsedJson: unknown;
   try {
     parsedJson = JSON.parse(jsonText);
   } catch {
-    return emptyAnalysis("ফাইলটি সঠিক JSON নয়।");
+    return { error: "ফাইলটি সঠিক JSON নয়।" };
   }
   const list = Array.isArray(parsedJson)
     ? parsedJson
     : parsedJson && typeof parsedJson === "object" && Array.isArray((parsedJson as { books?: unknown }).books)
       ? (parsedJson as { books: unknown[] }).books
       : null;
-  if (!list) return emptyAnalysis("ফাইলে বইয়ের একটি তালিকা (JSON array) থাকতে হবে।");
-  if (list.length === 0) return emptyAnalysis("ফাইলে কোনো বই নেই।");
-  if (list.length > MAX_IMPORT_ROWS) {
-    return emptyAnalysis(`একটি ফাইলে সর্বোচ্চ ${bn(MAX_IMPORT_ROWS)}টি বই দেওয়া যায়; এই ফাইলে আছে ${bn(list.length)}টি।`);
-  }
+  if (!list) return { error: "ফাইলে বইয়ের একটি তালিকা (JSON array) থাকতে হবে।" };
+  if (list.length === 0) return { error: "ফাইলে কোনো বই নেই।" };
+  if (list.length > MAX_IMPORT_ROWS) return { error: `একটি ফাইলে সর্বোচ্চ ${bn(MAX_IMPORT_ROWS)}টি বই দেওয়া যায়; এই ফাইলে আছে ${bn(list.length)}টি।` };
+  return { list };
+}
 
-  const [categories, existing, existingLinks] = await Promise.all([
+type ImportOptions = {
+  // Bulk imports of a whole catalog are not curated (Book.curated).
+  curated: boolean;
+  // The first row's number in the whole file, for messages (a large file is
+  // sent a batch at a time).
+  firstRow: number;
+};
+
+// Validates rows without writing anything. A few queries however many rows,
+// never one per row, and never the whole catalog: only the books the rows
+// could match (by author, see byAuthors), their links, and the ids sharing
+// the new books' id bases.
+async function analyzeImport(list: unknown[], options: ImportOptions): Promise<Analysis> {
+  const field = (raw: unknown, key: string): string | null => {
+    const value = raw && typeof raw === "object" ? (raw as Record<string, unknown>)[key] : undefined;
+    return typeof value === "string" && value.trim() ? value.trim() : null;
+  };
+  const authors = list.flatMap((raw) => {
+    const match = raw && typeof raw === "object" ? (raw as { match?: unknown }).match : undefined;
+    const author = field(match ?? raw, "author");
+    return author ? [author] : [];
+  });
+  // As the schema reads them: trimmed.
+  const idBases = list.flatMap((raw) => {
+    const title = field(raw, "title");
+    const slug = field(raw, "category");
+    return title && slug && !(raw as { match?: unknown }).match ? [bookIdBase(slug, title)] : [];
+  });
+  const near = byAuthors(authors);
+  const existingFields = {
+    ...bookIdentity,
+    translator: true,
+    searchAliases: true,
+    isPublicDomain: true,
+    authorDeathYear: true,
+    coverPublicId: true,
+    coverSourceUrl: true,
+    coverRightsBasis: true,
+  } as const;
+  const [categories, existing, takenByBase] = await Promise.all([
     prisma.category.findMany({ select: { id: true, slug: true } }),
-    prisma.book.findMany({
-      select: {
-        id: true,
-        title: true,
-        titleBangla: true,
-        author: true,
-        translator: true,
-        searchAliases: true,
-        isPublicDomain: true,
-        authorDeathYear: true,
-        coverPublicId: true,
-        coverSourceUrl: true,
-        coverRightsBasis: true,
-      },
-    }),
-    prisma.bookSource.findMany({ select: { bookId: true, url: true, kind: true, rightsBasis: true } }),
+    near ? prisma.book.findMany({ where: near, select: existingFields }) : [],
+    takenIdsFor(idBases),
   ]);
+  const existingLinks = existing.length
+    ? await prisma.bookSource.findMany({ where: { bookId: { in: existing.map((b) => b.id) } }, select: { bookId: true, url: true, kind: true, rightsBasis: true } })
+    : [];
   const categoryBySlug = new Map(categories.map((c) => [c.slug, c]));
   const existingByKey = indexByKeys(existing);
-  const takenIds = new Set(existing.map((b) => b.id));
+  const takenIds = new Set([...takenByBase, ...existing.map((b) => b.id)]);
   const seenInFile = new Map<string, number>(); // book key -> row number
   const linkKey = (bookId: string, url: string) => `${bookId} ${url}`;
   const links = new Map(existingLinks.map((s) => [linkKey(s.bookId, s.url), { kind: s.kind as SourceKind, rightsBasis: s.rightsBasis }]));
@@ -393,13 +428,13 @@ async function analyzeImport(jsonText: string): Promise<Analysis> {
     if (Object.keys(data).length > 0) {
       // Later rows in the same file see the change too.
       Object.assign(book, data);
-      bookUpdates.push({ id: book.id, data: { ...data, searchText: bookSearchText(book) } });
+      bookUpdates.push({ id: book.id, data: { ...data, searchText: bookSearchText(book), sortTitle: bookSortTitle(book.title) } });
     }
     preview.updated.push({ ...shown, bookId: book.id, changes });
   };
 
   list.forEach((raw, index) => {
-    const row = index + 1;
+    const row = options.firstRow + index;
     if (raw && typeof raw === "object" && "match" in raw) {
       analyzeUpdate(row, raw);
       return;
@@ -466,7 +501,7 @@ async function analyzeImport(jsonText: string): Promise<Analysis> {
     for (const k of keys) seenInFile.set(k, row);
 
     const id = bookIdFor(category.slug, data.title, takenIds);
-    rows.push({ ...data, id, categoryId: category.id, searchText: bookSearchText(data) });
+    rows.push({ ...data, id, categoryId: category.id, searchText: bookSearchText(data), sortTitle: bookSortTitle(data.title), curated: options.curated });
     if (cover) planCover(row, { id, title: data.title, titleBangla: data.titleBangla, author: data.author }, cover);
     // The schema has already accepted every link, so this only normalises it.
     const kinds: SourceKind[] = [];
@@ -492,65 +527,77 @@ async function analyzeImport(jsonText: string): Promise<Analysis> {
 
 export async function previewImport(jsonText: string): Promise<ImportPreview> {
   if (!(await getAdminUserId())) return emptyPreview(NOT_ADMIN);
+  const parsed = parseImportList(jsonText);
+  if ("error" in parsed) return emptyPreview(parsed.error);
   try {
-    return (await analyzeImport(jsonText)).preview;
+    return (await analyzeImport(parsed.list, { curated: true, firstRow: 1 })).preview;
   } catch (err) {
     console.error(`[admin] database error previewing an import: ${describeDbError(err)}`);
     return emptyPreview(SERVER_PROBLEM);
   }
 }
 
-// Re-validates the file from scratch -- the preview the browser saw is never
-// trusted -- then writes everything in one batch transaction: new books in
-// one createMany, all new links in a second, then each update to a book or a
+// Writes what analyzeImport found in one batch transaction: new books in one
+// createMany, all new links in a second, then each update to a book or a
 // link's note. No interactive transaction and no per-row queries before it,
-// so Prisma's 5-second transaction limit can't be hit on a slow connection.
+// so Prisma's 5-second transaction limit can't be hit on a slow connection;
+// and a batch is saved whole or not at all.
+async function writeAnalysis(analysis: Analysis, adminId: string): Promise<{ inserted: number; insertedSources: number }> {
+  const { preview, rows, sources, bookUpdates, sourceUpdates, coverNotes } = analysis;
+  const [books, links] = (await prisma.$transaction([
+    prisma.book.createMany({ data: rows, skipDuplicates: true }),
+    prisma.bookSource.createMany({ data: sources.map((s) => ({ ...s, addedById: adminId })), skipDuplicates: true }),
+    ...bookUpdates.map((u) => prisma.book.update({ where: { id: u.id }, data: u.data })),
+    ...sourceUpdates.map((u) => prisma.bookSource.updateMany({ where: { bookId: u.bookId, url: u.url }, data: { rightsBasis: u.rightsBasis } })),
+    ...coverNotes.map((u) => prisma.book.updateMany({ where: { id: u.bookId, coverSourceUrl: u.sourceUrl }, data: { coverRightsBasis: u.rightsBasis } })),
+  ])) as [Prisma.BatchPayload, Prisma.BatchPayload, ...unknown[]];
+
+  // As in addBookSource: an existing book could have been un-marked
+  // between the check above and the insert. Take back any new link that now
+  // sits on a book the rule doesn't clear.
+  const newIds = new Set(rows.map((r) => r.id));
+  const onExisting = sources.filter((s) => !newIds.has(s.bookId));
+  if (onExisting.length > 0) {
+    await prisma.bookSource.deleteMany({
+      where: {
+        bookId: { in: [...new Set(onExisting.map((s) => s.bookId))] },
+        url: { in: onExisting.map((s) => s.url) },
+        book: { OR: [{ isPublicDomain: false }, { authorDeathYear: null }, { authorDeathYear: { gt: publicDomainCutoffYear() } }] },
+      },
+    });
+  }
+
+  revalidateBookPages();
+  for (const id of new Set([...onExisting.map((s) => s.bookId), ...preview.updated.map((u) => u.bookId)])) revalidatePath(`/books/${id}`);
+  return { inserted: books.count, insertedSources: links.count };
+}
+
+// Re-validates the file from scratch -- the preview the browser saw is never
+// trusted -- then writes it (writeAnalysis).
 export async function importBooks(jsonText: string): Promise<ImportPreview> {
   const adminId = await getAdminUserId();
   if (!adminId) return emptyPreview(NOT_ADMIN);
+  const parsed = parseImportList(jsonText);
+  if ("error" in parsed) return emptyPreview(parsed.error);
   try {
-    const { preview, rows, sources, bookUpdates, sourceUpdates, coverJobs, coverNotes } = await analyzeImport(jsonText);
+    const analysis = await analyzeImport(parsed.list, { curated: true, firstRow: 1 });
+    const { preview, rows, coverJobs } = analysis;
     if (!preview.ok) return preview;
     if (rows.length === 0 && preview.linked.length === 0 && preview.updated.length === 0 && coverJobs.length === 0) {
       return { ...preview, ok: false, message: "যোগ বা হালনাগাদ করার মতো কিছু নেই।", inserted: 0 };
     }
-
-    const [books, links] = (await prisma.$transaction([
-      prisma.book.createMany({ data: rows, skipDuplicates: true }),
-      prisma.bookSource.createMany({ data: sources.map((s) => ({ ...s, addedById: adminId })), skipDuplicates: true }),
-      ...bookUpdates.map((u) => prisma.book.update({ where: { id: u.id }, data: u.data })),
-      ...sourceUpdates.map((u) => prisma.bookSource.updateMany({ where: { bookId: u.bookId, url: u.url }, data: { rightsBasis: u.rightsBasis } })),
-      ...coverNotes.map((u) => prisma.book.updateMany({ where: { id: u.bookId, coverSourceUrl: u.sourceUrl }, data: { coverRightsBasis: u.rightsBasis } })),
-    ])) as [Prisma.BatchPayload, Prisma.BatchPayload, ...unknown[]];
-
-    // As in addBookSource: an existing book could have been un-marked
-    // between the check above and the insert. Take back any new link that now
-    // sits on a book the rule doesn't clear.
-    const newIds = new Set(rows.map((r) => r.id));
-    const onExisting = sources.filter((s) => !newIds.has(s.bookId));
-    if (onExisting.length > 0) {
-      await prisma.bookSource.deleteMany({
-        where: {
-          bookId: { in: [...new Set(onExisting.map((s) => s.bookId))] },
-          url: { in: onExisting.map((s) => s.url) },
-          book: { OR: [{ isPublicDomain: false }, { authorDeathYear: null }, { authorDeathYear: { gt: publicDomainCutoffYear() } }] },
-        },
-      });
-    }
-
-    revalidateBookPages();
-    for (const id of new Set([...onExisting.map((s) => s.bookId), ...preview.updated.map((u) => u.bookId)])) revalidatePath(`/books/${id}`);
+    const { inserted, insertedSources } = await writeAnalysis(analysis, adminId);
     const skipped = preview.duplicates.length + preview.invalid.length;
     return {
       ...preview,
-      inserted: books.count,
-      insertedSources: links.count,
+      inserted,
+      insertedSources,
       updatedBooks: preview.updated.length,
       // Fetched next by the import page, a few per call (importCovers).
       coverJobs,
       message:
-        `${bn(books.count)}টি বই যোগ করা হয়েছে` +
-        (links.count > 0 ? `, সঙ্গে বাইরের সাইটে বিনামূল্যে পড়ার ${bn(links.count)}টি লিংক` : "") +
+        `${bn(inserted)}টি বই যোগ করা হয়েছে` +
+        (insertedSources > 0 ? `, সঙ্গে বাইরের সাইটে বিনামূল্যে পড়ার ${bn(insertedSources)}টি লিংক` : "") +
         (preview.linked.length > 0 ? ` (এর মধ্যে ${bn(preview.linked.length)}টি ক্যাটালগের আগের বইয়ে)` : "") +
         "।" +
         (preview.updated.length > 0 ? ` ${bn(preview.updated.length)}টি আগের বই হালনাগাদ করা হয়েছে।` : "") +
@@ -560,5 +607,53 @@ export async function importBooks(jsonText: string): Promise<ImportPreview> {
   } catch (err) {
     console.error(`[admin] database error importing books: ${describeDbError(err)}`);
     return emptyPreview(SERVER_PROBLEM);
+  }
+}
+
+// ---------------------------------------------------------------- large files
+
+// A large file (a whole catalog, tens of thousands of rows) is read in the
+// browser and sent here a batch at a time (AdminBulkImport), so every call
+// stays far inside the host's time limit. Each batch gets the same checks as
+// the import above and is written in one transaction -- saved whole or not at
+// all -- so a failed batch can simply be sent again, and so can one that was
+// saved: its books are then duplicates. Books from a large file are not
+// curated: the library, category pages and home page list curated books first.
+const MAX_BATCH_ROWS = 500;
+
+export type BatchResult = {
+  ok: boolean;
+  message?: string;
+  inserted: number;
+  linked: number;
+  updated: number;
+  duplicates: number;
+  invalid: { row: number; title: string; reasons: string[] }[];
+  coverJobs: CoverJob[];
+};
+
+export async function importBookBatch(rows: unknown[], firstRow: number, dryRun: boolean): Promise<BatchResult> {
+  const empty = (message: string): BatchResult => ({ ok: false, message, inserted: 0, linked: 0, updated: 0, duplicates: 0, invalid: [], coverJobs: [] });
+  const adminId = await getAdminUserId();
+  if (!adminId) return empty(NOT_ADMIN);
+  if (!Array.isArray(rows) || rows.length === 0 || rows.length > MAX_BATCH_ROWS || !Number.isInteger(firstRow) || firstRow < 1) {
+    return empty("অনুরোধটি সঠিক নয়।");
+  }
+  try {
+    const analysis = await analyzeImport(rows, { curated: false, firstRow });
+    const { preview } = analysis;
+    const counts = {
+      linked: preview.linked.length,
+      updated: preview.updated.length,
+      duplicates: preview.duplicates.length,
+      invalid: preview.invalid,
+      coverJobs: analysis.coverJobs,
+    };
+    if (dryRun) return { ok: true, inserted: analysis.rows.length, ...counts };
+    const { inserted } = await writeAnalysis(analysis, adminId);
+    return { ok: true, inserted, ...counts };
+  } catch (err) {
+    console.error(`[admin] database error importing a batch from row ${firstRow}: ${describeDbError(err)}`);
+    return empty(SERVER_PROBLEM);
   }
 }
