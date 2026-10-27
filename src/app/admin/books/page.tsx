@@ -170,9 +170,11 @@ export default async function AdminBooksPage(props: {
           </p>
           <p className="max-w-prose font-body text-sm text-ink/70">
             আগে থেকে থাকা বই সংশোধনের সারি: <code>match</code> (বইটির <code>title</code>, <code>titleBangla</code>,{" "}
-            <code>author</code>), সঙ্গে <code>set</code> (শুধু <code>translator</code>, <code>titleBangla</code> বা{" "}
-            <code>searchAliases</code>; <code>null</code> দিলে মুছে যায়) এবং/অথবা <code>sources</code> — আগের লিংকের{" "}
-            <code>rightsBasis</code> বদলায়, নতুন লিংক যোগ হয়। যাচাইয়ে এগুলো “হালনাগাদ হবে” হিসেবে দেখানো হয়।
+            <code>author</code>), সঙ্গে <code>set</code> (শুধু <code>author</code>, <code>translator</code>,{" "}
+            <code>titleBangla</code>, <code>searchAliases</code>, <code>language</code> বা <code>description</code>;{" "}
+            <code>translator</code> ও <code>titleBangla</code>-এ <code>null</code> দিলে মুছে যায়) এবং/অথবা{" "}
+            <code>sources</code> — আগের লিংকের <code>rightsBasis</code> বদলায়, নতুন লিংক যোগ হয়। লিংক সরাতে হয় বইয়ের
+            নিচের “লিংক সরান” দিয়ে। যাচাইয়ে এগুলো “হালনাগাদ হবে” হিসেবে দেখানো হয়।
           </p>
           <p className="max-w-prose font-body text-sm text-ink/70">
             পাবলিক ডোমেইনের বইয়ে (নতুন বা সংশোধনের সারিতে) ঐচ্ছিক <code>cover</code>: আসল প্রচ্ছদের ছবি,{" "}

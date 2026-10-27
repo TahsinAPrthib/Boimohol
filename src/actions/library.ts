@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { canBePublicDomain } from "@/lib/public-domain";
 import { getAdminUserId } from "@/lib/authz";
 import { rightsBasisSchema } from "@/lib/rights";
+import { revalidateBookCounts } from "@/lib/book-listing";
 import { serverCloudinary } from "@/lib/cloudinary-server";
 import { MAX_PDF_BYTES, PDF_FOLDER, PDF_FORMAT } from "@/lib/cloudinary-url";
 
@@ -164,6 +165,7 @@ export async function createBookFile(
     },
   });
 
+  revalidateBookCounts();
   revalidatePath("/library");
   revalidatePath("/admin/books");
   revalidatePath(`/books/${book.id}`);
@@ -205,6 +207,7 @@ export async function deleteBookFile(fileId: string): Promise<LibraryActionResul
   }
   await prisma.bookFile.delete({ where: { id: file.id } });
 
+  revalidateBookCounts();
   revalidatePath("/library");
   revalidatePath("/admin/books");
   revalidatePath(`/books/${file.bookId}`);

@@ -122,3 +122,23 @@ export function workTitle(title: string, authorNames: string[]): string {
 }
 // Surnames spelt differently across sources: Dostoyevsky / Dostoevsky.
 export const sameSurname = (a: string, b: string) => a === b || (a.length >= 5 && b.length >= 5 && editDistance(a, b) <= 2);
+
+// An author the catalog already has keeps the catalog's spelling ("Fyodor
+// Dostoevsky", not "Dostoyevsky") -- when it is the same person: the same
+// first name, a surname at most one letter apart, and the same death year.
+// Anything looser picks other people: Roy Norton is not Robert Burton, nor
+// Mrs. Beeton Isaac Newton, nor William Henry Hudson (died 1918) William
+// Hope Hodgson (died 1918).
+export type KnownAuthor = { name: string; death: number | null };
+// The catalog's single authors writing in Latin script, with their death
+// years (a book by several authors has only the latest).
+export const knownAuthors = (books: { author: string; authorDeathYear: number | null }[]): KnownAuthor[] => [
+  ...new Map(books.filter((b) => !BANGLA.test(b.author) && !/,|\sও\s/.test(b.author)).map((b) => [b.author, { name: b.author, death: b.authorDeathYear }])).values(),
+];
+export function catalogSpelling(name: string, death: number | null, known: KnownAuthor[]): string {
+  const first = (n: string) => n.split(/\s+/)[0].toLowerCase();
+  if (death === null || first(name).length < 2 || first(name).endsWith(".")) return name;
+  return (
+    known.find((a) => a.name !== name && a.death === death && first(a.name) === first(name) && editDistance(surname(a.name), surname(name)) <= 1)?.name ?? name
+  );
+}

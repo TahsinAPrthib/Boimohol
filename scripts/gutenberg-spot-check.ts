@@ -19,7 +19,7 @@ askLiveOnly();
 const PD_CUTOFF = new Date().getUTCFullYear() - 61;
 type P = { name: string; wikipedia: string[]; year: number };
 type Sample = { id: number; title: string; authors: P[]; translators: P[] };
-type ImportRow = { title: string; translator?: string | null; category: string; description: string; sources?: { url: string; rightsBasis: string }[] };
+type ImportRow = { title: string; author: string; translator?: string | null; category: string; description: string; sources?: { url: string; rightsBasis: string }[] };
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const ALL = process.argv.includes("--all");
 const cell = (s: string) => s.replace(/\|/g, "\\|").replace(/\n/g, " ");
@@ -37,9 +37,18 @@ function allRows(): Map<number, ImportRow> {
 }
 
 // What a row needs besides the rules every import checks for itself.
-function rowProblems(s: Sample, row: ImportRow | undefined): string[] {
+// The row's authors are checked against the page's own byline ("… by Jane
+// Austen | Project Gutenberg"): each one's surname must be in it.
+function rowProblems(s: Sample, row: ImportRow | undefined, pageTitle: string | null): string[] {
   if (!row) return ["not in the import files"];
   const problems: string[] = [];
+  const byline = pageTitle?.match(/\bby\s+(.*?)(\s*\|\s*Project Gutenberg)?$/i)?.[1] ?? null;
+  const letters = (t: string) => t.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z]/g, "");
+  if (byline !== null)
+    for (const name of row.author.split(/,\s+|\s+ও\s+/)) {
+      const last = letters(name.split(/\s+/).pop() ?? "");
+      if (last && !letters(byline).includes(last)) problems.push(`author “${name}” isn't on the page (“by ${byline}”)`);
+    }
   const source = row.sources?.[0];
   if (source?.url !== `https://www.gutenberg.org/ebooks/${s.id}`) problems.push("no Gutenberg link");
   if (!source?.rightsBasis.includes("প্রজেক্ট গুটেনবার্গ")) problems.push("rights note doesn't name Project Gutenberg");
@@ -62,10 +71,11 @@ async function main() {
     const problems: string[] = [];
     const url = `https://www.gutenberg.org/ebooks/${s.id}`;
     let pageNote = "";
+    let pageTitle: string | null = null;
     try {
       const res = await fetch(url, { headers: { "User-Agent": USER_AGENT }, signal: AbortSignal.timeout(60_000) });
       const html = await res.text();
-      const pageTitle = html.match(/<title>([^<]*)<\/title>/)?.[1]?.trim() ?? "";
+      pageTitle = html.match(/<title>([^<]*)<\/title>/)?.[1]?.trim() ?? "";
       const firstWord = s.title.split(/\s+/).find((w) => w.length > 3) ?? s.title;
       pageNote = `${res.status}, “${pageTitle.slice(0, 60)}”`;
       if (!res.ok) problems.push(`page answered ${res.status}`);
@@ -85,7 +95,7 @@ async function main() {
     });
 
     const row = rowsById.get(s.id);
-    if (ALL) problems.push(...rowProblems(s, row));
+    if (ALL) problems.push(...rowProblems(s, row, pageTitle));
     const ok = problems.length === 0;
     if (ok) passed++;
     else notes.push(`- **${s.title}**: ${problems.join("; ")}`);
@@ -106,7 +116,9 @@ async function main() {
       `Checked ${new Date().toISOString().slice(0, 10)} by \`scripts/gutenberg-spot-check.ts${ALL ? " --all" : ""}\`, live (${networkCalls} Wikidata requests, ${sample.length} Gutenberg page requests). A ${ALL ? "random " : ""}sample of ${sample.length} new books.`,
       "",
       `**${passed} of ${sample.length} passed.** Each book's page answered and is that book, and every author and translator died in ${PD_CUTOFF} or earlier, with Wikidata (asked again) agreeing where it has the person.` +
-        (ALL ? " Each row links its Gutenberg page with a rights note naming Project Gutenberg, has an English title, and credits its translator." : ""),
+        (ALL
+          ? " Each row names the authors on the book's page, links that page with a rights note naming Project Gutenberg, has an English title, and credits its translator."
+          : ""),
       "",
       ...(ALL
         ? ["| # | Book | Category | Description | Died | Gutenberg page | Result |", "|---|---|---|---|---|---|---|"]

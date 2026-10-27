@@ -62,7 +62,8 @@ All screenshots are of public pages on the live site, taken while signed out.
   - no audio, data, periodicals or indexes;
   - no single volumes of a set whose complete edition is there, and one edition per work.
 
-  Of 79,609 catalog entries, 35,285 new books pass. They are in `data/gutenberg-all-1.json` to `-4.json`, with counts for every rule in `data/gutenberg-all-report.md`. Each has a neutral one-line description (author, original language, subject or form, translator; never the plot), its English title, its translator credited, and its Gutenberg link with a rights note. They are imported as not curated. A book that fits none of the categories goes to অন্যান্য, with a description that names its subject (medicine, education, law, music and so on). A live check of 50 chosen at random is in `data/gutenberg-all-spot-check.md`.
+  Of 79,609 catalog entries, 35,134 new books pass, plus links for 2 books already in the catalog. They are in `data/gutenberg-all-1.json` to `-4.json`, with counts for every rule in `data/gutenberg-all-report.md`. Each has a neutral one-line description (author, original language, subject or form, translator; never the plot), Gutenberg's own English title, its author as Gutenberg names them (Wikidata's spelling only when Wikidata's item is that person), its translator credited, and its Gutenberg link with a rights note. They are imported as not curated. A book that fits none of the categories goes to অন্যান্য, with a description that names its subject (medicine, education, law, music and so on). Another edition, volume or translation of a book already in the catalog is left out rather than linked to it, unless it is the whole book in the translation that book credits. A live check of 50 chosen at random, including each author against the book's own Gutenberg page, is in `data/gutenberg-all-spot-check.md`.
+- Corrections to books already in the catalog go through the same import as update rows: author, translator, Bangla title, search names, language and description, and link rights notes. `data/catalog-corrections.json` is one, with the evidence for each row in `data/catalog-corrections.md`.
 - Downloads are counted only in aggregate. Who downloaded what is never recorded, and clicks on external links aren't counted at all.
 
 ### Search
@@ -239,8 +240,9 @@ At this size, Bangla books also had to stay first, and the chosen books ahead of
 - **Imports look up only what they need.** An import fetches just the books that could clash with its rows: those whose search text contains a row's author, plus the ids that share a new id's prefix.
 - **Admin.** The admin list is paged, 50 books at a time.
 - **A large-file import:** batches of 250 rows sent from the browser, resumable (see Admin above).
+- **Counts cached.** The pager needs the number of bulk books in each listing (the library and each category, by language). That number is kept in Next's data cache, and any change to a book, a link or a free PDF marks it stale: the next visit still gets the old number at once and the count is redone behind it. Listings narrowed by a search count directly.
 
-**Result,** measured on the development database holding a copy of production's data, before and after importing the 35,285 new books. Times are medians of five requests from Bangladesh to a database in Singapore, so most of each is network round trips:
+**Result,** measured on the development database holding a copy of production's data, before and after importing the first version of the bulk files (35,285 new books; the corrected files have 35,134). Times are medians of five requests from Bangladesh to a database in Singapore, so most of each is network round trips:
 
 | | Curated only (1,493 books) | Whole catalog (36,778 books) |
 |---|---|---|
@@ -250,7 +252,18 @@ At this size, Bangla books also had to stay first, and the chosen books ahead of
 | Search "dickens" | 259 ms | 285 ms |
 | Search "the" (matches 19,000 books) | 317 ms | 269 ms |
 
-In the database itself, a search through the trigram index takes about 1 ms. Page 400 of the library takes 13 ms. The whole database grew by about 51 MB, to 63 MB. The import ran in about 4½ minutes, at 1.2 to 1.9 seconds per batch, far inside Vercel's 60-second limit. The cost that remains is in counting the bulk books for the pager, which reads the Book table. That takes 3 to 7 ms when cached, but adds about half a second to the first request after the database wakes up.
+In the database itself, a search through the trigram index takes about 1 ms. Page 400 of the library takes 13 ms. The whole database grew by about 51 MB, to 63 MB. The import ran in about 4½ minutes, at 1.2 to 1.9 seconds per batch, far inside Vercel's 60-second limit.
+
+**The first visit after the database sleeps.** Neon's free plan suspends the database after some idle minutes, and the first visit afterwards reads everything from storage. Counting the bulk books on every request made that visit slower, so the counts are now cached (above). Measured on dev with the whole catalog, twice for each build. Each time, Postgres had just restarted (`pg_postmaster_start_time()` a second old), and the wake itself (0.6–1.4 s) was taken before the pages, so it isn't in these times:
+
+| First visits after a wake | Counting on every request | Counts cached |
+|---|---|---|
+| Library, page 1 (the first page loaded) | 2,239 / 2,167 ms | 1,505 / 1,847 ms |
+| Category page (উপন্যাস) | 927 / 760 ms | 801 / 985 ms |
+| Library, other languages | 791 / 701 ms | 631 / 817 ms |
+| Category page (অন্যান্য, page 3) | 660 / 691 ms | 559 / 585 ms |
+
+The first page after a wake is about half a second faster. The pages after it differ by no more than the noise, because by then the first page has brought the data into memory. Timed on its own right after a wake, the library's count takes 137–236 ms, against 80 ms warm (55 ms of each is the round trip).
 
 ### A 568 ms server wait that was distance, not N+1
 **Problem.** Before the first deployment, a production build ran on a laptop in Dhaka (`npm run build && npm start`) against the Neon database in Singapore. Chrome DevTools showed **568 ms** of "Waiting for server response". A wait that long often points to an N+1 query pattern, so the queries were audited. Each page made 3–6 batched queries, never one per row. So the time wasn't going on the number of queries but on round trips: every one of them went from Dhaka to Singapore and back.
@@ -318,7 +331,7 @@ Environment variables (names only; `.env.example` explains each):
 
 ## Testing
 
-**Unit tests.** `npm test` runs 205 tests with Node's built-in test runner, through `tsx`. They cover the pure modules where the rules live:
+**Unit tests.** `npm test` runs 206 tests with Node's built-in test runner, through `tsx`. They cover the pure modules where the rules live:
 
 | Area | Tests |
 |---|---|
@@ -327,7 +340,7 @@ Environment variables (names only; `.env.example` explains each):
 | Bangla numbers, prices and dates in Bangladesh time, with no Latin digits | 18 |
 | Wishlist ↔ listing matching | 15 |
 | Account rules: sign-up validation, the password stamp, the last-admin rule, Google names and emails | 9 |
-| Book import rows (including links to free copies and covers), update rows and the admin book form | 21 |
+| Book import rows (including links to free copies and covers), update rows and the admin book form | 22 |
 | Real covers: the allowed sources, lookalike hosts, credits, delivery sizes and the checks on an uploaded image | 12 |
 | Generated covers: the same design for the same book, variety along a shelf, palette-only night sky, title sizing for Bangla vowel signs | 11 |
 | Duplicate detection, matching an import row to an existing book, and book IDs | 12 |

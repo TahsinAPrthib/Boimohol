@@ -42,7 +42,7 @@ export default async function CategoryPage(props: {
     ...(showPick ? { id: { not: pick.bookId } } : {}),
   };
   // Curated books first, then the rest by title; one page of it.
-  const { ids: pageIds, page, pages } = await curatedFirstPage(where, readPage(searchParams.page));
+  const { ids: pageIds, page, pages } = await curatedFirstPage(where, readPage(searchParams.page), { cacheCount: !search });
   const loaded = await prisma.book.findMany({ where: { id: { in: pageIds } }, include: { reviews: { select: { rating: true } } } });
   const byId = new Map(loaded.map((b) => [b.id, b]));
   const books = pageIds.map((id) => byId.get(id)).filter((b) => b !== undefined);

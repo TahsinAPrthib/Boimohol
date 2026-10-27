@@ -35,7 +35,10 @@
 //      to it, so they stay curated whichever file is imported first.
 //   9. Our categories by subject; a book that fits none goes to অন্যান্য
 //      (onnanno), with a description naming its subject.
-// Rows already in the catalog become link rows, as in the curated import.
+// A book already in the catalog (same title, same author) gets a link row,
+// as in the curated import -- but only for the whole book, in English, in
+// the translation it credits; any other edition of it is left out. Titles
+// are Gutenberg's own (English), not Wikidata's.
 import { existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import type { Agent, Ebook } from "./gutenberg/catalog";
 import { peopleByWikipedia, worksFor, type PersonFacts, type WorkFacts } from "./gutenberg/wikidata";
@@ -44,13 +47,15 @@ import { GENUINE_BANGLA_TITLES } from "./gutenberg/titles";
 import { GUTENBERG_KNOWN } from "./gutenberg/descriptions";
 import { networkCalls } from "./wikisource/http";
 import {
-  BANGLA,
   bnYear,
+  catalogSpelling,
   displayName,
   FOREIGN_LCC,
   IMAGE_ROLES,
+  knownAuthors,
   LANGUAGE_BN,
   listOf,
+  loose,
   mainTitle,
   matchKey,
   possessiveAny,
@@ -96,6 +101,10 @@ const WROTE_IN_ENGLISH_BOOKS = new Set([
 const TRANSLATED_BY_HAND: Record<number, string> = {
   69572: "Einstein, Fundamental Ideas and Problems of the Theory of Relativity: lecture given in German",
 };
+const VOLUMES = new RegExp(VOLUME.source, "gi");
+// Gutenberg's titles keep library-catalogue subfield marks ("Dress Design $b
+// draping and flat pattern making"); "$b" starts the subtitle.
+const cleanTitle = (t: string) => t.replace(/\s*[:=]?\s*\$[a-z]\b\s*:?\s*/g, ": ");
 const writesOther = (f: PersonFacts | undefined) =>
   !!f &&
   !WROTE_IN_ENGLISH.has(f.id) &&
@@ -277,9 +286,10 @@ async function main() {
     else pool.push(b);
   }
 
-  // Rule 6 needs every complete edition, so it's settled before editions are chosen.
+  // Rule 6 needs every complete edition, so it's settled before editions are
+  // chosen. Every volume mark goes ("Vol. 2 (of 3)" has two).
   const setKey = (b: Ebook) =>
-    `${(b.roles.aut ?? []).map((a) => surname(displayName(a))).join("+")}|${workTitle(b.title.replace(VOLUME, " "), (b.roles.aut ?? []).map(displayName))}`;
+    `${(b.roles.aut ?? []).map((a) => surname(displayName(a))).join("+")}|${workTitle(cleanTitle(b.title).replace(VOLUMES, " "), (b.roles.aut ?? []).map(displayName))}`;
   const completeSets = new Set(pool.filter((b) => !VOLUME.test(b.title)).map(setKey));
 
   console.log(`catalog ${all.length}; pool ${pool.length}; asking Wikidata`);
@@ -382,21 +392,41 @@ async function main() {
 
   // ---- rows ----
   const catalog = await existingCatalog();
-  const catalogAuthors = [...new Set([...catalog.values()].flat().map((b) => b.author).filter((a) => !BANGLA.test(a)))];
-  const spelled = (name: string) => {
-    const [first, last] = [name.split(/\s+/)[0]?.[0]?.toLowerCase(), surname(name)];
-    return catalogAuthors.find((a) => a !== name && a.split(/\s+/)[0]?.[0]?.toLowerCase() === first && sameSurname(surname(a), last)) ?? name;
-  };
-  const nameOf = (p: Person) => spelled(p.facts?.nameEn ?? displayName(p.agent));
-  const nameBnOr = (p: Person) => p.facts?.nameBn ?? nameOf(p);
+  const known = knownAuthors([...catalog.values()].flat());
+  // Wikidata's labels carry peerages ("Thomas Babington Macaulay, 1st Baron
+  // Macaulay"), whose Latin digits would end up in the Bangla descriptions.
+  const withoutPeerage = (name: string) => name.replace(/,\s*\d+(st|nd|rd|th)\s.*$/i, "");
+  // Wikidata's names only when its item is that person: Gutenberg links some
+  // people to the wrong page ("Salisbury, William" to a Marquess of
+  // Salisbury, "Young, Charles L., Sir" to the Young baronets).
+  const ownSurnames = (a: Agent) => [displayName(a), ...a.aliases.map((x) => x.split(",")[0])].map(surname).filter((s) => s.length > 2);
+  const wikidataNamed = (p: Person) =>
+    !!p.facts?.nameEn && !/\bbaronets\b|\bfamily\b|\(\d{4}\)/i.test(p.facts.nameEn) && ownSurnames(p.agent).some((s) => loose(withoutPeerage(p.facts!.nameEn!)).includes(s));
+  const nameOf = (p: Person) => catalogSpelling(withoutPeerage(wikidataNamed(p) ? p.facts!.nameEn! : displayName(p.agent)), p.year, known);
+  const nameBnOr = (p: Person) => (wikidataNamed(p) ? p.facts?.nameBn : null) ?? nameOf(p);
   const rows: { c: Candidate; form: GForm; row: Row; linked: boolean }[] = [];
   const seenRows = new Set<string>();
+  // Rule 6 again, on the titles as the catalog will show them: Gutenberg's
+  // sets are titled unlike their complete editions ("Pamela, Volume II" and
+  // "Pamela, or Virtue Rewarded"; "Les Misérables, V. 1/5").
+  const wholeKey = (author: string, title: string) => `${surname(author)}|${matchKey(mainTitle(title))}`;
+  const wholes = new Set([
+    ...selected.filter((c) => !c.volume).map((c) => wholeKey(nameOf(c.authors[0]), cleanTitle(c.book.title))),
+    ...[...catalog.values()].flat().map((cb) => wholeKey(cb.author.split(/,\s+|\s+ও\s+/)[0], cb.title)),
+  ]);
   for (const c of selected) {
     const b = c.book;
+    if (c.volume && wholes.has(wholeKey(nameOf(c.authors[0]), cleanTitle(b.title).split(VOLUME)[0].replace(/[\s,—:;([-]+$/, "")))) {
+      bump("6 one volume of a set whose complete edition is in the catalog");
+      continue;
+    }
     const form = bulkForm(b);
     const author = listOf(c.authors.map(nameOf));
-    const wdTitle = !c.volume && c.work?.nameEn && c.work.nameEn.length <= 150 && !/^Q\d+$/.test(c.work.nameEn) ? c.work.nameEn : null;
-    let title = mainTitle(wdTitle ?? b.title);
+    // Gutenberg's own title, in English. Wikidata's label for the work only
+    // tells editions apart (rule 7): it can be the original's title ("La
+    // Débâcle" for "The Downfall") or a larger or smaller work than the book
+    // ("Il Penseroso" for Milton's four poems).
+    let title = mainTitle(cleanTitle(b.title));
     // A volume keeps its number, which the main title can lose with a subtitle.
     if (c.volume && !title.toLowerCase().includes(c.volume.toLowerCase())) title = `${title}, ${c.volume.replace(/^(vol(ume)?\.?|v\.)\s*/i, "Volume ")}`;
     if (title.length > 200) title = title.slice(0, 200).replace(/\s+\S*$/, "");
@@ -438,11 +468,34 @@ async function main() {
       bump("2 more named authors or translators than one field can credit (a collection)");
       continue;
     }
+    // The same book already in the catalog: the same title and the same first
+    // author (by surname, or by the Bangla name Wikidata gives a Bangla
+    // writer). Its link is added to that book only when the link is to the
+    // whole book, in English, by the translator that book credits -- a link
+    // row credits nobody. Any other edition of it is left out: a new row
+    // would only be matched to the same book by the import, which adds links
+    // the same way.
     const firstAuthor = surname(nameOf(c.authors[0]));
-    const hit = [title, mainTitle(b.title), bnwikiTitle]
+    const firstAuthorBn = c.authors[0].facts?.nameBn ?? null;
+    const hit = [title, bnwikiTitle]
       .filter((t): t is string => !!t)
       .flatMap((t) => catalog.get(matchKey(t)) ?? [])
-      .find((cb) => sameSurname(surname(cb.author), firstAuthor) || (bnwikiTitle !== null && cb.titleBangla === bnwikiTitle));
+      .find((cb) => sameSurname(surname(cb.author), firstAuthor) || (firstAuthorBn !== null && cb.author === firstAuthorBn));
+    const sameTranslator = (cb: CatalogBook) =>
+      c.translators.length === 0 || (cb.translator !== null && sameSurname(surname(cb.translator), surname(nameOf(c.translators[0]))));
+    // "Essays — First Series", "Robinson Crusoe — in Words of One Syllable"
+    // (with a second author): a part or a retelling, not the book.
+    const wholeBook = (cb: CatalogBook) => !c.volume && !/\s—\s/.test(b.title) && cb.author.split(/,\s+|\s+ও\s+/).length === c.authors.length;
+    if (hit && (!wholeBook(hit) || hit.language !== "en" || !sameTranslator(hit))) {
+      bump(
+        !wholeBook(hit)
+          ? "8 a volume, part or retelling of a book already in the catalog"
+          : hit.language !== "en"
+            ? "8 an English edition of a book the catalog has in another language"
+            : "8 another translation of a book already in the catalog"
+      );
+      continue;
+    }
     if (hit) {
       row = { ...row, title: hit.title, titleBangla: hit.titleBangla, author: hit.author, category: hit.category };
       delete row.translator;
@@ -549,7 +602,7 @@ async function main() {
 
 // Every book already in the catalog by title key; the author is checked by
 // the caller. The dev database's books, then the import files'.
-type CatalogBook = { title: string; titleBangla: string | null; author: string; category: string };
+type CatalogBook = { title: string; titleBangla: string | null; author: string; authorDeathYear: number | null; translator: string | null; language: string; category: string };
 async function existingCatalog(): Promise<Map<string, CatalogBook[]>> {
   const out = new Map<string, CatalogBook[]>();
   const add = (b: CatalogBook) => {
@@ -564,16 +617,28 @@ async function existingCatalog(): Promise<Map<string, CatalogBook[]>> {
     const { PrismaClient } = await import("@prisma/client");
     const prisma = new PrismaClient();
     try {
-      for (const b of await prisma.book.findMany({ where: { curated: true }, select: { title: true, titleBangla: true, author: true, category: { select: { slug: true } } } }))
-        add({ title: b.title, titleBangla: b.titleBangla, author: b.author, category: b.category.slug });
+      for (const b of await prisma.book.findMany({
+        where: { curated: true },
+        select: { title: true, titleBangla: true, author: true, authorDeathYear: true, translator: true, language: true, category: { select: { slug: true } } },
+      }))
+        add({ ...b, category: b.category.slug });
     } finally {
       await prisma.$disconnect();
     }
   }
   for (const f of ["data/catalog-import.json", ...readdirSync("data").filter((f) => /^(wikisource-import(-\d+)?|gutenberg-import-\d+)\.json$/.test(f)).map((f) => `data/${f}`)])
     if (existsSync(f))
-      for (const b of JSON.parse(readFileSync(f, "utf8")) as { title: string; titleBangla?: string | null; author: string; category?: string }[])
-        if (b.category) add({ title: b.title, titleBangla: b.titleBangla ?? null, author: b.author, category: b.category });
+      for (const b of JSON.parse(readFileSync(f, "utf8")) as (Partial<CatalogBook> & { title: string; author: string })[])
+        if (b.category)
+          add({
+            title: b.title,
+            titleBangla: b.titleBangla ?? null,
+            author: b.author,
+            authorDeathYear: b.authorDeathYear ?? null,
+            translator: b.translator ?? null,
+            language: b.language ?? "bn",
+            category: b.category,
+          });
   return out;
 }
 

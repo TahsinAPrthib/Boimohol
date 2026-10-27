@@ -1,15 +1,15 @@
 # Project Gutenberg, whole catalog — import report
 
-Generated 2026-10-26 by `scripts/gutenberg-all.ts` from Gutenberg's official RDF catalog feed (downloaded 2026-10-16). Public-domain cutoff: died in **1965 or earlier**. For the large-file import on /admin/books, which marks these books as not curated.
+Generated 2026-10-27 by `scripts/gutenberg-all.ts` from Gutenberg's official RDF catalog feed (downloaded 2026-10-16). Public-domain cutoff: died in **1965 or earlier**. For the large-file import on /admin/books, which marks these books as not curated.
 
 ## Totals
 
 | | Books |
 |---|---|
 | Gutenberg catalog | 79609 |
-| Pass every rule | 35304 |
-| New books (`data/gutenberg-all-1.json`, `data/gutenberg-all-2.json`, `data/gutenberg-all-3.json`, `data/gutenberg-all-4.json`) | 35285 |
-| Links for books already in the catalog (at the end of the last file) | 19 |
+| Pass every rule | 35136 |
+| New books (`data/gutenberg-all-1.json`, `data/gutenberg-all-2.json`, `data/gutenberg-all-3.json`, `data/gutenberg-all-4.json`) | 35134 |
+| Links for books already in the catalog (at the end of the last file) | 2 |
 | Left to the curated import | 922 |
 
 ## Left out, by rule
@@ -31,27 +31,29 @@ Generated 2026-10-26 by `scripts/gutenberg-all.ts` from Gutenberg's official RDF
 | 5 illustrator died after the cutoff | 466 |
 | 5 translation with no named translator | 1783 |
 | 5 translator's death year unknown or after the cutoff | 833 |
-| 6 one volume of a set whose complete edition is in the catalog | 442 |
+| 6 one volume of a set whose complete edition is in the catalog | 608 |
 | 7 another edition of the same work | 1469 |
-| 7 another edition of the same work (same title and author) | 7 |
+| 7 another edition of the same work (same title and author) | 5 |
+| 8 a volume, part or retelling of a book already in the catalog | 3 |
+| 8 an English edition of a book the catalog has in another language | 1 |
 | 8 in the curated import (data/gutenberg-import-*.json) | 922 |
 
 ## New books by category
 
 | Category | Books |
 |---|---|
-| `uponnash` | 9127 |
-| `itihash-jiboni` | 6990 |
+| `uponnash` | 9057 |
+| `itihash-jiboni` | 6945 |
 | `shishu-sahitto` | 4430 |
-| `probondho` | 4065 |
+| `probondho` | 4050 |
 | `onnanno` | 3156 |
-| `bhromon` | 2265 |
-| `kobita` | 1573 |
-| `thriller-rohosso` | 1249 |
-| `chhotogolpo` | 1052 |
-| `natok` | 804 |
+| `bhromon` | 2257 |
+| `kobita` | 1569 |
+| `thriller-rohosso` | 1245 |
+| `chhotogolpo` | 1049 |
+| `natok` | 803 |
 | `biggan-kolpokahini` | 307 |
-| `puran-lokkotha` | 250 |
+| `puran-lokkotha` | 249 |
 | `atmounnoyon` | 17 |
 
 ## অন্যান্য (onnanno), by subject
@@ -90,10 +92,10 @@ Generated 2026-10-26 by `scripts/gutenberg-all.ts` from Gutenberg's official RDF
 
 ## Other facts
 
-- Translations, each crediting its translator: 1819.
-- Volumes kept on their own (no complete set in the catalog): 3387.
-- Authors and translators found on Wikidata with a death date: 31202 of 38334.
-- Average bytes per new row: title 27, author 18, description 89, rights note 210.
+- Translations, each crediting its translator: 1780.
+- Volumes kept on their own (no complete set in the catalog): 3231.
+- Authors and translators found on Wikidata with a death date: 31032 of 38131.
+- Average bytes per new row: title 27, author 17, description 89, rights note 210.
 - Descriptions are neutral: author, original language, subject or form, translator; 0 well-known works keep the curated import's own line. No plot is described.
 
 ## Spot-check

@@ -13,6 +13,7 @@ import { parseCoverUrl } from "@/lib/covers";
 import type { CoverJob } from "@/actions/covers";
 import { bookSearchText, escapeLike, normalizeForSearch } from "@/lib/search";
 import { bookSortTitle } from "@/lib/book-language";
+import { revalidateBookCounts } from "@/lib/book-listing";
 import { parseSourceUrl, SOURCE_LABEL, type SourceKind } from "@/lib/book-sources";
 import { canBePublicDomain, publicDomainCutoffYear } from "@/lib/public-domain";
 
@@ -73,6 +74,7 @@ async function takenIdsFor(bases: string[]): Promise<Set<string>> {
 }
 
 function revalidateBookPages(bookId?: string) {
+  revalidateBookCounts();
   revalidatePath("/admin/books");
   revalidatePath("/library");
   if (bookId) revalidatePath(`/books/${bookId}`);
@@ -298,10 +300,12 @@ async function analyzeImport(list: unknown[], options: ImportOptions): Promise<A
     const value = raw && typeof raw === "object" ? (raw as Record<string, unknown>)[key] : undefined;
     return typeof value === "string" && value.trim() ? value.trim() : null;
   };
+  // An update row that renames the author needs the new author's books too,
+  // to refuse a rename onto a book that already exists.
   const authors = list.flatMap((raw) => {
     const match = raw && typeof raw === "object" ? (raw as { match?: unknown }).match : undefined;
-    const author = field(match ?? raw, "author");
-    return author ? [author] : [];
+    const set = match && typeof raw === "object" ? (raw as { set?: unknown }).set : undefined;
+    return [field(match ?? raw, "author"), field(set, "author")].filter((a): a is string => a !== null);
   });
   // As the schema reads them: trimmed.
   const idBases = list.flatMap((raw) => {
@@ -314,6 +318,8 @@ async function analyzeImport(list: unknown[], options: ImportOptions): Promise<A
     ...bookIdentity,
     translator: true,
     searchAliases: true,
+    language: true,
+    description: true,
     isPublicDomain: true,
     authorDeathYear: true,
     coverPublicId: true,
@@ -379,7 +385,16 @@ async function analyzeImport(list: unknown[], options: ImportOptions): Promise<A
       return;
     }
     const changes: string[] = [];
-    const data: { translator?: string | null; titleBangla?: string | null; searchAliases?: string[] } = {};
+    const data: { author?: string; translator?: string | null; titleBangla?: string | null; searchAliases?: string[]; language?: string; description?: string } = {};
+    if (set?.author !== undefined && set.author !== book.author) {
+      const clash = findExisting({ title: book.title, titleBangla: book.titleBangla, author: set.author }, existingByKey);
+      if (clash && clash.id !== book.id) {
+        preview.invalid.push({ row, title: book.titleBangla || book.title, reasons: [`${set.author}-এর নামে এই বই ক্যাটালগে আগে থেকেই আছে।`] });
+        return;
+      }
+      data.author = set.author;
+      changes.push(`লেখক: ${book.author} → ${set.author}`);
+    }
     if (set?.translator !== undefined && set.translator !== book.translator) {
       data.translator = set.translator;
       changes.push(`অনুবাদক: ${book.translator ?? "—"} → ${set.translator ?? "—"}`);
@@ -391,6 +406,14 @@ async function analyzeImport(list: unknown[], options: ImportOptions): Promise<A
     if (set?.searchAliases !== undefined && !sameList(set.searchAliases, book.searchAliases)) {
       data.searchAliases = set.searchAliases;
       changes.push(`খোঁজার বিকল্প নাম: ${set.searchAliases.join(", ") || "—"}`);
+    }
+    if (set?.language !== undefined && set.language !== book.language) {
+      data.language = set.language;
+      changes.push(`ভাষা: ${book.language} → ${set.language}`);
+    }
+    if (set?.description !== undefined && set.description !== book.description) {
+      data.description = set.description;
+      changes.push(`বিবরণ: ${set.description}`);
     }
     const eligible = book.isPublicDomain && canBePublicDomain(book.authorDeathYear);
     for (const s of rowSources) {

@@ -7,6 +7,7 @@ import { getAdminUserId } from "@/lib/authz";
 import { canBePublicDomain } from "@/lib/public-domain";
 import { rightsBasisSchema } from "@/lib/rights";
 import { parseSourceUrl } from "@/lib/book-sources";
+import { revalidateBookCounts } from "@/lib/book-listing";
 import { describeDbError } from "@/lib/db-errors";
 
 // Free copies of a book hosted elsewhere (Wikisource, Project Gutenberg, the
@@ -37,6 +38,7 @@ async function bookIsEligible(bookId: string): Promise<boolean | null> {
 }
 
 function revalidate(bookId: string) {
+  revalidateBookCounts();
   revalidatePath("/admin/books");
   revalidatePath("/library");
   revalidatePath(`/books/${bookId}`);

@@ -1,0 +1,219 @@
+[
+  {
+    "match": {
+      "title": "Manon Lescaut",
+      "titleBangla": null,
+      "author": "Antoine François Prévost"
+    },
+    "set": {
+      "language": "fr",
+      "description": "Antoine François Prévost-এর ফরাসি উপন্যাস।"
+    }
+  },
+  {
+    "match": {
+      "title": "Novum Organum",
+      "titleBangla": null,
+      "author": "Francis Bacon"
+    },
+    "set": {
+      "language": "la",
+      "description": "ফ্রান্সিস বেকনের লাতিন দর্শন বিষয়ক বই।"
+    }
+  },
+  {
+    "match": {
+      "title": "Memoirs of the Duchesse de Dino (Afterwards Duchesse de Talleyrand Et de Sagan), 1836-1840",
+      "titleBangla": null,
+      "author": "Dorothée Dino"
+    },
+    "set": {
+      "language": "fr",
+      "description": "Dorothée Dino-এর ফরাসি জীবনী।"
+    }
+  },
+  {
+    "match": {
+      "title": "Rizal's Own Story of His Life",
+      "titleBangla": null,
+      "author": "José Rizal"
+    },
+    "set": {
+      "language": "es",
+      "description": "হোসে রিজালের নিজের স্প্যানিশ লেখা থেকে অস্টিন ক্রেগের সাজানো তাঁর জীবনকথা।"
+    }
+  },
+  {
+    "match": {
+      "title": "The Love Letters of Henry VIII to Anne Boleyn",
+      "titleBangla": null,
+      "author": "Henry VIII of England"
+    },
+    "set": {
+      "description": "অ্যান বোলিনকে লেখা অষ্টম হেনরির সতেরোটি প্রেমপত্র; আটটি ইংরেজিতে, নয়টি ফরাসিতে লেখা।"
+    }
+  },
+  {
+    "match": {
+      "title": "The Communist Manifesto",
+      "titleBangla": "কমিউনিস্ট ইস্তেহার",
+      "author": "Karl Marx ও Friedrich Engels"
+    },
+    "set": {
+      "translator": "Samuel Moore"
+    },
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/61",
+        "rightsBasis": "লেখক কার্ল মার্ক্স ১৮৮৩ সালে, লেখক ফ্রিডরিখ এঙ্গেল্স ১৮৯৫ সালে ও অনুবাদক Samuel Moore ১৯১১ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
+    "match": {
+      "title": "Utopia",
+      "titleBangla": null,
+      "author": "Thomas More"
+    },
+    "set": {
+      "translator": "Gilbert Burnet"
+    },
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/2130",
+        "rightsBasis": "লেখক থমাস মুর ১৫৩৫ সালে, অনুবাদক Gilbert Burnet ১৭১৫ সালে ও সম্পাদক Henry Morley ১৮৯৪ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
+    "match": {
+      "title": "Grace, Actual and Habitual",
+      "titleBangla": null,
+      "author": "Joseph Pohle"
+    },
+    "set": {
+      "translator": "Arthur Preuss",
+      "description": "Joseph Pohle-এর জার্মান ধর্ম বিষয়ক বই, Arthur Preuss-এর ইংরেজি রূপান্তরে।"
+    }
+  },
+  {
+    "match": {
+      "title": "The Part Borne by the Dutch in the Discovery of Australia 1606-1765",
+      "titleBangla": null,
+      "author": "J. E. Heeres"
+    },
+    "set": {
+      "translator": "Cornelis Stoffel",
+      "description": "J. E. Heeres-এর ডাচ ইতিহাস বিষয়ক বই, Cornelis Stoffel-এর ইংরেজি অনুবাদে।"
+    },
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/17450",
+        "rightsBasis": "লেখক J. E. Heeres ১৯৩২ সালে ও অনুবাদক Cornelis Stoffel ১৯০৮ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
+    "match": {
+      "title": "Crime and Punishment",
+      "titleBangla": "অপরাধ ও শাস্তি",
+      "author": "Fyodor Dostoevsky"
+    },
+    "set": {
+      "translator": "Constance Garnett"
+    }
+  },
+  {
+    "match": {
+      "title": "Meditations",
+      "titleBangla": null,
+      "author": "Marcus Aurelius"
+    },
+    "set": {
+      "translator": "George Chrystal"
+    }
+  },
+  {
+    "match": {
+      "title": "We",
+      "titleBangla": null,
+      "author": "Yevgeny Zamyatin"
+    },
+    "set": {
+      "translator": "Gregory Zilboorg"
+    }
+  },
+  {
+    "match": {
+      "title": "The Pilgrim’s Progress",
+      "titleBangla": null,
+      "author": "John Buchan"
+    },
+    "set": {
+      "author": "John Bunyan"
+    }
+  },
+  {
+    "match": {
+      "title": "The Pilgrim's Progress by John Bunyan Every Child Can Read",
+      "titleBangla": null,
+      "author": "John Buchan"
+    },
+    "set": {
+      "author": "John Bunyan"
+    }
+  },
+  {
+    "match": {
+      "title": "The Task of Social Hygiene",
+      "titleBangla": null,
+      "author": "H. G. Wells"
+    },
+    "set": {
+      "author": "Havelock Ellis",
+      "description": "Havelock Ellis-এর ইংরেজি প্রবন্ধের বই।"
+    }
+  },
+  {
+    "match": {
+      "title": "Electricity for Boys",
+      "titleBangla": null,
+      "author": "Jules Verne"
+    },
+    "set": {
+      "author": "James Slough Zerbe",
+      "description": "James Slough Zerbe-এর ইংরেজি ছোটদের বই।"
+    }
+  },
+  {
+    "match": {
+      "title": "The Influence of Sea Power Upon History",
+      "titleBangla": null,
+      "author": "Alfred Thayer Maan"
+    },
+    "set": {
+      "author": "Alfred Thayer Mahan",
+      "description": "Alfred Thayer Mahan-এর ইংরেজি ইতিহাস বিষয়ক বই।"
+    }
+  },
+  {
+    "match": {
+      "title": "The War of the Worlds",
+      "titleBangla": null,
+      "author": "H. G. Wells"
+    },
+    "set": {
+      "language": "en"
+    }
+  },
+  {
+    "match": {
+      "title": "The Adventures of Sherlock Holmes",
+      "titleBangla": null,
+      "author": "Arthur Conan Doyle"
+    },
+    "set": {
+      "language": "en"
+    }
+  }
+]

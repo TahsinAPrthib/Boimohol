@@ -76,7 +76,8 @@ type Row = {
 
 import {
   bnYear,
-  BANGLA,
+  catalogSpelling,
+  knownAuthors,
   possessiveAny,
   listOf,
   LANGUAGE_BN,
@@ -256,14 +257,10 @@ async function main() {
 
   // ---- rows ----
   const catalog = await existingCatalog();
-  // An author the catalog already has keeps the catalog's spelling
-  // ("Fyodor Dostoevsky", not Gutenberg's "Dostoyevsky").
-  const catalogAuthors = [...new Set([...catalog.values()].flat().map((b) => b.author).filter((a) => !BANGLA.test(a)))];
-  const spelled = (name: string) => {
-    const [first, last] = [name.split(/\s+/)[0]?.[0]?.toLowerCase(), surname(name)];
-    return catalogAuthors.find((a) => a !== name && a.split(/\s+/)[0]?.[0]?.toLowerCase() === first && sameSurname(surname(a), last)) ?? name;
-  };
-  const nameOf = (p: Person) => spelled(p.facts?.nameEn ?? displayName(p.agent));
+  // An author the catalog already has keeps the catalog's spelling (see
+  // catalogSpelling).
+  const known = knownAuthors([...catalog.values()].flat());
+  const nameOf = (p: Person) => catalogSpelling(p.facts?.nameEn ?? displayName(p.agent), p.year, known);
   const nameBnOr = (p: Person) => p.facts?.nameBn ?? nameOf(p);
   const rows: { c: Candidate; form: GForm; row: Row; linked: boolean; why: string }[] = [];
   const seenRows = new Set<string>(); // one row per work, by its final title
@@ -532,7 +529,7 @@ async function main() {
 // Every book already in the catalog by title key (see matchKey); the author
 // is checked by the caller. The database's books first, then
 // data/catalog-import.json's.
-type CatalogBook = { title: string; titleBangla: string | null; author: string; category: string };
+type CatalogBook = { title: string; titleBangla: string | null; author: string; authorDeathYear: number | null; category: string };
 async function existingCatalog(): Promise<Map<string, CatalogBook[]>> {
   const out = new Map<string, CatalogBook[]>();
   const add = (b: CatalogBook) => {
@@ -547,15 +544,15 @@ async function existingCatalog(): Promise<Map<string, CatalogBook[]>> {
     const { PrismaClient } = await import("@prisma/client");
     const prisma = new PrismaClient();
     try {
-      for (const b of await prisma.book.findMany({ select: { title: true, titleBangla: true, author: true, category: { select: { slug: true } } } }))
-        add({ title: b.title, titleBangla: b.titleBangla, author: b.author, category: b.category.slug });
+      for (const b of await prisma.book.findMany({ select: { title: true, titleBangla: true, author: true, authorDeathYear: true, category: { select: { slug: true } } } }))
+        add({ ...b, category: b.category.slug });
     } finally {
       await prisma.$disconnect();
     }
   }
   if (existsSync("data/catalog-import.json"))
-    for (const b of JSON.parse(readFileSync("data/catalog-import.json", "utf8")) as { title: string; titleBangla?: string | null; author: string; category: string }[])
-      add({ title: b.title, titleBangla: b.titleBangla ?? null, author: b.author, category: b.category });
+    for (const b of JSON.parse(readFileSync("data/catalog-import.json", "utf8")) as { title: string; titleBangla?: string | null; author: string; authorDeathYear?: number | null; category: string }[])
+      add({ title: b.title, titleBangla: b.titleBangla ?? null, author: b.author, authorDeathYear: b.authorDeathYear ?? null, category: b.category });
   return out;
 }
 

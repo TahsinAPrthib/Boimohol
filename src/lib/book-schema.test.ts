@@ -105,6 +105,14 @@ describe("book update rows", () => {
     assert.ok(bookUpdateRowSchema.safeParse({ match, sources: [source] }).success);
   });
 
+  test("an author, a language or a description can be corrected, and are checked as in the form", () => {
+    assert.ok(bookUpdateRowSchema.safeParse({ match, set: { author: "John Bunyan", language: "fr", description: "ফরাসি উপন্যাস।" } }).success);
+    assert.equal(bookUpdateRowSchema.safeParse({ match, set: { author: "  " } }).success, false);
+    assert.equal(bookUpdateRowSchema.safeParse({ match, set: { language: "French" } }).success, false);
+    assert.equal(bookUpdateRowSchema.safeParse({ match, set: { description: "" } }).success, false);
+    assert.equal(bookUpdateRowSchema.safeParse({ match, set: { author: null } }).success, false);
+  });
+
   test("a key left out of set stays undefined, so it isn't changed", () => {
     const r = bookUpdateRowSchema.safeParse({ match, set: { translator: "x" } });
     assert.ok(r.success && r.data.set && !("titleBangla" in r.data.set && r.data.set.titleBangla !== undefined));
@@ -112,7 +120,8 @@ describe("book update rows", () => {
 
   test("nothing to change, other fields, or a link to another site are refused", () => {
     assert.equal(bookUpdateRowSchema.safeParse({ match }).success, false);
-    assert.equal(bookUpdateRowSchema.safeParse({ match, set: { author: "x" } }).success, false);
+    assert.equal(bookUpdateRowSchema.safeParse({ match, set: { title: "x" } }).success, false);
+    assert.equal(bookUpdateRowSchema.safeParse({ match, set: { isPublicDomain: false } }).success, false);
     assert.equal(bookUpdateRowSchema.safeParse({ match, set: { translator: "x" }, category: "kobita" }).success, false);
     assert.equal(bookUpdateRowSchema.safeParse({ match, sources: [{ ...source, url: "https://example.com/a" }] }).success, false);
   });

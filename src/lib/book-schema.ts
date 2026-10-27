@@ -179,11 +179,14 @@ export const bookUpdateRowSchema = z
       .strict("match-এ অজানা ঘর আছে; বানান দেখুন।"),
     set: z
       .object({
+        author: base.shape.author.optional(),
         translator: base.shape.translator.optional(),
         titleBangla: base.shape.titleBangla.optional(),
         searchAliases: searchAliasesSchema.optional(),
+        language: base.shape.language.optional(),
+        description: base.shape.description.optional(),
       })
-      .strict("set-এ অজানা ঘর আছে; শুধু translator, titleBangla ও searchAliases বদলানো যায়।")
+      .strict("set-এ অজানা ঘর আছে; শুধু author, translator, titleBangla, searchAliases, language ও description বদলানো যায়।")
       .optional(),
     sources: z.array(importSourceSchema).max(10, "একটি বইয়ে সর্বোচ্চ ১০টি বাইরের কপি দেওয়া যায়।").optional(),
     cover: importCoverSchema.optional(),

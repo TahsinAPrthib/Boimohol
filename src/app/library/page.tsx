@@ -40,7 +40,7 @@ export default async function LibraryPage(props: {
     ...search,
   };
   // Curated books first, then the rest by title; one page of it.
-  const { ids: pageIds, page, pages } = await curatedFirstPage(where, readPage(searchParams.page));
+  const { ids: pageIds, page, pages } = await curatedFirstPage(where, readPage(searchParams.page), { cacheCount: !search });
   const loaded = await prisma.book.findMany({
     where: { id: { in: pageIds } },
     include: {
