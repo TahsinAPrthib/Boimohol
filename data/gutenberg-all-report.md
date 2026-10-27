@@ -94,7 +94,7 @@ Generated 2026-10-27 by `scripts/gutenberg-all.ts` from Gutenberg's official RDF
 
 - Translations, each crediting its translator: 1780.
 - Volumes kept on their own (no complete set in the catalog): 3231.
-- Authors and translators found on Wikidata with a death date: 31032 of 38131.
+- Authors and translators found on Wikidata with a death date: 30990 of 38131.
 - Average bytes per new row: title 27, author 17, description 89, rights note 210.
 - Descriptions are neutral: author, original language, subject or form, translator; 0 well-known works keep the curated import's own line. No plot is described.
 

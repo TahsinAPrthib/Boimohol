@@ -90,11 +90,23 @@ import {
   surname,
   matchKey,
   sameTitle,
+  wikidataIsPerson,
   workTitle,
   sameSurname,
 } from "./gutenberg/rules";
 
-type Person = { agent: Agent; facts: PersonFacts | undefined; year: number | null; text: string | null; note: string | null };
+// As in scripts/gutenberg-all.ts: facts is Wikidata's item when it is that
+// person (wikidataIsPerson), anyFacts the item of the page Gutenberg gives;
+// year is shown and stored, ruleYear decides the cutoff.
+type Person = {
+  agent: Agent;
+  facts: PersonFacts | undefined;
+  anyFacts: PersonFacts | undefined;
+  year: number | null;
+  ruleYear: number | null;
+  text: string | null;
+  note: string | null;
+};
 type Candidate = { book: Ebook; authors: Person[]; translators: Person[]; others: { role: string; p: Person }[]; work?: WorkFacts };
 
 async function main() {
@@ -140,21 +152,24 @@ async function main() {
   const https = (u: string) => u.replace(/^http:/, "https:");
   const agentsByPage = new Map<string, Set<string>>();
   for (const a of people) for (const u of a.wikipedia) agentsByPage.set(https(u), (agentsByPage.get(https(u)) ?? new Set()).add(a.id));
-  const factsFor = (a: Agent) =>
-    a.wikipedia
-      .filter((u) => (agentsByPage.get(https(u))?.size ?? 0) < 2)
-      .map((u) => facts.get(u))
-      .find(Boolean);
   const person = (a: Agent): Person => {
-    const f = factsFor(a);
+    const found = a.wikipedia.filter((u) => (agentsByPage.get(https(u))?.size ?? 0) < 2).flatMap((u) => (facts.has(u) ? [{ u, f: facts.get(u)! }] : []));
+    const anyFacts = found[0]?.f;
+    const f = found.find(({ u, f }) => wikidataIsPerson(a, f.nameEn, u))?.f;
     const wd = f?.death ?? null;
-    if (a.death !== null && wd && wd.year !== a.death) {
-      const later = Math.max(a.death, wd.year);
-      return { agent: a, facts: f, year: later, text: later === wd.year ? wd.text : `${bnYear(later)} সালে`, note: `catalog ${a.death}, Wikidata ${wd.year}` };
-    }
-    if (wd) return { agent: a, facts: f, year: wd.year, text: wd.text, note: null };
-    if (a.death !== null) return { agent: a, facts: f, year: a.death, text: `${bnYear(a.death)} সালে`, note: null };
-    return { agent: a, facts: f, year: null, text: null, note: null };
+    const shown = (): Pick<Person, "year" | "text" | "note"> => {
+      if (a.death !== null && wd && wd.year !== a.death) {
+        const later = Math.max(a.death, wd.year);
+        return { year: later, text: later === wd.year ? wd.text : `${bnYear(later)} সালে`, note: `catalog ${a.death}, Wikidata ${wd.year}` };
+      }
+      if (wd) return { year: wd.year, text: wd.text, note: null };
+      if (a.death !== null) return { year: a.death, text: `${bnYear(a.death)} সালে`, note: null };
+      return { year: null, text: null, note: null };
+    };
+    const s = shown();
+    const anyYear = anyFacts?.death?.year ?? null;
+    const ruleYear = a.death !== null ? Math.max(s.year!, anyYear ?? s.year!) : s.year;
+    return { agent: a, facts: f, anyFacts, ...s, ruleYear };
   };
 
   const excluded: { id: number; title: string; author: string; downloads: number; reason: string }[] = [];
@@ -190,17 +205,17 @@ async function main() {
       .flatMap(([role, agents]) => agents.map((a) => ({ role, p: person(a) })));
     for (const p of [...authors, ...translators, ...others.map((o) => o.p)]) if (p.note) discrepancies.push({ id: b.id, who: p.agent.name, note: p.note });
 
-    const unknownAuthor = authors.find((p) => p.year === null);
+    const unknownAuthor = authors.find((p) => p.ruleYear === null);
     if (unknownAuthor) {
       exclude(`author's death year is unknown (${failName(unknownAuthor)})`);
       continue;
     }
-    const lateAuthor = authors.find((p) => p.year! > PD_CUTOFF);
+    const lateAuthor = authors.find((p) => p.ruleYear! > PD_CUTOFF);
     if (lateAuthor) {
-      exclude(`author died in ${lateAuthor.year}, after ${PD_CUTOFF} (${failName(lateAuthor)}${lateAuthor.note ? `; ${lateAuthor.note}` : ""})`);
+      exclude(`author died in ${lateAuthor.ruleYear}, after ${PD_CUTOFF} (${failName(lateAuthor)}${lateAuthor.note ? `; ${lateAuthor.note}` : ""})`);
       continue;
     }
-    const authorLanguages = authors.flatMap((p) => p.facts?.languages ?? []);
+    const authorLanguages = authors.flatMap((p) => p.anyFacts?.languages ?? []);
     const wroteInEnglish = authorLanguages.includes(ENGLISH);
     const foreignByWikidata = authorLanguages.length > 0 && !wroteInEnglish;
     const foreignByClass = authorLanguages.length === 0 && b.lcc.some((c) => FOREIGN_LCC.test(c));
@@ -210,19 +225,19 @@ async function main() {
       exclude(`translation with no named translator (${foreignByWikidata ? "the author didn't write in English, per Wikidata" : foreignByClass ? `foreign-literature class ${b.lcc.join(", ")}` : "subject: translations into English"})`);
       continue;
     }
-    const badTranslator = translators.find((p) => p.year === null || p.year > PD_CUTOFF);
+    const badTranslator = translators.find((p) => p.ruleYear === null || p.ruleYear > PD_CUTOFF);
     if (badTranslator) {
-      exclude(badTranslator.year === null ? `translator's death year is unknown (${failName(badTranslator)})` : `translator died in ${badTranslator.year}, after ${PD_CUTOFF} (${failName(badTranslator)})`);
+      exclude(badTranslator.ruleYear === null ? `translator's death year is unknown (${failName(badTranslator)})` : `translator died in ${badTranslator.ruleYear}, after ${PD_CUTOFF} (${failName(badTranslator)})`);
       continue;
     }
-    const badText = others.find((o) => TEXT_ROLES[o.role] && (o.p.year === null || o.p.year > PD_CUTOFF));
+    const badText = others.find((o) => TEXT_ROLES[o.role] && (o.p.ruleYear === null || o.p.ruleYear > PD_CUTOFF));
     if (badText) {
-      exclude(badText.p.year === null ? `${TEXT_ROLES[badText.role]}'s death year is unknown (${failName(badText.p)})` : `${TEXT_ROLES[badText.role]} died in ${badText.p.year}, after ${PD_CUTOFF} (${failName(badText.p)})`);
+      exclude(badText.p.ruleYear === null ? `${TEXT_ROLES[badText.role]}'s death year is unknown (${failName(badText.p)})` : `${TEXT_ROLES[badText.role]} died in ${badText.p.ruleYear}, after ${PD_CUTOFF} (${failName(badText.p)})`);
       continue;
     }
-    const badImage = others.find((o) => IMAGE_ROLES[o.role] && o.p.year !== null && o.p.year > PD_CUTOFF);
+    const badImage = others.find((o) => IMAGE_ROLES[o.role] && o.p.ruleYear !== null && o.p.ruleYear > PD_CUTOFF);
     if (badImage) {
-      exclude(`${IMAGE_ROLES[badImage.role]} died in ${badImage.p.year}, after ${PD_CUTOFF} (${failName(badImage.p)})`);
+      exclude(`${IMAGE_ROLES[badImage.role]} died in ${badImage.p.ruleYear}, after ${PD_CUTOFF} (${failName(badImage.p)})`);
       continue;
     }
     const authorName = (p: Person) => p.facts?.nameEn ?? displayName(p.agent);

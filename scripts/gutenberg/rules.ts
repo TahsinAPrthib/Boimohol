@@ -129,6 +129,34 @@ export const sameSurname = (a: string, b: string) => a === b || (a.length >= 5 &
 // Anything looser picks other people: Roy Norton is not Robert Burton, nor
 // Mrs. Beeton Isaac Newton, nor William Henry Hudson (died 1918) William
 // Hope Hodgson (died 1918).
+// Whether Wikidata's item for a Wikipedia page Gutenberg gives a person is
+// that person: a word of their family name as Gutenberg files it ("Pu" in
+// "Pu, Songling", "Napoleon" in "Napoleon I, Emperor of the French"), or one
+// letter off in a long word (Afanasʹev / Afanasyev), is a word of the item's
+// name or of the page's title, leaving out a peerage ("…, 1st Baron Acton");
+// and neither is a family or a title ("Young baronets of Dominica",
+// "Marquess of Salisbury"). Gutenberg links some people to the wrong page
+// (Jules Remy to Oscar Straus); only the person's own item settles their
+// death year and name. Where Gutenberg's form is too unlike Wikidata's to
+// tell (Zhuangzi / Zhuang Zhou), the item counts as someone else's.
+const NAME_STOP = new Set(["of", "the", "de", "da", "di", "du", "la", "le", "von", "van", "der", "den", "i", "ii", "iii", "iv", "v", "vi", "vii", "viii"]);
+const nameWords = (s: string) =>
+  normalizeForSearch(s)
+    .normalize("NFKD")
+    .replace(COMBINING, "")
+    .split(/[^a-zÀ-ɏ]+/)
+    .filter((w) => w.length >= 2 && !NAME_STOP.has(w));
+const NOT_A_PERSON = /\bbaronets?\b|\bfamily\b|\bdynasty\b|\b(marquess|marquis|earl|duke|baron|viscount|house|kings?|counts?) of\b|\(\d{4}\)/i;
+export function wikidataIsPerson(a: Agent, nameEn: string | null, pageUrl: string): boolean {
+  const family = [a.name, ...a.aliases].flatMap((n) => nameWords(n.split(",")[0]));
+  const page = decodeURIComponent(pageUrl.split("/wiki/")[1] ?? "").replace(/_/g, " ");
+  return [nameEn, page].some((n) => {
+    if (!n || NOT_A_PERSON.test(n.split(",")[0])) return false;
+    const words = nameWords(n.replace(/,\s*\d+(st|nd|rd|th)\s.*$/i, ""));
+    return family.some((f) => words.some((w) => w === f || (f.length >= 6 && w.length >= 6 && editDistance(f, w) <= 1) || (f.length >= 5 && w.includes(f))));
+  });
+}
+
 export type KnownAuthor = { name: string; death: number | null };
 // The catalog's single authors writing in Latin script, with their death
 // years (a book by several authors has only the latest).

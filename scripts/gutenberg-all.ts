@@ -64,6 +64,7 @@ import {
   surname,
   TEXT_ROLES,
   VOLUME,
+  wikidataIsPerson,
   workTitle,
 } from "./gutenberg/rules";
 import { bookImportRowSchema } from "../src/lib/book-schema";
@@ -252,7 +253,21 @@ type Row = {
   isPublicDomain: true;
   sources: { url: string; rightsBasis: string }[];
 };
-type Person = { agent: Agent; facts: PersonFacts | undefined; year: number | null; text: string | null; note: string | null };
+// facts: Wikidata's item when it is that person (wikidataIsPerson); anyFacts:
+// the item of the page Gutenberg gives, whoever it is. year (shown and
+// stored) comes from Gutenberg and the person's own item; ruleYear decides
+// the cutoff: a later year from any item counts too, since it can only leave
+// a book out, but a person Gutenberg gives no year passes only on their own
+// item's.
+type Person = {
+  agent: Agent;
+  facts: PersonFacts | undefined;
+  anyFacts: PersonFacts | undefined;
+  year: number | null;
+  ruleYear: number | null;
+  text: string | null;
+  note: string | null;
+};
 
 async function main() {
   const all = JSON.parse(readFileSync("data/.gutenberg-cache/catalog.json", "utf8")) as Ebook[];
@@ -299,25 +314,29 @@ async function main() {
   console.log(`wikidata: ${facts.size} people, ${works.size} works; network calls ${networkCalls}`);
 
   // As in the curated import: a page Gutenberg links to more than one person
-  // is about all of them, so it settles nobody's dates.
+  // is about all of them, so it settles nobody's dates; nor does a page
+  // whose item isn't that person (wikidataIsPerson).
   const https = (u: string) => u.replace(/^http:/, "https:");
   const agentsByPage = new Map<string, Set<string>>();
   for (const a of people) for (const u of a.wikipedia) agentsByPage.set(https(u), (agentsByPage.get(https(u)) ?? new Set()).add(a.id));
-  const factsFor = (a: Agent) =>
-    a.wikipedia
-      .filter((u) => (agentsByPage.get(https(u))?.size ?? 0) < 2)
-      .map((u) => facts.get(u))
-      .find(Boolean);
   const person = (a: Agent): Person => {
-    const f = factsFor(a);
+    const found = a.wikipedia.filter((u) => (agentsByPage.get(https(u))?.size ?? 0) < 2).flatMap((u) => (facts.has(u) ? [{ u, f: facts.get(u)! }] : []));
+    const anyFacts = found[0]?.f;
+    const f = found.find(({ u, f }) => wikidataIsPerson(a, f.nameEn, u))?.f;
     const wd = f?.death ?? null;
-    if (a.death !== null && wd && wd.year !== a.death) {
-      const later = Math.max(a.death, wd.year);
-      return { agent: a, facts: f, year: later, text: later === wd.year ? wd.text : `${bnYear(later)} সালে`, note: `catalog ${a.death}, Wikidata ${wd.year}` };
-    }
-    if (wd) return { agent: a, facts: f, year: wd.year, text: wd.text, note: null };
-    if (a.death !== null) return { agent: a, facts: f, year: a.death, text: `${bnYear(a.death)} সালে`, note: null };
-    return { agent: a, facts: f, year: null, text: null, note: null };
+    const shown = (): Pick<Person, "year" | "text" | "note"> => {
+      if (a.death !== null && wd && wd.year !== a.death) {
+        const later = Math.max(a.death, wd.year);
+        return { year: later, text: later === wd.year ? wd.text : `${bnYear(later)} সালে`, note: `catalog ${a.death}, Wikidata ${wd.year}` };
+      }
+      if (wd) return { year: wd.year, text: wd.text, note: null };
+      if (a.death !== null) return { year: a.death, text: `${bnYear(a.death)} সালে`, note: null };
+      return { year: null, text: null, note: null };
+    };
+    const s = shown();
+    const anyYear = anyFacts?.death?.year ?? null;
+    const ruleYear = a.death !== null ? Math.max(s.year!, anyYear ?? s.year!) : s.year;
+    return { agent: a, facts: f, anyFacts, ...s, ruleYear };
   };
 
   type Candidate = { book: Ebook; authors: Person[]; translators: Person[]; others: { role: string; p: Person }[]; work?: WorkFacts; volume: string | null };
@@ -330,7 +349,7 @@ async function main() {
     const others = Object.entries(b.roles)
       .filter(([role]) => TEXT_ROLES[role] || IMAGE_ROLES[role])
       .flatMap(([role, agents]) => agents.map((a) => ({ role, p: person(a) })));
-    const lateAuthor = authors.find((p) => p.year === null || p.year > PD_CUTOFF);
+    const lateAuthor = authors.find((p) => p.ruleYear === null || p.ruleYear > PD_CUTOFF);
     if (lateAuthor) {
       bump(`4 author died after ${PD_CUTOFF} (Wikidata)`);
       continue;
@@ -339,23 +358,25 @@ async function main() {
       bump("5 translation with no named translator");
       continue;
     }
-    const authorLanguages = authors.flatMap((p) => p.facts?.languages ?? []);
-    const foreignByWikidata = (authorLanguages.length > 0 && !authorLanguages.includes(ENGLISH)) || (writesOther(authors[0].facts) && !WROTE_IN_ENGLISH_BOOKS.has(b.id));
+    // Languages from whichever item Gutenberg's page gives: a wrong one can
+    // only make a book look translated and leave it out.
+    const authorLanguages = authors.flatMap((p) => p.anyFacts?.languages ?? []);
+    const foreignByWikidata = (authorLanguages.length > 0 && !authorLanguages.includes(ENGLISH)) || (writesOther(authors[0].anyFacts) && !WROTE_IN_ENGLISH_BOOKS.has(b.id));
     const foreignByClass = authorLanguages.length === 0 && b.lcc.some((c) => FOREIGN_LCC.test(c));
     const translationSubject = b.lcsh.some((s) => /translations into english/i.test(s));
     if ((translators.length > 0 || foreignByWikidata || foreignByClass || translationSubject) && translators.length === 0) {
       bump("5 translation with no named translator");
       continue;
     }
-    if (translators.some((p) => p.year === null || p.year > PD_CUTOFF)) {
+    if (translators.some((p) => p.ruleYear === null || p.ruleYear > PD_CUTOFF)) {
       bump("5 translator's death year unknown or after the cutoff");
       continue;
     }
-    if (others.some((o) => TEXT_ROLES[o.role] && (o.p.year === null || o.p.year > PD_CUTOFF))) {
+    if (others.some((o) => TEXT_ROLES[o.role] && (o.p.ruleYear === null || o.p.ruleYear > PD_CUTOFF))) {
       bump("5 editor or introducer's death year unknown or after the cutoff");
       continue;
     }
-    if (others.some((o) => IMAGE_ROLES[o.role] && o.p.year !== null && o.p.year > PD_CUTOFF)) {
+    if (others.some((o) => IMAGE_ROLES[o.role] && o.p.ruleYear !== null && o.p.ruleYear > PD_CUTOFF)) {
       bump("5 illustrator died after the cutoff");
       continue;
     }

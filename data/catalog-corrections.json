@@ -215,5 +215,18 @@
     "set": {
       "language": "en"
     }
+  },
+  {
+    "match": {
+      "title": "Four Arthurian Romances",
+      "titleBangla": null,
+      "author": "Chrétien de Troyes"
+    },
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/831",
+        "rightsBasis": "লেখক Chrétien de Troyes ১১৮০-এর দশকে ও অনুবাদক William Wistar Comfort ১৯৫৫ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
   }
 ]

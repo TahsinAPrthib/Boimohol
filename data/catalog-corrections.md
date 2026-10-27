@@ -1,20 +1,20 @@
 # Catalog corrections (2026-10-27)
 
-Corrections to curated books already in the catalog, to make before the whole-catalog import. `data/catalog-corrections.json` has 19 update rows for the small import on /admin/books ("JSON ফাইল থেকে অনেক বই একসাথে যোগ করুন"). Each row names one book (`match`) and changes only the fields in `set`, plus, for three books, the rights note on their Gutenberg link. Five links are removed by hand, because the import never removes anything.
+Corrections to curated books already in the catalog, to make before the whole-catalog import. `data/catalog-corrections.json` has 20 update rows for the small import on /admin/books ("JSON ফাইল থেকে অনেক বই একসাথে যোগ করুন"). Each row names one book (`match`) and changes only the fields in `set`, plus, for four books, the rights note on their Gutenberg link. Five links are removed by hand, because the import never removes anything.
 
-Rehearsed on dev (a copy of production) on 2026-10-27. The check showed 19 updates and nothing else. After they were applied:
+Rehearsed on dev (a copy of production) on 2026-10-27, with the first 19 rows. The check showed 19 updates and nothing else. After they were applied:
 - the book pages showed the new translators, authors and descriptions;
 - the five links were gone;
 - a second upload changed nothing.
 
-The whole-catalog import that followed added only its own books and its two links.
+The whole-catalog import that followed added only its own books and its two links. On 2026-10-28 the import's check of the full 20-row file, on the same copy, showed 20 updates and nothing else; it wasn't applied.
 
 ## Order
 
 1. Remove the five links in [section 1](#1-translations-that-name-no-translator-link-removed) by hand, and the two covers named there.
-2. Upload `data/catalog-corrections.json`. The check should read "আগের বই হালনাগাদ হবে ১৯টি", with nothing added, nothing skipped as a duplicate, and no errors. Then click "১৯টি আগের বই হালনাগাদ করুন".
+2. Upload `data/catalog-corrections.json`. The check should read "আগের বই হালনাগাদ হবে ২০টি", with nothing added, nothing skipped as a duplicate, and no errors. Then click "২০টি আগের বই হালনাগাদ করুন".
 
-Uploading the file a second time changes nothing. 14 rows show as duplicates ("কোনো পরিবর্তন নেই"), and the 5 author rows show as errors ("ক্যাটালগে এই বইটি পাওয়া যায়নি"), because those books now have the corrected author.
+Uploading the file a second time changes nothing. 15 rows show as duplicates ("কোনো পরিবর্তন নেই"), and the 5 author rows show as errors ("ক্যাটালগে এই বইটি পাওয়া যায়নি"), because those books now have the corrected author.
 
 **To remove a link:** on /admin/books, type the title into "ক্যাটালগে বই খুঁজুন". Under the book, find the line "প্রজেক্ট গুটেনবার্গ: gutenberg.org/ebooks/…" with the number below. Click "লিংক সরান", then "হ্যাঁ, সরান".
 
@@ -57,6 +57,7 @@ The Henry VIII book is also in the উপন্যাস category. The import ca
   - *The Task of Social Hygiene* (#22090): H. G. Wells → Havelock Ellis.
   - *Electricity for Boys* (#22766): Jules Verne → James Slough Zerbe.
   - *The Influence of Sea Power Upon History* (#13529): "Alfred Thayer Maan" → Alfred Thayer Mahan. This spelling came from a bad Wikidata label.
+- **A rights note's date.** *Four Arthurian Romances* (#831) said Chrétien de Troyes died "১১৮১-এর দশকে" (in the decade of 1181). The note now says "১১৮০-এর দশকে", the 1180s, which is what Wikidata records.
 - **English books marked Bangla.** *The War of the Worlds* and *The Adventures of Sherlock Holmes* were saved with language `bn`, which listed them among the Bangla books. They are now `en`.
 
 ## How the catalog was checked
@@ -68,3 +69,19 @@ The Henry VIII book is also in the উপন্যাস category. The import ca
 - **445 Bangla Wikisource links.** Their translators were checked against Wikidata on 2026-10-15 (`data/wikisource-translator-check.md`).
 - **Books with no link.** They have no text, so neither problem applies to them.
 - **Left as is:** *Bacon's Essays and Wisdom of the Ancients* (#56463). The essays, the larger part, were written in English. The *Wisdom of the Ancients* is a Latin work, given "in the modern translation … contained in Bohn's edition", whose translator isn't named. Remove its link by hand if you want the rule applied strictly to every part of a book.
+
+## Authors, translators and death years, checked in full (2026-10-28)
+
+Every row of `data/gutenberg-import-1.json` and `-2.json` (948 rows), and every Gutenberg link on a curated book in production's copy, was compared with Gutenberg's own record of the book. Each person's death year is Gutenberg's, or Wikidata's when Wikidata's item is that person: the item's name or Wikipedia page title carries their family name. Checked for every row:
+- the authors are Gutenberg's authors;
+- every translator Gutenberg names is credited;
+- the book's death year is its latest author's;
+- every author, translator and editor died in 1965 or earlier;
+- every year in the rights note belongs to one of them.
+
+Nothing else was found:
+- **Authors:** apart from the five above, every flag was the same person under another form of the name: Dick Donovan is J. E. Preston Muddock; also James VI and I, Pu Songling, Zhuangzi and Somadeva.
+- **Translators:** none missing, except the three above.
+- **Death years and the 1965 rule:** every death year is the right author's, and every book passes the rule on the right people's years. No link has to come down for this.
+
+Five rights notes name a translator or editor with a peerage in Latin digits, such as "Sir Frederic Wraxall, 3rd Baronet" (#46276, #70854, #4200, #74723, #12233). That is how the name was written; it isn't a wrong year.
