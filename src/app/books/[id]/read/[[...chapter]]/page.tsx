@@ -191,7 +191,8 @@ function Shell({
   return (
     <div className="mx-auto max-w-2xl px-4 py-6 sm:py-10" data-reader>
       <nav aria-label="বইয়ের পথ" className="flex flex-wrap items-center gap-x-5 gap-y-2 font-body text-sm">
-        <Link href={`/books/${encodeURIComponent(bookId)}`} className="text-cloth hover:underline">
+        {/* On phones the top bar's back button goes to the book page. */}
+        <Link href={`/books/${encodeURIComponent(bookId)}`} className="text-cloth hover:underline max-lg:hidden">
           ← বইয়ের পাতা
         </Link>
         {contentsLink && (

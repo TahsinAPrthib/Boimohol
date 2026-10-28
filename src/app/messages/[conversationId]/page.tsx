@@ -44,7 +44,7 @@ export default async function ConversationPage(props: {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
-      <Link href="/messages" className="font-body text-sm font-semibold text-cloth hover:underline">
+      <Link href="/messages" className="font-body text-sm font-semibold text-cloth hover:underline max-lg:hidden">
         ← সব বার্তা
       </Link>
 

@@ -35,6 +35,13 @@ All screenshots are of public pages on the live site, taken while signed out.
 
 ## Features
 
+### On phones
+- Below 1024px (phones and small tablets) the site is laid out like an app: a slim top bar with the বই মহল wordmark and, when signed in, a messages icon with the unread count; and a fixed bottom tab bar, হোম, খুঁজুন, লাইব্রেরি, বিনিময় and প্রোফাইল (the way to log in when signed out). From 1024px up the desktop navbar is unchanged.
+- The খুঁজুন tab shows the categories until something is typed. বিনিময় switches between listings and অনুরোধ, with a "+" for whichever side is open. প্রোফাইল holds the wishlist, listings, requests, settings, the admin pages for admins, and log out.
+- A message thread and the reader are full-screen: the tab bar steps aside and the top bar shows the way back, so nothing covers the message box, the keyboard or the text.
+- The bars clear the notch and the home indicator (`viewport-fit=cover` and `env(safe-area-inset-*)`), every tap target is at least 44px, and the layout works from 360px wide.
+- Installable: a manifest with the Bangla name, standalone display and the site's colours, and PNG icons (192, 512, a maskable 512 and an apple-touch-icon) drawn from the wordmark in Tiro Bangla.
+
 ### Reading
 - A catalog organised by category. Each category has an editorial "শুরু করুন এখান থেকে" (start here) pick.
 - Book pages with an overall rating plus optional aspect ratings (plot, writing, pacing). Reviews can be edited or deleted by their authors.
@@ -45,7 +52,7 @@ All screenshots are of public pages on the live site, taken while signed out.
 ### Marketplace and chat
 - Listings to sell, exchange or give away, with condition, price in taka, area and photos.
 - Photos upload straight from the browser to Cloudinary with a signed request. The server then checks format and size against Cloudinary's own record.
-- One private conversation per listing and buyer. Messages are marked read when opened, and an unread badge in the navbar shows new ones.
+- One private conversation per listing and buyer. Messages are marked read when opened, and an unread badge in the navbar (on phones, on the top bar's messages icon) shows new ones.
 - Book requests ("does anyone have this?") that others can answer.
 - Reporting of listings, messages and users, plus blocking. A safety notice covers meeting in person.
 
@@ -291,7 +298,6 @@ The live site's own "Waiting for server response" is 35–78 ms, but that isn't 
 - **No payments.** The marketplace introduces buyers and sellers. Payment and handover happen in person.
 - **Policy pages are drafts.** `/terms`, `/privacy` and `/guidelines` haven't been reviewed by a lawyer, and `/terms` still has a TODO for the governing-law clause.
 - **`sanitize-html` is pinned to exactly 2.17.7.** It is the library the reader's sanitizer is built on. Version 2.18.0 added re-sanitising the fallback markup of a discarded `<iframe>`, which could recurse without limit on crafted input and throw (GHSA-c9rx-x947-fp3h). The reader discards every `<iframe>`, so it would be exposed. 2.18.1 fixes this, but was only days old when the reader was written. Revisit once 2.18.1 or a later release has been out for a while. 2.18.0 also brought three security fixes (`meta` refresh URLs, `noscript` in `nonTextTags`, prefixed SVG animation elements) that don't touch this configuration: the reader allows no `meta` or SVG, and skips `noscript` whole. Run `npm test` after upgrading: 52 tests feed the sanitizer hostile HTML. The 2.17 line requires Node 22.12+, but Next bundles it into the server code, so the runtime's Node version doesn't matter.
-- **Placeholder app icon.** `public/icons/icon.svg` is a vector placeholder. Real PNG icons (192, 512 and a maskable 512, plus an `apple-touch-icon`) are needed before promoting installation as an app.
 
 ---
 
@@ -331,7 +337,7 @@ Environment variables (names only; `.env.example` explains each):
 
 ## Testing
 
-**Unit tests.** `npm test` runs 206 tests with Node's built-in test runner, through `tsx`. They cover the pure modules where the rules live:
+**Unit tests.** `npm test` runs 210 tests with Node's built-in test runner, through `tsx`. They cover the pure modules where the rules live:
 
 | Area | Tests |
 |---|---|
@@ -349,6 +355,7 @@ Environment variables (names only; `.env.example` explains each):
 | Language filter, Bangla-first ordering and paging, with curated books before bulk ones and the bulk sort key | 13 |
 | Grapheme-safe text snippets (never cutting a Bangla conjunct) | 4 |
 | The signed connect-Google cookie (forgery, expiry, junk) | 4 |
+| The phone layout: which tab a page lights, and which pages are full-screen with a way back | 4 |
 
 `npm run lint` and `npm run build`, which includes the TypeScript check, run before every merge.
 

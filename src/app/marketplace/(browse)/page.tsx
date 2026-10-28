@@ -4,6 +4,7 @@ import { getSessionUserId } from "@/lib/authz";
 import { blockedIdsFor } from "@/lib/blocks";
 import ListingCard from "@/components/ListingCard";
 import SearchBox from "@/components/SearchBox";
+import ExchangeSwitch from "@/components/ExchangeSwitch";
 import NoResults from "@/components/NoResults";
 import { hrefWith, readQuery, searchFilter } from "@/lib/search";
 
@@ -38,6 +39,7 @@ export default async function MarketplacePage(props: {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
+      <ExchangeSwitch active="listings" />
       <div className="mb-8 flex flex-col gap-4 border-b-2 border-ink/10 pb-8 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="font-display text-3xl text-ink">বিনিময়</h1>
@@ -45,7 +47,7 @@ export default async function MarketplacePage(props: {
             পাঠকদের হাতে হাতে বই বিক্রি, বিনিময় বা দান করার জায়গা।
           </p>
         </div>
-        <Link href="/marketplace/new" className="btn-primary whitespace-nowrap">
+        <Link href="/marketplace/new" className="btn-primary whitespace-nowrap max-lg:hidden">
           নতুন তালিকা যোগ করুন
         </Link>
       </div>

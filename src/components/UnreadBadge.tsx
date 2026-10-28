@@ -1,15 +1,22 @@
 "use client";
 import { bn } from "@/lib/bangla";
 
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import { getUnreadCount } from "@/actions/messages";
 
 const POLL_INTERVAL_MS = 20000;
 
-export default function UnreadBadge() {
+// One poll for the whole page: the desktop navbar and the phone top bar both
+// show the count, and only one of them is ever visible.
+const UnreadCount = createContext(0);
+
+export function UnreadCountProvider({ children }: { children: React.ReactNode }) {
+  const { status } = useSession();
   const [count, setCount] = useState(0);
 
   useEffect(() => {
+    if (status !== "authenticated") return;
     let cancelled = false;
 
     async function poll() {
@@ -23,7 +30,15 @@ export default function UnreadBadge() {
       cancelled = true;
       clearInterval(timer);
     };
-  }, []);
+  }, [status]);
+
+  return <UnreadCount.Provider value={status === "authenticated" ? count : 0}>{children}</UnreadCount.Provider>;
+}
+
+export const useUnreadCount = () => useContext(UnreadCount);
+
+export default function UnreadBadge() {
+  const count = useUnreadCount();
 
   if (count === 0) return null;
 

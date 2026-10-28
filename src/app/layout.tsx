@@ -3,6 +3,8 @@ import { Tiro_Bangla, Hind_Siliguri } from "next/font/google";
 import SessionProvider from "@/components/SessionProvider";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { UnreadCountProvider } from "@/components/UnreadBadge";
+import { HideWhenFullScreen, PhoneTabBar, PhoneTopBar } from "@/components/PhoneShell";
 import "./globals.css";
 
 const tiroBangla = Tiro_Bangla({
@@ -27,15 +29,24 @@ export const metadata: Metadata = {
   description: "বাংলা বই খুঁজে নেওয়া, পড়া আর পর্যালোচনার জন্য একটি জায়গা।",
   manifest: "/manifest.json",
   icons: {
-    icon: "/icons/icon.svg",
-    apple: "/icons/icon.svg",
+    icon: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: "/icons/apple-touch-icon.png",
   },
+  // Opened from the home screen on an iPhone, full-screen like the
+  // installed app on Android (manifest.json).
+  appleWebApp: { capable: true, title: "বই মহল", statusBarStyle: "default" },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   themeColor: "#253F54",
+  // The page runs under the notch and the home indicator; the phone bars pad
+  // themselves with env(safe-area-inset-*).
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -49,9 +60,19 @@ export default function RootLayout({
           instead of floating up under the content. */}
       <body className="flex min-h-screen flex-col font-body">
         <SessionProvider>
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
+          <UnreadCountProvider>
+            {/* Phones and small tablets get the app layout (PhoneShell);
+                from lg up, the navbar as it always was. */}
+            <PhoneTopBar />
+            <div className="hidden lg:contents">
+              <Navbar />
+            </div>
+            <main className="flex-1">{children}</main>
+            <HideWhenFullScreen>
+              <Footer />
+            </HideWhenFullScreen>
+            <PhoneTabBar />
+          </UnreadCountProvider>
         </SessionProvider>
       </body>
     </html>

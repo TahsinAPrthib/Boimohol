@@ -12,6 +12,7 @@ import RequestCard from "@/components/RequestCard";
 import SearchBox from "@/components/SearchBox";
 import NoResults from "@/components/NoResults";
 import LanguageChips from "@/components/LanguageChips";
+import CategoryGrid from "@/components/CategoryGrid";
 import { readLanguage } from "@/lib/book-language";
 
 export const metadata: Metadata = {
@@ -56,6 +57,12 @@ export default async function SearchPage(props: { searchParams: Promise<{ q?: st
   );
 
   if (!search) {
+    // On phones the খুঁজুন tab is also the way to the categories, which
+    // the desktop navbar links to directly.
+    const categories = await prisma.category.findMany({
+      orderBy: { name: "asc" },
+      select: { id: true, slug: true, nameBangla: true, description: true },
+    });
     return (
       <div className="mx-auto max-w-5xl px-4 py-10">
         <h1 className="mb-6 font-display text-3xl text-ink">খুঁজুন</h1>
@@ -64,6 +71,14 @@ export default async function SearchPage(props: { searchParams: Promise<{ q?: st
           বইয়ের নাম (বাংলা বা ইংরেজি), লেখকের নাম, কিংবা বিনিময়ের বইয়ের এলাকা লিখে খুঁজুন। বই, বিনিময়ের তালিকা আর খোলা
           অনুরোধ — সব একসাথে দেখাবে।
         </p>
+        {categories.length > 0 && (
+          <section aria-labelledby="search-categories" className="mt-10 lg:hidden">
+            <h2 id="search-categories" className="mb-4 font-display text-xl text-ink">
+              বিভাগ ধরে দেখুন
+            </h2>
+            <CategoryGrid categories={categories} headingLevel="h3" compact />
+          </section>
+        )}
       </div>
     );
   }

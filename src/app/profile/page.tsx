@@ -8,6 +8,7 @@ import { withCallbackUrl } from "@/lib/safe-redirect";
 import { getCurrentStreak } from "@/lib/streak";
 import BookCover from "@/components/BookCover";
 import YearlyGoalForm from "@/components/YearlyGoalForm";
+import { ProfileFooter, ProfileLinks } from "@/components/ProfileMenu";
 
 type Status = "WANT" | "READING" | "FINISHED";
 
@@ -49,10 +50,12 @@ export default async function ProfilePage() {
           <p className="font-body text-ink/50">@{user.username}</p>
           {user.bio && <p className="mt-2 max-w-prose font-body text-ink/70">{user.bio}</p>}
         </div>
-        <Link href="/settings" className="btn-secondary whitespace-nowrap">
+        <Link href="/settings" className="btn-secondary whitespace-nowrap max-lg:hidden">
           অ্যাকাউন্ট সেটিংস
         </Link>
       </div>
+
+      <ProfileLinks />
 
       <div className="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="rounded-book border-2 border-ink/10 bg-paper-dark p-5">
@@ -79,7 +82,7 @@ export default async function ProfilePage() {
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
         <h2 className="font-display text-2xl text-ink">আমার বইতাক</h2>
-        <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 font-body text-sm font-semibold text-cloth">
+        <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 font-body text-sm font-semibold text-cloth max-lg:hidden">
           <Link href="/wishlist" className="hover:underline">
             আমার উইশলিস্ট
           </Link>
@@ -127,6 +130,8 @@ export default async function ProfilePage() {
           );
         })}
       </div>
+
+      <ProfileFooter isAdmin={user.role === "ADMIN"} />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { getSessionUserId } from "@/lib/authz";
 import { blockedIdsFor } from "@/lib/blocks";
 import RequestCard from "@/components/RequestCard";
 import SearchBox from "@/components/SearchBox";
+import ExchangeSwitch from "@/components/ExchangeSwitch";
 import NoResults from "@/components/NoResults";
 import { hrefWith, readQuery, searchFilter } from "@/lib/search";
 
@@ -38,6 +39,7 @@ export default async function RequestsPage(props: {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
+      <ExchangeSwitch active="requests" />
       <div className="mb-8 flex flex-col gap-4 border-b-2 border-ink/10 pb-8 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="font-display text-3xl text-ink">অনুরোধ</h1>
@@ -45,7 +47,7 @@ export default async function RequestsPage(props: {
             যে বইটি খুঁজছেন কিন্তু কোথাও পাচ্ছেন না — এখানে জানান। কারও কাছে থাকলে তিনি সাড়া দেবেন।
           </p>
         </div>
-        <Link href="/requests/new" className="btn-primary whitespace-nowrap">
+        <Link href="/requests/new" className="btn-primary whitespace-nowrap max-lg:hidden">
           নতুন অনুরোধ করুন
         </Link>
       </div>

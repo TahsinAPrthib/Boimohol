@@ -9,10 +9,27 @@ type Category = { id: string; slug: string; nameBangla: string; description: str
 export default function CategoryGrid({
   categories,
   headingLevel: Heading,
+  compact = false,
 }: {
   categories: Category[];
   headingLevel: "h2" | "h3";
+  // Two columns of names, no descriptions: the phone search page.
+  compact?: boolean;
 }) {
+  if (compact)
+    return (
+      <div className="grid grid-cols-2 gap-3">
+        {categories.map((category) => (
+          <Link
+            key={category.id}
+            href={`/categories/${category.slug}`}
+            className="flex min-h-14 items-center rounded-book border-2 border-ink/10 bg-paper-dark px-4 py-3 shadow-shelf transition-colors hover:border-cloth focus:outline-none focus-visible:ring-2 focus-visible:ring-turmeric"
+          >
+            <Heading className="font-display text-lg leading-snug text-ink">{category.nameBangla}</Heading>
+          </Link>
+        ))}
+      </div>
+    );
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
       {categories.map((category) => (
