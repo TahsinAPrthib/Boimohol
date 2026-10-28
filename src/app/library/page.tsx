@@ -4,6 +4,7 @@ import { publicDomainCutoffYear } from "@/lib/public-domain";
 import { SOURCE_LABEL } from "@/lib/book-sources";
 import BookCard from "@/components/BookCard";
 import SearchBox from "@/components/SearchBox";
+import ChipRow from "@/components/ChipRow";
 import NoResults from "@/components/NoResults";
 import LanguageChips from "@/components/LanguageChips";
 import Pager from "@/components/Pager";
@@ -68,30 +69,34 @@ export default async function LibraryPage(props: {
 
       <LanguageChips path="/library" params={{ category: selectedSlug, q }} active={lang} className="mb-4" />
 
-      <div className="mb-6 flex flex-wrap gap-2 border-b-2 border-ink/10 pb-6">
-        <Link
-          href={hrefWith("/library", { q, lang: langParam })}
-          className={`rounded-book border-2 px-3 py-1.5 font-body text-sm font-semibold ${
-            !selectedSlug
-              ? "border-cloth bg-cloth text-paper"
-              : "border-ink/20 text-ink hover:border-ink/40"
-          }`}
-        >
-          সব বিভাগ
-        </Link>
-        {categories.map((cat) => (
+      <div className="mb-6 border-b-2 border-ink/10 pb-6">
+        <ChipRow as="nav" label="বিভাগ" activeKey={selectedSlug ?? ""}>
           <Link
-            key={cat.id}
-            href={hrefWith("/library", { category: cat.slug, q, lang: langParam })}
-            className={`rounded-book border-2 px-3 py-1.5 font-body text-sm font-semibold ${
-              selectedSlug === cat.slug
+            href={hrefWith("/library", { q, lang: langParam })}
+            aria-current={!selectedSlug ? "true" : undefined}
+            className={`rounded-book border-2 px-3 py-1.5 font-body text-sm font-semibold max-lg:flex max-lg:min-h-11 max-lg:shrink-0 max-lg:items-center max-lg:whitespace-nowrap ${
+              !selectedSlug
                 ? "border-cloth bg-cloth text-paper"
                 : "border-ink/20 text-ink hover:border-ink/40"
             }`}
           >
-            {cat.nameBangla}
+            সব বিভাগ
           </Link>
-        ))}
+          {categories.map((cat) => (
+            <Link
+              key={cat.id}
+              href={hrefWith("/library", { category: cat.slug, q, lang: langParam })}
+              aria-current={selectedSlug === cat.slug ? "true" : undefined}
+              className={`rounded-book border-2 px-3 py-1.5 font-body text-sm font-semibold max-lg:flex max-lg:min-h-11 max-lg:shrink-0 max-lg:items-center max-lg:whitespace-nowrap ${
+                selectedSlug === cat.slug
+                  ? "border-cloth bg-cloth text-paper"
+                  : "border-ink/20 text-ink hover:border-ink/40"
+              }`}
+            >
+              {cat.nameBangla}
+            </Link>
+          ))}
+        </ChipRow>
       </div>
 
       {books.length === 0 && search ? (

@@ -91,7 +91,8 @@ export function PhoneTabBar() {
                   href={to}
                   aria-current={isActive ? "page" : undefined}
                   className={`relative flex h-14 flex-col items-center justify-center gap-0.5 font-body text-[11px] leading-4 ${
-                    isActive ? "font-semibold text-cloth" : "text-ink/65 hover:text-ink"
+                    // ink at 75% on paper-dark is about 5.4:1 (65% was 4.1:1).
+                    isActive ? "font-semibold text-cloth" : "text-ink/75 hover:text-ink"
                   } ${focusRing}`}
                 >
                   {/* A ribbon marker, like a bookmark, over the open tab. */}

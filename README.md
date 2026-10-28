@@ -38,6 +38,7 @@ All screenshots are of public pages on the live site, taken while signed out.
 ### On phones
 - Below 1024px (phones and small tablets) the site is laid out like an app: a slim top bar with the বই মহল wordmark and, when signed in, a messages icon with the unread count; and a fixed bottom tab bar, হোম, খুঁজুন, লাইব্রেরি, বিনিময় and প্রোফাইল (the way to log in when signed out). From 1024px up the desktop navbar is unchanged.
 - The খুঁজুন tab shows the categories until something is typed. বিনিময় switches between listings and অনুরোধ, with a "+" for whichever side is open. প্রোফাইল holds the wishlist, listings, requests, settings, the admin pages for admins, and log out.
+- Filter chips (category and language) sit in one row that scrolls sideways, cut off at the screen's edge to show there's more, with the open chip scrolled into view.
 - A message thread and the reader are full-screen: the tab bar steps aside and the top bar shows the way back, so nothing covers the message box, the keyboard or the text.
 - The bars clear the notch and the home indicator (`viewport-fit=cover` and `env(safe-area-inset-*)`), every tap target is at least 44px, and the layout works from 360px wide.
 - Installable: a manifest with the Bangla name, standalone display and the site's colours, and PNG icons (192, 512, a maskable 512 and an apple-touch-icon) drawn from the wordmark in Tiro Bangla.

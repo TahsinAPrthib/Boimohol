@@ -32,28 +32,23 @@ export default function HomeHero({ isLoggedIn }: { isLoggedIn: boolean }) {
       <div className="relative z-[3] mx-auto flex min-h-[27rem] max-w-5xl flex-col justify-end px-4 pb-10 pt-28 sm:min-h-[31rem] md:min-h-[34rem] md:justify-center md:pb-16 md:pt-16">
         <h1 className="font-display text-5xl leading-tight text-paper sm:text-6xl">বই মহল</h1>
         <p className="mt-4 max-w-xl font-body text-lg leading-relaxed text-paper/90">
-          বাংলা বই খুঁজে নেওয়া, পড়া আর পর্যালোচনা লেখার একটা জায়গা। প্রতিটি বিভাগে নতুনদের জন্য একটি
-          &ldquo;শুরু করুন এখান থেকে&rdquo; বইও বেছে দেওয়া আছে।
+          বাংলা বই খুঁজে নেওয়া, পড়া আর পর্যালোচনা লেখার একটা জায়গা। এখানে হাজারো বই বিনামূল্যে পড়া যায়।
+          প্রতিটি বিভাগে নতুনদের জন্য একটি &ldquo;শুরু করুন এখান থেকে&rdquo; বইও বেছে দেওয়া আছে।
         </p>
+        {/* The free library leads; signed-in readers get their shelf
+            second, everyone else search. */}
         <div className="mt-8 flex flex-wrap gap-3">
+          <Link href="/library" className="btn-hero-primary">
+            বিনামূল্যে পড়ুন
+          </Link>
           {isLoggedIn ? (
-            <>
-              <Link href="/marketplace" className="btn-hero-primary">
-                বিনিময় দেখুন
-              </Link>
-              <Link href="/profile" className="btn-hero-secondary">
-                আমার বইতাক
-              </Link>
-            </>
+            <Link href="/profile" className="btn-hero-secondary">
+              আমার বইতাক
+            </Link>
           ) : (
-            <>
-              <Link href="/register" className="btn-hero-primary">
-                সাইন আপ
-              </Link>
-              <Link href="/login" className="btn-hero-secondary">
-                লগইন
-              </Link>
-            </>
+            <Link href="/search" className="btn-hero-secondary">
+              বই খুঁজুন
+            </Link>
           )}
         </div>
       </div>

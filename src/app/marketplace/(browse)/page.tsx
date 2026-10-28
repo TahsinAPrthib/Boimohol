@@ -4,6 +4,7 @@ import { getSessionUserId } from "@/lib/authz";
 import { blockedIdsFor } from "@/lib/blocks";
 import ListingCard from "@/components/ListingCard";
 import SearchBox from "@/components/SearchBox";
+import ChipRow from "@/components/ChipRow";
 import ExchangeSwitch from "@/components/ExchangeSwitch";
 import NoResults from "@/components/NoResults";
 import { hrefWith, readQuery, searchFilter } from "@/lib/search";
@@ -54,10 +55,11 @@ export default async function MarketplacePage(props: {
 
       <SearchBox label="বিনিময়ের বই খুঁজুন" placeholder="বইয়ের নাম, লেখক বা এলাকা" className="mb-4" />
 
-      <div className="mb-6 flex flex-wrap gap-2">
+      <ChipRow as="nav" label="বিভাগ" activeKey={selectedSlug ?? ""} className="mb-6">
         <Link
           href={hrefWith("/marketplace", { q })}
-          className={`rounded-book border-2 px-3 py-1.5 font-body text-sm font-semibold ${
+          aria-current={!selectedSlug ? "true" : undefined}
+          className={`rounded-book border-2 px-3 py-1.5 font-body text-sm font-semibold max-lg:flex max-lg:min-h-11 max-lg:shrink-0 max-lg:items-center max-lg:whitespace-nowrap ${
             !selectedSlug
               ? "border-cloth bg-cloth text-paper"
               : "border-ink/20 text-ink hover:border-ink/40"
@@ -69,7 +71,8 @@ export default async function MarketplacePage(props: {
           <Link
             key={cat.id}
             href={hrefWith("/marketplace", { category: cat.slug, q })}
-            className={`rounded-book border-2 px-3 py-1.5 font-body text-sm font-semibold ${
+            aria-current={selectedSlug === cat.slug ? "true" : undefined}
+            className={`rounded-book border-2 px-3 py-1.5 font-body text-sm font-semibold max-lg:flex max-lg:min-h-11 max-lg:shrink-0 max-lg:items-center max-lg:whitespace-nowrap ${
               selectedSlug === cat.slug
                 ? "border-cloth bg-cloth text-paper"
                 : "border-ink/20 text-ink hover:border-ink/40"
@@ -78,7 +81,7 @@ export default async function MarketplacePage(props: {
             {cat.nameBangla}
           </Link>
         ))}
-      </div>
+      </ChipRow>
 
       {listings.length === 0 && search ? (
         <NoResults query={q} where={selectedSlug ? "এই বিভাগে" : undefined} />
