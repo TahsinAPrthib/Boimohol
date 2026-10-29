@@ -20,6 +20,14 @@ const nextConfig = {
       },
     ],
   },
+  // Link-preview cards (src/lib/share-card.ts) shape text with HarfBuzz and
+  // render it with resvg; both load a binary kept beside their own code (a
+  // .wasm file, a native addon), so they stay in node_modules rather than the
+  // bundle. The fonts the cards are drawn in ship with the card's route.
+  serverExternalPackages: ["harfbuzzjs", "@resvg/resvg-js"],
+  outputFileTracingIncludes: {
+    "/share/books/[id]": ["./assets/fonts/*.ttf"],
+  },
   // Files under /public are otherwise revalidated on every visit. The cursor
   // carries a version in its name (-v1), so it can be cached for a year: to
   // change it, add a new -v2 file and point the code at it, never overwrite

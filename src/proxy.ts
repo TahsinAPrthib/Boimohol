@@ -24,7 +24,8 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Pages only: not NextAuth's own routes, Next's assets, public files, or
-  // the cover images fetched through the site (next.config.js rewrites).
-  matcher: ["/((?!api/|_next/|cover-image/|icons/|cursors/|manifest.json|favicon.ico|robots.txt|sitemap.xml).*)"],
+  // Pages only: not NextAuth's own routes, Next's assets, public files, the
+  // cover images fetched through the site (next.config.js rewrites), or the
+  // link-preview images (/share).
+  matcher: ["/((?!api/|_next/|cover-image/|share/|icons/|cursors/|manifest.json|favicon.ico|robots.txt|sitemap.xml).*)"],
 };

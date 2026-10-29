@@ -6,6 +6,7 @@ import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import { getSessionUserId } from "@/lib/authz";
 import { loadBook } from "@/lib/loaders";
+import { bookShareMetadata } from "@/lib/share";
 import { getChapter, loadContents, readerSource, type TocEntry } from "@/lib/wikisource/reader";
 import { READER_SIZE_COOKIE, readSizeStep } from "@/lib/wikisource/reader-prefs";
 import { pathFromSegments, readerHref, titleInWork, wikisourceUrl } from "@/lib/wikisource/titles";
@@ -50,7 +51,8 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     if (contents.ok && !entry) return { title: NOT_FOUND_TITLE, robots };
     label = entry?.label ?? "";
   }
-  return { title: `${label ? `${label} — ` : ""}${name} · বই মহলে পড়ুন`, robots };
+  // A link to a page of the reader, shared, shows the book's own preview.
+  return { title: `${label ? `${label} — ` : ""}${name} · বই মহলে পড়ুন`, robots, ...bookShareMetadata(reader.book, readerHref(reader.book.id, path)) };
 }
 
 export default async function ReaderPage(props: Props) {

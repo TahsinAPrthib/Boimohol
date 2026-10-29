@@ -1,6 +1,8 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { loadBook } from "@/lib/loaders";
+import { bookShareMetadata, previewText } from "@/lib/share";
 import { canBePublicDomain } from "@/lib/public-domain";
 import { bn, bnFixed, bnYear } from "@/lib/bangla";
 import { coverSourceLabel } from "@/lib/covers";
@@ -14,6 +16,20 @@ import ShelfStage from "@/components/ShelfStage";
 import StarRating from "@/components/StarRating";
 
 const languageNames = new Intl.DisplayNames(["bn"], { type: "language" });
+
+// The book's title and author in the tab and in link previews, with its
+// description and its card (src/lib/share.ts).
+export async function generateMetadata(props: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await props.params;
+  const book = await loadBook(id);
+  if (!book) return {};
+  const name = book.titleBangla || book.title;
+  return {
+    title: `${name} — ${book.author} · বই মহল`,
+    ...(book.description ? { description: previewText(book.description) } : {}),
+    ...bookShareMetadata(book, `/books/${encodeURIComponent(book.id)}`),
+  };
+}
 
 // The book page's header: the book standing in front of a shelf of its
 // category, its title, its first line when that has been checked

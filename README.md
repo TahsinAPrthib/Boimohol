@@ -49,6 +49,7 @@ All screenshots are of public pages on the live site, taken while signed out.
 - A personal shelf (want to read / reading / finished), a reading streak and a yearly goal with progress.
 - A wishlist that flags marketplace listings matching a wished-for book.
 - Real covers for public-domain books, taken only from the book's own public-domain scan: the cover or title page of its scan on Wikimedia Commons or Wikisource, or a Project Gutenberg cover that was scanned from an original edition. The book page credits the source ("প্রচ্ছদের উৎস: উইকিমিডিয়া কমন্স") with a rights note. Every other book has a generated cover in the same frame, designed as one series: each category has its own visual language, drawn in SVG and CSS (a ruled frame with corner flourishes for poetry, a proscenium for drama, plain paper for essays, bright shapes round a title card for children's books, and so on), varied by the book's id so neighbouring books differ while each book always looks the same. The title's size is chosen from its own length and its longest word, so Bangla titles wrap at spaces. No modern publisher's cover art is used, and nothing is hotlinked.
+- Link previews (Open Graph and X cards). A shared book link, or a link to a page of its reader, shows a 1200 × 630 card drawn on the server (`/share/books/[id]`): the book's real cover, or its generated cover drawn from the same design, standing on the shelf board beside its title and author. No SVG renderer shapes Bangla correctly on its own, so the text is shaped with HarfBuzz and drawn as outlines, rendered by resvg and sent as a JPEG, small enough for WhatsApp. The card's address carries a version of everything it draws, so it is cached for a year and a corrected title gets a new picture. Every other page shares a picture of the living shelf with the wordmark.
 
 ### Marketplace and chat
 - Listings to sell, exchange or give away, with condition, price in taka, area and photos.
@@ -108,6 +109,7 @@ All screenshots are of public pages on the live site, taken while signed out.
 | Auth | NextAuth 4 with JWT sessions: Google, plus email/password for accounts that have a password |
 | Media | Cloudinary: listing photos as images, library PDFs as raw files |
 | Validation | zod, shared between forms and server actions |
+| Link-preview cards | HarfBuzz (`harfbuzzjs`) to shape Bangla, resvg to render, sharp to encode; the site's own fonts in `assets/fonts` (SIL Open Font License) |
 | Hosting | Vercel, with functions pinned to Singapore (`sin1`) next to the database |
 | Tests | Node's built-in test runner through `tsx` |
 

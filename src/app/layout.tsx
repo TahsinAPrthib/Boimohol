@@ -7,6 +7,7 @@ import { UnreadCountProvider } from "@/components/UnreadBadge";
 import { HideWhenFullScreen, PhoneTabBar, PhoneTopBar } from "@/components/PhoneShell";
 import CoverTransition from "@/components/CoverTransition";
 import { THEME_COLOR, THEME_SCRIPT } from "@/lib/theme";
+import { siteShareMetadata, siteUrl } from "@/lib/share";
 import "./globals.css";
 
 const tiroBangla = Tiro_Bangla({
@@ -27,8 +28,12 @@ const hindSiliguri = Hind_Siliguri({
 });
 
 export const metadata: Metadata = {
+  // Link previews need absolute addresses (src/lib/share.ts).
+  metadataBase: siteUrl(),
   title: "বই মহল — Boi Mohol",
   description: "বাংলা বই খুঁজে নেওয়া, পড়া আর পর্যালোচনার জন্য একটি জায়গা।",
+  // The preview every page shows unless it has its own (books do).
+  ...siteShareMetadata,
   manifest: "/manifest.json",
   icons: {
     icon: [
