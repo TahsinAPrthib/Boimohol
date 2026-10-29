@@ -10,9 +10,13 @@ const cp = (n: number) => String.fromCodePoint(n);
 // Independent vowels (অ-ঔ) and vowel signs (া-ৌ), built from code points.
 const VOWEL_END = new RegExp(`[${cp(0x0985)}-${cp(0x0994)}${cp(0x09be)}-${cp(0x09cc)}]`);
 
+const CHANDRABINDU = cp(0x0981);
+
 export function possessive(name: string): string {
   const last = [...name.trim()].pop() ?? "";
-  const vowelEnd = VOWEL_END.test(last);
+  // A final chandrabindu is a nasal vowel (মারাঁ, পিজঁ), so it ends in a vowel
+  // too: মারাঁর, not মারাঁের.
+  const vowelEnd = VOWEL_END.test(last) || last === CHANDRABINDU;
   return name.trim() + (vowelEnd ? "র" : "ের");
 }
 

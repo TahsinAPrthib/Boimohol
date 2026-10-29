@@ -3,7 +3,8 @@
 // "Project Gutenberg ebook ID" (P2034) or the book's Wikipedia page. All
 // cached on disk by the shared http layer.
 import { postForm, WIKIDATA_API, WIKIDATA_SPARQL } from "../wikisource/http";
-import { deathOf, itemIds, label, type Death, type Entity } from "../wikisource/wikidata";
+import { deathOf, itemIds, label, strings, type Death, type Entity } from "../wikisource/wikidata";
+import { repairBangla } from "../../src/lib/bangla-check";
 
 // nameBn: the Bangla Wikipedia article's title when there is one (the name
 // readers know: "মার্ক টোয়েন"), else Wikidata's Bangla label (which is
@@ -11,8 +12,26 @@ import { deathOf, itemIds, label, type Death, type Entity } from "../wikisource/
 // languages: every language Wikidata gives (spoken, native, written in);
 // native and writing keep the native language (P103) and the languages of
 // their writing (P6886) apart, for telling a translation.
-export type PersonFacts = { id: string; death: Death | null; languages: string[]; native: string[]; writing: string[]; nameBn: string | null; nameEn: string | null };
-const bnName = (e: Fetched) => e.sitelinks?.bnwiki?.title?.replace(/\s*\([^)]*\)\s*$/, "").trim() || label(e, "bn");
+// pseudonyms (P742) and nameWiki, the English Wikipedia article's title, tell
+// a pen name readers know ("Onoto Watanna", "Jacob Larwood") from a legal
+// name in the English label ("Winnifred Eaton").
+export type PersonFacts = {
+  id: string;
+  death: Death | null;
+  languages: string[];
+  native: string[];
+  writing: string[];
+  nameBn: string | null;
+  nameEn: string | null;
+  nameWiki: string | null;
+  pseudonyms: string[];
+};
+// Wikipedia titles carry the odd typo (a doubled chandrabindu, a stray ZWNJ),
+// repaired mechanically (src/lib/bangla-check.ts).
+const bnName = (e: Fetched) => {
+  const name = e.sitelinks?.bnwiki?.title?.replace(/\s*\([^)]*\)\s*$/, "").trim() || label(e, "bn");
+  return name ? repairBangla(name) : name;
+};
 export type WorkFacts = { id: string; bnwiki: string | null; languages: string[]; nameBn: string | null; nameEn: string | null };
 
 type Fetched = Entity & { sitelinks?: Record<string, { site: string; title: string }> };
@@ -114,7 +133,18 @@ export async function peopleByWikipedia(urls: string[]): Promise<Map<string, Per
       const k = wikiKey(u);
       if (!k || k[0] !== site) continue;
       const e = found.get(`${site}:${k[1]}`);
-      if (e) out.set(u, { id: e.id, death: deathOf(e), languages: languagesOf(e), native: itemIds(e, "P103"), writing: itemIds(e, "P6886"), nameBn: bnName(e), nameEn: label(e, "en") });
+      if (e)
+        out.set(u, {
+          id: e.id,
+          death: deathOf(e),
+          languages: languagesOf(e),
+          native: itemIds(e, "P103"),
+          writing: itemIds(e, "P6886"),
+          nameBn: bnName(e),
+          nameEn: label(e, "en"),
+          nameWiki: e.sitelinks?.enwiki?.title?.replace(/\s*\([^)]*\)\s*$/, "").trim() || null,
+          pseudonyms: strings(e, "P742"),
+        });
     }
   }
   return out;
@@ -141,7 +171,7 @@ export async function worksFor(books: { id: number; wikipedia: string | null }[]
   for (const b of books) {
     const viaId = itemFor.get(b.id);
     const e = viaId ? entities.get(viaId) : b.wikipedia ? byPage.get(`enwiki:${wikiKey(b.wikipedia)?.[1]}`) : undefined;
-    if (e) out.set(b.id, { id: e.id, bnwiki: e.sitelinks?.bnwiki?.title ?? null, languages: itemIds(e, "P407"), nameBn: label(e, "bn"), nameEn: label(e, "en") });
+    if (e) out.set(b.id, { id: e.id, bnwiki: e.sitelinks?.bnwiki?.title ? repairBangla(e.sitelinks.bnwiki.title) : null, languages: itemIds(e, "P407"), nameBn: repairBangla(label(e, "bn") ?? "") || null, nameEn: label(e, "en") });
   }
   return out;
 }

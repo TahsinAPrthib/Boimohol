@@ -60,6 +60,7 @@ import {
   matchKey,
   possessiveAny,
   sameSurname,
+  otherSurname,
   sameTitle,
   surname,
   TEXT_ROLES,
@@ -423,8 +424,28 @@ async function main() {
   const ownSurnames = (a: Agent) => [displayName(a), ...a.aliases.map((x) => x.split(",")[0])].map(surname).filter((s) => s.length > 2);
   const wikidataNamed = (p: Person) =>
     !!p.facts?.nameEn && !/\bbaronets\b|\bfamily\b|\(\d{4}\)/i.test(p.facts.nameEn) && ownSurnames(p.agent).some((s) => loose(withoutPeerage(p.facts!.nameEn!)).includes(s));
-  const nameOf = (p: Person) => catalogSpelling(withoutPeerage(wikidataNamed(p) ? p.facts!.nameEn! : displayName(p.agent)), p.year, known);
-  const nameBnOr = (p: Person) => (wikidataNamed(p) ? p.facts?.nameBn : null) ?? nameOf(p);
+  // A pen name stays when Gutenberg files the person under it ("Watanna,
+  // Onoto"; "Brand, Max") and Wikidata's label is the legal name ("Winnifred
+  // Eaton", "Frederick Schiller Faust"): when Wikidata records it as a
+  // pseudonym or English Wikipedia titles the person by it ("Jacob Larwood"),
+  // and it isn't the legal name in another form ("E. Nesbit"). The legal name
+  // becomes a hidden search alias.
+  const penName = (p: Person) => {
+    if (!wikidataNamed(p)) return null;
+    const own = displayName(p.agent);
+    const recorded = [...p.facts!.pseudonyms, p.facts!.nameWiki ?? ""].some((n) => loose(n) === loose(own));
+    return recorded && otherSurname(own, withoutPeerage(p.facts!.nameEn!)) ? own : null;
+  };
+  const nameOf = (p: Person) => catalogSpelling(withoutPeerage(penName(p) ?? (wikidataNamed(p) ? p.facts!.nameEn! : displayName(p.agent))), p.year, known);
+  // Wikidata's Bangla name is the legal name's, so a pen name goes untransliterated.
+  const nameBnOr = (p: Person) => (wikidataNamed(p) && !penName(p) ? p.facts?.nameBn : null) ?? nameOf(p);
+  // Only a legal name Gutenberg also gives the person ("Watanna, Onoto", also
+  // "Eaton, Winnifred"): a label can be vandalised ("Bernal Díaz del Brawl").
+  const legalNames = (ps: Person[]) =>
+    ps
+      .filter((p) => penName(p) && ownSurnames(p.agent).includes(surname(withoutPeerage(p.facts!.nameEn!))))
+      .flatMap((p) => [withoutPeerage(p.facts!.nameEn!), p.facts!.nameBn ?? ""])
+      .filter(Boolean);
   const rows: { c: Candidate; form: GForm; row: Row; linked: boolean }[] = [];
   const seenRows = new Set<string>();
   // Rule 6 again, on the titles as the catalog will show them: Gutenberg's
@@ -468,12 +489,13 @@ async function main() {
     const rightsBasis = `${listOf(clauses)} মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ`;
     const bnwikiTitle = c.work?.bnwiki ? c.work.bnwiki.replace(/\s*\([^)]*\)\s*$/, "").trim() : null;
     const genuine = bnwikiTitle !== null && GENUINE_BANGLA_TITLES.has(b.id);
+    const aliases = [...new Set([...(bnwikiTitle && !genuine ? [bnwikiTitle] : []), ...legalNames([...c.authors, ...c.translators])])].slice(0, 10);
     let row: Row = {
       title,
       titleBangla: genuine ? bnwikiTitle : null,
       author,
       ...(c.translators.length ? { translator: listOf(c.translators.map(nameOf)) } : {}),
-      ...(bnwikiTitle && !genuine ? { searchAliases: [bnwikiTitle] } : {}),
+      ...(aliases.length ? { searchAliases: aliases } : {}),
       category: form.category,
       description: GUTENBERG_KNOWN[b.id] ?? neutral,
       language: "en",
@@ -613,6 +635,13 @@ async function main() {
   L.push("", "## Other facts", "");
   L.push(`- Translations, each crediting its translator: ${fresh.filter((r) => r.row.translator).length}.`);
   L.push(`- Volumes kept on their own (no complete set in the catalog): ${fresh.filter((r) => r.c.volume).length}.`);
+  const pens = count(
+    fresh.flatMap((r) => [...r.c.authors, ...r.c.translators].filter((p) => penName(p)).map((p) => `${penName(p)} (${withoutPeerage(p.facts!.nameEn!)})`)),
+    (x) => x
+  );
+  L.push(
+    `- Pen names shown where Gutenberg files the person under one and Wikidata's label is the legal name (now a hidden search alias): ${pens.reduce((n, [, v]) => n + v, 0)} books — ${pens.map(([k, v]) => `${k} ${v}`).join(", ")}.`
+  );
   L.push(`- Authors and translators found on Wikidata with a death date: ${fresh.flatMap((r) => [...r.c.authors, ...r.c.translators]).filter((p) => p.facts?.death).length} of ${fresh.flatMap((r) => [...r.c.authors, ...r.c.translators]).length}.`);
   L.push(`- Average bytes per new row: title ${avg((r) => bytes(r.title))}, author ${avg((r) => bytes(r.author))}, description ${avg((r) => bytes(r.description))}, rights note ${avg((r) => bytes(r.sources[0].rightsBasis))}.`);
   L.push(`- Descriptions are neutral: author, original language, subject or form, translator; ${fresh.filter((r) => GUTENBERG_KNOWN[r.c.book.id]).length} well-known works keep the curated import's own line. No plot is described.`);

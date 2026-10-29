@@ -16,15 +16,21 @@ export const NOT_WORD = new RegExp(`[^a-z0-9${cp(0x0980)}-${cp(0x09ff)}]+`, "g")
 // name takes "-এর" ("Lucy Maud Montgomery-এর"); a Bangla one ending in
 // ং takes "য়ের" ("কিপলিংয়ের"), in a hasanta "-এর", otherwise the usual
 // "র"/"ের".
+// A joiner at the end (মম্ + ZWNJ) doesn't count: the hasanta before it does.
+// An apostrophe stands for a vowel (শ', Shaw): শ'র. Any other mark: "-এর".
 export const VIRAMA = cp(0x09cd);
 export const ANUSVARA = cp(0x0982);
+const TRAILING_JOINERS = new RegExp(`[${cp(0x200c)}${cp(0x200d)}]+$`);
 export function possessiveAny(name: string): string {
-  const last = name.trim().split(/\s+/).pop() ?? name;
-  if (!BANGLA.test(last)) return `${name.trim()}-এর`;
-  const end = [...last].pop();
-  if (end === ANUSVARA) return `${name.trim()}য়ের`;
-  if (end === VIRAMA) return `${name.trim()}-এর`;
-  return possessive(name);
+  const full = name.trim();
+  const last = (full.split(/\s+/).pop() ?? full).replace(TRAILING_JOINERS, "");
+  if (!BANGLA.test(last)) return `${full}-এর`;
+  const end = [...last].pop() ?? "";
+  if (end === ANUSVARA) return `${full}য়ের`;
+  if (end === VIRAMA) return `${full}-এর`;
+  if (end === "'" || end === "’") return `${full}র`;
+  if (!BANGLA.test(end)) return `${full}-এর`;
+  return possessive(full);
 }
 export const listOf = (names: string[]) => (names.length <= 2 ? names.join(" ও ") : `${names.slice(0, -1).join(", ")} ও ${names[names.length - 1]}`);
 
@@ -82,6 +88,18 @@ export const loose = (s: string) =>
     .replace(/^(the|a|an)\s+/, "")
     .replace(NOT_WORD, "");
 export const surname = (author: string) => loose(author.split(/\s+/).pop() ?? author);
+
+// A pen name, not the legal name in another form ("E. Nesbit", "Thornton W.
+// Burgess", "C. K. Scott-Moncrieff", "Alain René Le Sage", "Gouverneur Morris
+// IV"): its last name isn't the legal one's. "F. Anstey" is a pen name of
+// Thomas Anstey Guthrie.
+export function otherSurname(name: string, legal: string): boolean {
+  const plain = (s: string) => s.replace(/,?\s+(?:[IVX]+|Jr\.?|Sr\.?|the (?:Elder|Younger)|of \S.*)$/i, "");
+  const words = (s: string) => plain(s).split(/[\s-]+/).map(loose).filter(Boolean);
+  const [a, b] = [words(name), words(legal)];
+  if (a.join("") === b.join("") || [...a].sort().join(" ") === [...b].sort().join(" ")) return false;
+  return !sameSurname(a[a.length - 1] ?? "", b[b.length - 1] ?? "");
+}
 
 // For finding a book already in the catalog: titles compared without
 // articles, "of" or "and", with "Dr." as "Doctor" ("The Sign of Four" is "The

@@ -1,0 +1,469 @@
+[
+  {
+    "match": {
+      "title": "Pasara",
+      "titleBangla": "পসরা",
+      "author": "প্রসাদদাস রায়"
+    },
+    "set": {
+      "author": "হেমেন্দ্রকুমার রায়",
+      "searchAliases": [
+        "প্রসাদদাস রায়"
+      ],
+      "description": "হেমেন্দ্রকুমার রায়ের ছোটগল্পের বই।"
+    }
+  },
+  {
+    "match": {
+      "title": "Andhakarer Bandhu",
+      "titleBangla": "অন্ধকারের বন্ধু",
+      "author": "প্রসাদদাস রায়"
+    },
+    "set": {
+      "author": "হেমেন্দ্রকুমার রায়",
+      "searchAliases": [
+        "প্রসাদদাস রায়"
+      ],
+      "description": "হেমেন্দ্রকুমার রায়ের উপন্যাস।"
+    }
+  },
+  {
+    "match": {
+      "title": "Panchanader Teere",
+      "titleBangla": "পঞ্চনদের তীরে",
+      "author": "প্রসাদদাস রায়"
+    },
+    "set": {
+      "author": "হেমেন্দ্রকুমার রায়",
+      "searchAliases": [
+        "প্রসাদদাস রায়"
+      ],
+      "description": "হেমেন্দ্রকুমার রায়ের উপন্যাস।"
+    }
+  },
+  {
+    "match": {
+      "title": "Marar Mrityu",
+      "titleBangla": "মড়ার মৃত্যু",
+      "author": "প্রসাদদাস রায়"
+    },
+    "set": {
+      "author": "হেমেন্দ্রকুমার রায়",
+      "searchAliases": [
+        "প্রসাদদাস রায়"
+      ],
+      "description": "হেমেন্দ্রকুমার রায়ের রহস্য-রোমাঞ্চ কাহিনি।"
+    }
+  },
+  {
+    "match": {
+      "title": "Amrit-dweep",
+      "titleBangla": "অমৃত-দ্বীপ",
+      "author": "প্রসাদদাস রায়"
+    },
+    "set": {
+      "author": "হেমেন্দ্রকুমার রায়",
+      "searchAliases": [
+        "প্রসাদদাস রায়"
+      ],
+      "description": "হেমেন্দ্রকুমার রায়ের রহস্য-রোমাঞ্চ কাহিনি।"
+    }
+  },
+  {
+    "match": {
+      "title": "Ekhon jander dekhchhi",
+      "titleBangla": "এখন যাঁদের দেখছি",
+      "author": "প্রসাদদাস রায়"
+    },
+    "set": {
+      "author": "হেমেন্দ্রকুমার রায়",
+      "searchAliases": [
+        "প্রসাদদাস রায়"
+      ],
+      "description": "হেমেন্দ্রকুমার রায়ের স্মৃতিকথা।"
+    }
+  },
+  {
+    "match": {
+      "title": "Jander Dekhechhi",
+      "titleBangla": "যাঁদের দেখেছি",
+      "author": "প্রসাদদাস রায়"
+    },
+    "set": {
+      "author": "হেমেন্দ্রকুমার রায়",
+      "searchAliases": [
+        "প্রসাদদাস রায়"
+      ],
+      "description": "হেমেন্দ্রকুমার রায়ের স্মৃতিকথা।"
+    }
+  },
+  {
+    "match": {
+      "title": "Gaddalika",
+      "titleBangla": "গড্ডলিকা",
+      "author": "রাজশেখর বসু"
+    },
+    "set": {
+      "author": "পরশুরাম",
+      "searchAliases": [
+        "রাজশেখর বসু"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Kajjali",
+      "titleBangla": "কজ্জলী",
+      "author": "রাজশেখর বসু"
+    },
+    "set": {
+      "author": "পরশুরাম",
+      "searchAliases": [
+        "রাজশেখর বসু"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Hanumaner Swapna Ityadi Galpa",
+      "titleBangla": "হনুমানের স্বপ্ন ইত্যাদি গল্প",
+      "author": "রাজশেখর বসু"
+    },
+    "set": {
+      "author": "পরশুরাম",
+      "searchAliases": [
+        "রাজশেখর বসু"
+      ],
+      "description": "পরশুরামের ছোটগল্পের বই।"
+    }
+  },
+  {
+    "match": {
+      "title": "Galpakalpa",
+      "titleBangla": "গল্পকল্প",
+      "author": "রাজশেখর বসু"
+    },
+    "set": {
+      "author": "পরশুরাম",
+      "searchAliases": [
+        "রাজশেখর বসু"
+      ],
+      "description": "পরশুরামের ছোটগল্পের বই।"
+    }
+  },
+  {
+    "match": {
+      "title": "Dhusturi Maya Ityadi Galpa",
+      "titleBangla": "ধুস্তুরী মায়া ইত্যাদি গল্প",
+      "author": "রাজশেখর বসু"
+    },
+    "set": {
+      "author": "পরশুরাম",
+      "searchAliases": [
+        "রাজশেখর বসু"
+      ],
+      "description": "পরশুরামের ছোটগল্পের বই।"
+    }
+  },
+  {
+    "match": {
+      "title": "Krishnakali Ityadi Galpa",
+      "titleBangla": "কৃষ্ণকলি ইত্যাদি গল্প",
+      "author": "রাজশেখর বসু"
+    },
+    "set": {
+      "author": "পরশুরাম",
+      "searchAliases": [
+        "রাজশেখর বসু"
+      ],
+      "description": "পরশুরামের ছোটগল্পের বই।"
+    }
+  },
+  {
+    "match": {
+      "title": "Neel Tara Ityadi Galpa",
+      "titleBangla": "নীল তারা ইত্যাদি গল্প",
+      "author": "রাজশেখর বসু"
+    },
+    "set": {
+      "author": "পরশুরাম",
+      "searchAliases": [
+        "রাজশেখর বসু"
+      ],
+      "description": "পরশুরামের ছোটগল্পের বই।"
+    }
+  },
+  {
+    "match": {
+      "title": "Anandibai Ityadi Galpa",
+      "titleBangla": "আনন্দীবাঈ ইত্যাদি গল্প",
+      "author": "রাজশেখর বসু"
+    },
+    "set": {
+      "author": "পরশুরাম",
+      "searchAliases": [
+        "রাজশেখর বসু"
+      ],
+      "description": "পরশুরামের ছোটগল্পের বই।"
+    }
+  },
+  {
+    "match": {
+      "title": "Chamatkari Ityadi Galpa",
+      "titleBangla": "চমৎকুমারী ইত্যাদি গল্প",
+      "author": "রাজশেখর বসু"
+    },
+    "set": {
+      "author": "পরশুরাম",
+      "searchAliases": [
+        "রাজশেখর বসু"
+      ],
+      "description": "পরশুরামের ছোটগল্পের বই।"
+    }
+  },
+  {
+    "match": {
+      "title": "India's Love Lyrics",
+      "titleBangla": null,
+      "author": "Adela Florence Nicolson"
+    },
+    "set": {
+      "author": "Laurence Hope",
+      "searchAliases": [
+        "Adela Florence Nicolson",
+        "অ্যাডেলা ফ্লোরেন্স নিকোলসন"
+      ],
+      "description": "Laurence Hope-এর ইংরেজি কাব্যগ্রন্থ।"
+    }
+  },
+  {
+    "match": {
+      "title": "The History of Signboards, from the Earliest Times to the Present Day",
+      "titleBangla": null,
+      "author": "Herman Diederik Joan van Schevichaven ও John Camden Hotten"
+    },
+    "set": {
+      "author": "Jacob Larwood ও John Camden Hotten",
+      "searchAliases": [
+        "Herman Diederik Joan van Schevichaven"
+      ],
+      "description": "Jacob Larwood ও John Camden Hotten-এর ইংরেজি ইতিহাস বিষয়ক বই।"
+    },
+    "sources": [
+      {
+        "url": "https://www.gutenberg.org/ebooks/45249",
+        "rightsBasis": "লেখক Jacob Larwood ১৯১৮ সালে ও লেখক John Camden Hotten ১৮৭৩ সালে মারা গেছেন; কপিরাইটের মেয়াদ শেষ। উৎস: প্রজেক্ট গুটেনবার্গ"
+      }
+    ]
+  },
+  {
+    "match": {
+      "title": "That Which Hath Wings",
+      "titleBangla": null,
+      "author": "Clotilde Graves"
+    },
+    "set": {
+      "author": "Richard Dehan",
+      "searchAliases": [
+        "Clotilde Graves"
+      ],
+      "description": "Richard Dehan-এর ইংরেজি উপন্যাস।"
+    }
+  },
+  {
+    "match": {
+      "title": "The Mystery of a Turkish Bath",
+      "titleBangla": null,
+      "author": "Eliza Humphreys"
+    },
+    "set": {
+      "author": "Rita",
+      "searchAliases": [
+        "Eliza Humphreys"
+      ],
+      "description": "Rita-এর ইংরেজি উপন্যাস।"
+    }
+  },
+  {
+    "match": {
+      "title": "Tales of Terror",
+      "titleBangla": null,
+      "author": "J. E. Preston Muddock"
+    },
+    "set": {
+      "author": "Dick Donovan",
+      "searchAliases": [
+        "J. E. Preston Muddock"
+      ],
+      "description": "Dick Donovan-এর ইংরেজি রহস্য-রোমাঞ্চ কাহিনি।"
+    }
+  },
+  {
+    "match": {
+      "title": "Daughters of Nijo",
+      "titleBangla": null,
+      "author": "Winnifred Eaton"
+    },
+    "set": {
+      "author": "Onoto Watanna",
+      "searchAliases": [
+        "Winnifred Eaton"
+      ],
+      "description": "Onoto Watanna-এর ইংরেজি উপন্যাস।"
+    }
+  },
+  {
+    "match": {
+      "title": "The Moon and Sixpence",
+      "titleBangla": null,
+      "author": "William Somerset Maugham"
+    },
+    "set": {
+      "description": "উইলিয়াম সমারসেট মম্‌-এর ইংরেজি উপন্যাস।"
+    }
+  },
+  {
+    "match": {
+      "title": "The Awakening",
+      "titleBangla": null,
+      "author": "Kate Chopin"
+    },
+    "set": {
+      "description": "কেট শপ্যাঁর ইংরেজি উপন্যাস।"
+    }
+  },
+  {
+    "match": {
+      "title": "Pygmalion",
+      "titleBangla": null,
+      "author": "George Bernard Shaw"
+    },
+    "set": {
+      "description": "জর্জ বার্নার্ড শ'র ইংরেজি নাটক।"
+    }
+  },
+  {
+    "match": {
+      "title": "Man and Superman",
+      "titleBangla": null,
+      "author": "George Bernard Shaw"
+    },
+    "set": {
+      "description": "জর্জ বার্নার্ড শ'র ইংরেজি নাটক।"
+    }
+  },
+  {
+    "match": {
+      "title": "Swann's Way",
+      "titleBangla": null,
+      "author": "Marcel Proust"
+    },
+    "set": {
+      "description": "মার্সেল প্রুস্ত্‌-এর ফরাসি উপন্যাস, Charles Kenneth Scott Moncrieff-এর ইংরেজি অনুবাদে।"
+    }
+  },
+  {
+    "match": {
+      "title": "Dans l’Inde",
+      "titleBangla": "ভারতবর্ষে",
+      "author": "আঁদ্রে শেভ্রিয়োঁ"
+    },
+    "set": {
+      "description": "আঁদ্রে শেভ্রিয়োঁর ভ্রমণকাহিনি, জ্যোতিরিন্দ্রনাথ ঠাকুরের অনুবাদে।"
+    }
+  },
+  {
+    "match": {
+      "title": "Batouala",
+      "titleBangla": "এরাও মানুষ",
+      "author": "রেনে মারাঁ"
+    },
+    "set": {
+      "description": "রেনে মারাঁর উপন্যাস, নৃপেন্দ্রকৃষ্ণ চট্টোপাধ্যায়ের অনুবাদে।"
+    }
+  },
+  {
+    "match": {
+      "title": "A Course of Pure Mathematics",
+      "titleBangla": null,
+      "author": "G.H. Hardy"
+    },
+    "set": {
+      "searchAliases": [
+        "এ কোর্স অফ পিওর ম্যাথমেটিক্স"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Alaler Gharer Dulal",
+      "titleBangla": "আলালের ঘরের দুলাল",
+      "author": "প্যারীচাঁদ মিত্র"
+    },
+    "set": {
+      "searchAliases": [
+        "টেকচাঁদ ঠাকুর"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Padmarag",
+      "titleBangla": "পদ্মরাগ",
+      "author": "রোকেয়া সাখাওয়াত হোসেন"
+    },
+    "set": {
+      "searchAliases": [
+        "বেগম রোকেয়া"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Aborodhbasini",
+      "titleBangla": "অবরোধবাসিনী",
+      "author": "রোকেয়া সাখাওয়াত হোসেন"
+    },
+    "set": {
+      "searchAliases": [
+        "বেগম রোকেয়া"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "The Story of My Experiments with Truth",
+      "titleBangla": null,
+      "author": "Mohandas Karamchand Gandhi"
+    },
+    "set": {
+      "searchAliases": [
+        "মহাত্মা গান্ধী"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Sultana's Dream",
+      "titleBangla": "সুলতানার স্বপ্ন",
+      "author": "রোকেয়া সাখাওয়াত হোসেন"
+    },
+    "set": {
+      "searchAliases": [
+        "বেগম রোকেয়া"
+      ]
+    }
+  },
+  {
+    "match": {
+      "title": "Maro Jailno Anubhav",
+      "titleBangla": "কারাকাহিনী",
+      "author": "মোহনদাস করমচাঁদ গান্ধী"
+    },
+    "set": {
+      "searchAliases": [
+        "মহাত্মা গান্ধী"
+      ]
+    }
+  }
+]
