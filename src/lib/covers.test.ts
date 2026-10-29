@@ -1,6 +1,7 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
-import { checkUploaded, coverSourceLabel, coverSrcSet, coverUrl, isAllowedCoverSourceUrl, MAX_COVER_BYTES, parseCoverUrl } from "./covers";
+import { checkUploaded, COVER_SIZES, coverSourceLabel, coverSrcSet, coverUrl, isAllowedCoverSourceUrl, MAX_COVER_BYTES, parseCoverUrl } from "./covers";
+import nextConfig from "../../next.config.js";
 
 describe("cover URLs: allowed sources", () => {
   test("a Commons image is fetched as is and credited to its file page", () => {
@@ -120,5 +121,18 @@ describe("uploaded covers", () => {
     assert.ok(checkUploaded({ ...good, width: 100, height: 150 }));
     assert.ok(checkUploaded({ ...good, width: 1920, height: 1300 }), "a two-page spread");
     assert.ok(checkUploaded({ ...good, width: 300, height: 1400 }), "a strip");
+  });
+});
+
+describe("the day's cover through the site's own address", () => {
+  test("it is a same-site path with the covers' transformation", () => {
+    assert.equal(coverUrl("covers/gora-1", 340, true), "/cover-image/f_auto,q_auto,c_lfill,ar_2:3,g_center,w_340/covers/gora-1");
+  });
+
+  test("the /cover-image rewrite allows exactly the day cover's widths, and only covers", async () => {
+    const [rule] = (await nextConfig.rewrites!()) as { source: string }[];
+    const widths = rule.source.match(/w_\(\?:([\d|]+)\)/)?.[1].split("|").map(Number);
+    assert.deepEqual(widths, [...COVER_SIZES.today.widths]);
+    assert.match(rule.source, /\/covers\/:file$/);
   });
 });

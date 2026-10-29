@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { getSessionUserId } from "@/lib/authz";
+import { getAdminUserId, getSessionUserId } from "@/lib/authz";
 import { loadBook } from "@/lib/loaders";
 import { bn } from "@/lib/bangla";
 import { withCallbackUrl } from "@/lib/safe-redirect";
@@ -22,7 +22,7 @@ export default async function BookPage(props: { params: Promise<{ id: string }> 
 
   if (!book) notFound();
 
-  const userId = await getSessionUserId();
+  const [userId, adminId] = await Promise.all([getSessionUserId(), getAdminUserId()]);
   const myReview = userId ? (book.reviews.find((r) => r.userId === userId) ?? null) : null;
 
   let shelfStatus: "WANT" | "READING" | "FINISHED" | null = null;
@@ -47,6 +47,20 @@ export default async function BookPage(props: { params: Promise<{ id: string }> 
       <div className="mt-5 flex flex-col items-start gap-3">
         {userId && <ShelfButtons bookId={book.id} initialStatus={shelfStatus} />}
         <WishlistButton bookId={book.id} initialWishlisted={wishlisted} isLoggedIn={Boolean(userId)} />
+        {/* Admins only (the edit page checks again). */}
+        {adminId && (
+          <Link
+            href={`/admin/books/${encodeURIComponent(book.id)}/edit`}
+            className="inline-flex min-h-11 items-center gap-2 font-body text-sm font-semibold text-cloth hover:underline"
+            data-admin-edit
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M4 20h4L19 9l-4-4L4 16v4z" />
+              <path d="M13.5 6.5l4 4" />
+            </svg>
+            এই বইটি সম্পাদনা করুন
+          </Link>
+        )}
       </div>
 
       <div className="mt-10 border-t-2 border-ink/10 pt-8">

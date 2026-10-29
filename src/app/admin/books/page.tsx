@@ -21,6 +21,7 @@ import BookCoverEditor from "@/components/BookCoverEditor";
 import SearchBox from "@/components/SearchBox";
 import NoResults from "@/components/NoResults";
 import { hrefWith, readQuery, searchFilter } from "@/lib/search";
+import { CHIP_OFF, CHIP_ON } from "@/lib/chips";
 
 // ?filter=needs-pdf: books that may carry a library PDF but don't yet --
 // marked public domain, passing the death-year rule, and with no file.
@@ -218,7 +219,7 @@ export default async function AdminBooksPage(props: {
                 href={hrefWith("/admin/books", { q, filter: chip.filter })}
                 aria-current={active ? "true" : undefined}
                 className={`rounded-book border-2 px-3 py-1.5 font-body text-sm font-semibold ${
-                  active ? "border-cloth bg-cloth text-paper" : "border-ink/20 text-ink hover:border-ink/40"
+                  active ? CHIP_ON : CHIP_OFF
                 }`}
               >
                 {chip.label}

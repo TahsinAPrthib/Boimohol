@@ -30,13 +30,26 @@ const nextConfig = {
   },
   // The home page's book of the day, its largest paint, is fetched through
   // the site's own address (src/lib/covers.ts), so a phone needn't open a
-  // second connection, to Cloudinary, before it can draw it. Only cover
-  // images, with the transformation the covers use; Cloudinary still sizes,
-  // formats and caches them.
+  // second connection, to Cloudinary, before it can draw it. Only what that
+  // cover needs: images in the covers folder (which holds only covers an
+  // admin attached to a public-domain book; rejected, replaced and removed
+  // ones are deleted from Cloudinary), with the covers' transformation, at
+  // the widths of COVER_SIZES.today. Anything else is a 404 here, so the
+  // rewrite can't be used to make Cloudinary render other images or sizes.
+  //
+  // Its caching is set in vercel.json, where Vercel documents it for
+  // external rewrites: the project predates Vercel caching them by default,
+  // so it opts in (x-vercel-enable-rewrite-caching), and Cloudinary marks its
+  // responses "private" (f_auto picks a format per browser), so the CDN's own
+  // lifetime is set there (CDN-Cache-Control, a day: the cover's turn on the
+  // home page, and how long a removed cover could linger). Vercel keys its
+  // cache on Accept, so each browser still gets its own format; the browser
+  // keeps Cloudinary's own Cache-Control. `next start` doesn't apply these
+  // headers to proxied responses, so they only show on Vercel.
   async rewrites() {
     return [
       {
-        source: "/cover-image/:transform(f_auto,q_auto,c_lfill,ar_2:3,g_center,w_\\d+)/covers/:file",
+        source: "/cover-image/:transform(f_auto,q_auto,c_lfill,ar_2:3,g_center,w_(?:220|340|440))/covers/:file",
         destination: `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/:transform/covers/:file`,
       },
     ];

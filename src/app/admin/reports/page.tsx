@@ -8,6 +8,7 @@ import { DELETED_USER_LABEL } from "@/lib/account-notices";
 import { adminRemoveListing, suspendUser } from "@/actions/admin-moderation";
 import ReportStatusControls from "@/components/ReportStatusControls";
 import ConfirmAction from "@/components/ConfirmAction";
+import { CHIP_OFF, CHIP_ON } from "@/lib/chips";
 
 // Who a report's content belongs to, with a link to their admin page and a
 // one-step suspend -- unless that's the admin looking at it, or the account
@@ -153,8 +154,8 @@ export default async function AdminReportsPage(props: {
               href={f.value === "ALL" ? "/admin/reports" : `/admin/reports?status=${f.value}`}
               className={`rounded-book border-2 px-3 py-1.5 font-body text-sm font-semibold ${
                 active
-                  ? "border-cloth bg-cloth text-paper"
-                  : "border-ink/20 text-ink hover:border-ink/40"
+                  ? CHIP_ON
+                  : CHIP_OFF
               }`}
             >
               {f.label}

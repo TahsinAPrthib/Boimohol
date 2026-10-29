@@ -1,4 +1,14 @@
 {
   "regions": ["sin1"],
-  "crons": [{ "path": "/api/cron/reader-cache", "schedule": "30 21 * * *" }]
+  "crons": [{ "path": "/api/cron/reader-cache", "schedule": "30 21 * * *" }],
+  "headers": [
+    {
+      "source": "/cover-image/(.*)",
+      "headers": [
+        { "key": "x-vercel-enable-rewrite-caching", "value": "1" },
+        { "key": "CDN-Cache-Control", "value": "public, max-age=86400" },
+        { "key": "Vercel-Cache-Tag", "value": "cover-image" }
+      ]
+    }
+  ]
 }

@@ -11,6 +11,7 @@ import Pager from "@/components/Pager";
 import { hrefWith, readQuery, searchFilter } from "@/lib/search";
 import { languageParam, languagePhrase, languageWhere, readLanguage, readPage } from "@/lib/book-language";
 import { curatedFirstPage } from "@/lib/book-listing";
+import { CHIP_OFF, CHIP_ON } from "@/lib/chips";
 
 export default async function LibraryPage(props: {
   searchParams: Promise<{ category?: string; q?: string | string[]; lang?: string | string[]; page?: string | string[] }>;
@@ -76,8 +77,8 @@ export default async function LibraryPage(props: {
             aria-current={!selectedSlug ? "true" : undefined}
             className={`rounded-book border-2 px-3 py-1.5 font-body text-sm font-semibold max-lg:flex max-lg:min-h-11 max-lg:shrink-0 max-lg:items-center max-lg:whitespace-nowrap ${
               !selectedSlug
-                ? "border-cloth bg-cloth text-paper"
-                : "border-ink/20 text-ink hover:border-ink/40"
+                ? CHIP_ON
+                : CHIP_OFF
             }`}
           >
             সব বিভাগ
@@ -89,8 +90,8 @@ export default async function LibraryPage(props: {
               aria-current={selectedSlug === cat.slug ? "true" : undefined}
               className={`rounded-book border-2 px-3 py-1.5 font-body text-sm font-semibold max-lg:flex max-lg:min-h-11 max-lg:shrink-0 max-lg:items-center max-lg:whitespace-nowrap ${
                 selectedSlug === cat.slug
-                  ? "border-cloth bg-cloth text-paper"
-                  : "border-ink/20 text-ink hover:border-ink/40"
+                  ? CHIP_ON
+                  : CHIP_OFF
               }`}
             >
               {cat.nameBangla}

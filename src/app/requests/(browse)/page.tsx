@@ -8,6 +8,7 @@ import ChipRow from "@/components/ChipRow";
 import ExchangeSwitch from "@/components/ExchangeSwitch";
 import NoResults from "@/components/NoResults";
 import { hrefWith, readQuery, searchFilter } from "@/lib/search";
+import { CHIP_OFF, CHIP_ON } from "@/lib/chips";
 
 export default async function RequestsPage(props: {
   searchParams: Promise<{ category?: string; q?: string | string[] }>;
@@ -61,8 +62,8 @@ export default async function RequestsPage(props: {
           aria-current={!selectedSlug ? "true" : undefined}
           className={`rounded-book border-2 px-3 py-1.5 font-body text-sm font-semibold max-lg:flex max-lg:min-h-11 max-lg:shrink-0 max-lg:items-center max-lg:whitespace-nowrap ${
             !selectedSlug
-              ? "border-cloth bg-cloth text-paper"
-              : "border-ink/20 text-ink hover:border-ink/40"
+              ? CHIP_ON
+              : CHIP_OFF
           }`}
         >
           সব বিভাগ
@@ -74,8 +75,8 @@ export default async function RequestsPage(props: {
             aria-current={selectedSlug === cat.slug ? "true" : undefined}
             className={`rounded-book border-2 px-3 py-1.5 font-body text-sm font-semibold max-lg:flex max-lg:min-h-11 max-lg:shrink-0 max-lg:items-center max-lg:whitespace-nowrap ${
               selectedSlug === cat.slug
-                ? "border-cloth bg-cloth text-paper"
-                : "border-ink/20 text-ink hover:border-ink/40"
+                ? CHIP_ON
+                : CHIP_OFF
             }`}
           >
             {cat.nameBangla}
