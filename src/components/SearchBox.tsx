@@ -99,7 +99,7 @@ export default function SearchBox({
       <label htmlFor={id} className="sr-only">
         {label}
       </label>
-      <span className={`pointer-events-none absolute inset-y-0 left-0 flex items-center text-ink/45 ${small ? "pl-2.5" : "pl-3"}`}>
+      <span className={`pointer-events-none absolute inset-y-0 left-0 flex items-center text-ink/70 ${small ? "pl-2.5" : "pl-3"}`}>
         <SearchIcon className={small ? "h-4 w-4" : "h-5 w-5"} />
       </span>
       <input
@@ -121,7 +121,7 @@ export default function SearchBox({
           }
         }}
         placeholder={placeholder}
-        className={`w-full rounded-book border-2 border-ink/15 bg-paper font-body text-ink placeholder:text-ink/40 focus:border-cloth focus:outline-none [&::-webkit-search-cancel-button]:appearance-none ${
+        className={`w-full rounded-book border-2 border-ink/15 bg-paper font-body text-ink placeholder:text-ink/70 focus:border-cloth focus:outline-none [&::-webkit-search-cancel-button]:appearance-none ${
           small ? "h-9 pl-8 pr-8 text-sm" : "h-11 pl-10 pr-10"
         }`}
       />
@@ -139,7 +139,7 @@ export default function SearchBox({
               go("", false);
               input.current?.focus();
             }}
-            className="flex h-7 w-7 items-center justify-center rounded-book text-ink/50 hover:bg-ink/5 hover:text-ink"
+            className="flex h-7 w-7 items-center justify-center rounded-book text-ink/70 hover:bg-ink/5 hover:text-ink"
             aria-label="খোঁজা মুছুন"
           >
             <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true" className="h-4 w-4">

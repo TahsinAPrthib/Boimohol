@@ -20,7 +20,7 @@ export default async function RegisterPage(props: { searchParams: Promise<{ call
   return (
     <div className="mx-auto flex min-h-[80vh] max-w-md flex-col justify-center px-4 py-10">
       <h1 className="mb-1 font-display text-3xl text-ink">নতুন অ্যাকাউন্ট</h1>
-      <p className="mb-6 font-body text-sm text-ink/60">
+      <p className="mb-6 font-body text-sm text-ink/70">
         বই মহলে যোগ দিন — পড়ুন, পর্যালোচনা লিখুন, নিজের বইতাক সাজান।
       </p>
 
@@ -31,7 +31,7 @@ export default async function RegisterPage(props: { searchParams: Promise<{ call
         তা নিশ্চিত থাকে। অ্যাকাউন্ট খোলার পর চাইলে সেটিংস থেকে একটি পাসওয়ার্ডও ঠিক করে নিতে পারবেন।
       </p>
 
-      <p className="mt-4 font-body text-xs leading-relaxed text-ink/60">
+      <p className="mt-4 font-body text-xs leading-relaxed text-ink/70">
         সাইন আপ করলে আপনি আমাদের{" "}
         <Link href="/terms" className="font-semibold text-cloth hover:underline">
           ব্যবহারের শর্তাবলী
@@ -43,7 +43,7 @@ export default async function RegisterPage(props: { searchParams: Promise<{ call
         সম্মতি দিচ্ছেন।
       </p>
 
-      <p className="mt-6 text-center font-body text-sm text-ink/60">
+      <p className="mt-6 text-center font-body text-sm text-ink/70">
         আগে থেকেই অ্যাকাউন্ট আছে?{" "}
         <Link href={loginHref} className="font-semibold text-cloth hover:underline">
           লগইন করুন

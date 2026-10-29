@@ -24,7 +24,7 @@ function OwnerActions({
   adminId: string;
 }) {
   return (
-    <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 font-body text-xs text-ink/60">
+    <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 font-body text-xs text-ink/70">
       <span>
         {role}:{" "}
         <Link href={`/admin/users/${owner.id}`} className="font-semibold text-cloth hover:underline">
@@ -142,7 +142,7 @@ export default async function AdminReportsPage(props: {
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
       <h1 className="mb-2 font-display text-3xl text-ink">রিপোর্ট</h1>
-      <p className="mb-6 font-body text-ink/60">ব্যবহারকারীদের পাঠানো রিপোর্টগুলো এখানে দেখুন ও নিষ্পত্তি করুন।</p>
+      <p className="mb-6 font-body text-ink/70">ব্যবহারকারীদের পাঠানো রিপোর্টগুলো এখানে দেখুন ও নিষ্পত্তি করুন।</p>
 
       <div className="mb-6 flex flex-wrap gap-2 border-b-2 border-ink/10 pb-6">
         {FILTERS.map((f) => {
@@ -164,7 +164,7 @@ export default async function AdminReportsPage(props: {
       </div>
 
       {reports.length === 0 ? (
-        <p className="font-body text-ink/50">এই ফিল্টারে কোনো রিপোর্ট নেই।</p>
+        <p className="font-body text-ink/70">এই ফিল্টারে কোনো রিপোর্ট নেই।</p>
       ) : (
         <ul className="flex flex-col gap-4">
           {reports.map((report) => {
@@ -189,12 +189,12 @@ export default async function AdminReportsPage(props: {
                       {STATUS_LABEL[report.status] ?? report.status}
                     </span>
                   </div>
-                  <span className="font-body text-xs text-ink/50">
+                  <span className="font-body text-xs text-ink/70">
                     {bnDate(report.createdAt)}
                   </span>
                 </div>
 
-                <p className="mt-2 font-body text-sm text-ink/60">
+                <p className="mt-2 font-body text-sm text-ink/70">
                   রিপোর্টকারী:{" "}
                   <span className="font-semibold text-ink">
                     {report.reporter ? `@${report.reporter.username}` : DELETED_USER_LABEL}
@@ -211,7 +211,7 @@ export default async function AdminReportsPage(props: {
                         >
                           {listing.title}
                         </Link>
-                        <p className="font-body text-xs text-ink/50">{listing.author}</p>
+                        <p className="font-body text-xs text-ink/70">{listing.author}</p>
                         {listing.removedByAdminAt && (
                           <p className="mt-1 font-body text-xs font-semibold text-oxblood">
                             {listing.removedByAdmin ? `@${listing.removedByAdmin.username}` : "একজন অ্যাডমিন"}{" "}
@@ -246,7 +246,7 @@ export default async function AdminReportsPage(props: {
                         <OwnerActions owner={listing.seller} role="বিক্রেতা" reportId={report.id} adminId={adminId} />
                       </>
                     ) : (
-                      <p className="font-body text-sm text-ink/40">তালিকাটি আর নেই (মুছে ফেলা হয়েছে)।</p>
+                      <p className="font-body text-sm text-ink/70">তালিকাটি আর নেই (মুছে ফেলা হয়েছে)।</p>
                     ))}
 
                   {report.targetType === "MESSAGE" &&
@@ -261,18 +261,18 @@ export default async function AdminReportsPage(props: {
                         {message.sender ? (
                           <OwnerActions owner={message.sender} role="প্রেরক" reportId={report.id} adminId={adminId} />
                         ) : (
-                          <p className="mt-1 font-body text-xs text-ink/50">প্রেরক: {DELETED_USER_LABEL}</p>
+                          <p className="mt-1 font-body text-xs text-ink/70">প্রেরক: {DELETED_USER_LABEL}</p>
                         )}
                       </>
                     ) : (
-                      <p className="font-body text-sm text-ink/40">বার্তাটি আর নেই (মুছে ফেলা হয়েছে)।</p>
+                      <p className="font-body text-sm text-ink/70">বার্তাটি আর নেই (মুছে ফেলা হয়েছে)।</p>
                     ))}
 
                   {report.targetType === "USER" &&
                     (user ? (
                       <OwnerActions owner={user} role="ব্যবহারকারী" reportId={report.id} adminId={adminId} />
                     ) : (
-                      <p className="font-body text-sm text-ink/40">
+                      <p className="font-body text-sm text-ink/70">
                         ব্যবহারকারীটি আর নেই (মুছে ফেলা হয়েছে)।
                       </p>
                     ))}

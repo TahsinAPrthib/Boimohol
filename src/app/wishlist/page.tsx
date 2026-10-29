@@ -46,12 +46,12 @@ export default async function WishlistPage() {
           tells you when something you want shows up. */}
       <section className="mb-12">
         <h2 className="mb-1 font-display text-2xl text-ink">পাওয়া যাচ্ছে</h2>
-        <p className="mb-4 font-body text-sm text-ink/60">
+        <p className="mb-4 font-body text-sm text-ink/70">
           আপনার উইশলিস্টের বইয়ের সাথে মিলে যাওয়া বিনিময়ের তালিকা।
         </p>
 
         {matches.length === 0 ? (
-          <p className="rounded-book border-2 border-dashed border-ink/15 px-4 py-5 font-body text-sm text-ink/50">
+          <p className="rounded-book border-2 border-dashed border-ink/15 px-4 py-5 font-body text-sm text-ink/70">
             {items.length === 0
               ? "উইশলিস্টে বই যোগ করলে এখানে মিল দেখানো হবে।"
               : "এই মুহূর্তে আপনার উইশলিস্টের কোনো বই বিনিময়ে নেই। পরে আবার দেখুন।"}
@@ -70,7 +70,7 @@ export default async function WishlistPage() {
                   location={match.location}
                   photoPublicId={match.photoPublicId}
                 />
-                <p className="mt-1 font-body text-xs text-ink/40">
+                <p className="mt-1 font-body text-xs text-ink/70">
                   মিলেছে: {match.matchedBookTitle}
                 </p>
               </div>
@@ -85,7 +85,7 @@ export default async function WishlistPage() {
         </h2>
 
         {items.length === 0 ? (
-          <p className="font-body text-ink/50">
+          <p className="font-body text-ink/70">
             উইশলিস্ট খালি। কোনো বইয়ের পাতায় গিয়ে “উইশলিস্টে রাখুন”-এ চাপ দিন —{" "}
             <Link href="/categories" className="font-semibold text-cloth hover:underline">
               বিভাগ থেকে শুরু করুন

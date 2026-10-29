@@ -16,6 +16,18 @@ export function activeTab(pathname: string): TabKey | null {
   return null;
 }
 
+// The book a book page shows (/books/<id>), or null for any other page,
+// including the reader under it.
+export function bookPageId(pathname: string): string | null {
+  const m = pathname.match(/^\/books\/([^/]+)\/?$/);
+  if (!m) return null;
+  try {
+    return decodeURIComponent(m[1]);
+  } catch {
+    return null;
+  }
+}
+
 // Where the top bar's back button goes on a full-screen page, or null for
 // every other page.
 export function fullScreenBack(pathname: string): { href: string; label: string } | null {

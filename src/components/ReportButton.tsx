@@ -63,7 +63,7 @@ export default function ReportButton({
             title={label}
             // 36px tap target around a 14px glyph: reachable by touch while
             // staying visually quiet in the thread.
-            className="flex h-9 w-9 items-center justify-center rounded-book text-ink/30 transition-colors hover:bg-ink/5 hover:text-oxblood focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-turmeric active:bg-ink/10"
+            className="flex h-9 w-9 items-center justify-center rounded-book text-ink/70 transition-colors hover:bg-ink/5 hover:text-oxblood focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-turmeric active:bg-ink/10"
           >
             <svg
               viewBox="0 0 24 24"
@@ -84,7 +84,7 @@ export default function ReportButton({
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="font-body text-xs text-ink/40 underline underline-offset-2 hover:text-oxblood"
+            className="font-body text-xs text-ink/70 underline underline-offset-2 hover:text-oxblood"
           >
             {label}
           </button>
@@ -99,7 +99,7 @@ export default function ReportButton({
     // to its own line instead of being squeezed beside the bubble.
     <div className={`w-full rounded-book border-2 border-ink/15 bg-paper p-3 ${className}`}>
       <p className="mb-1 font-body text-sm font-semibold text-ink">কী কারণে রিপোর্ট করছেন?</p>
-      <p className="mb-2 font-body text-xs text-ink/50">
+      <p className="mb-2 font-body text-xs text-ink/70">
         কী কী রিপোর্ট করা যায় দেখুন{" "}
         <Link href="/guidelines" className="font-semibold text-cloth hover:underline">
           নীতিমালায়

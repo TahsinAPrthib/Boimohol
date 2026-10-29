@@ -46,7 +46,7 @@ export default async function ListingPage(props: { params: Promise<{ id: string 
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
         <h1 className="font-display text-2xl text-ink">এই তালিকাটি আর উপলব্ধ নেই</h1>
-        <p className="mt-2 font-body text-ink/60">
+        <p className="mt-2 font-body text-ink/70">
           বইটি হয়তো ইতিমধ্যে বিক্রি, বিনিময় বা দান হয়ে গেছে।
         </p>
         <Link href="/marketplace" className="btn-secondary mt-6 inline-flex">
@@ -104,7 +104,7 @@ export default async function ListingPage(props: { params: Promise<{ id: string 
             <p className="mt-4 max-w-prose font-body text-ink/80">{listing.description}</p>
           )}
 
-          <p className="mt-4 font-body text-sm text-ink/60">
+          <p className="mt-4 font-body text-sm text-ink/70">
             বিক্রেতা: <span className="font-semibold text-ink">@{listing.seller.username}</span>
             {" · "}সদস্য হয়েছেন {bnYear(memberSinceYear)} থেকে
           </p>

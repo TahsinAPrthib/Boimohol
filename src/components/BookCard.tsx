@@ -44,13 +44,13 @@ export default function BookCard({
       <p className="mt-2 font-display text-base leading-snug text-ink group-hover:text-cloth">
         {titleBangla || title}
       </p>
-      <p className="font-body text-xs text-ink/50">{author}</p>
+      <p className="font-body text-xs text-ink/70">{author}</p>
       {/* No rating row until a book has a review: a shelf of empty stars
           reads as an unused library. The book page has its own empty state. */}
       {reviewCount > 0 && (
         <div className="mt-1 flex items-center gap-1.5">
           <StarRating value={averageRating} readOnly size="sm" />
-          <span className="font-body text-xs text-ink/40">({bn(reviewCount)})</span>
+          <span className="font-body text-xs text-ink/70">({bn(reviewCount)})</span>
         </div>
       )}
       {tags.length > 0 && (
@@ -59,7 +59,9 @@ export default function BookCard({
             <li
               key={t.label}
               className={`rounded-book px-1.5 py-0.5 font-body text-xs font-semibold leading-tight ${
-                t.external ? "bg-ink/10 text-ink/70" : "bg-sage/15 text-sage"
+                // Small text on a tint is under 4.5:1 unless it is full ink;
+                // the tint carries the colour.
+                t.external ? "bg-ink/10 text-ink" : "bg-sage/20 text-ink"
               }`}
             >
               {t.label}

@@ -2,21 +2,20 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getSessionUserId } from "@/lib/authz";
-import { canBePublicDomain } from "@/lib/public-domain";
 import { loadBook } from "@/lib/loaders";
-import { bn, bnFixed } from "@/lib/bangla";
+import { bn } from "@/lib/bangla";
 import { withCallbackUrl } from "@/lib/safe-redirect";
-import BookCover from "@/components/BookCover";
 import StarRating from "@/components/StarRating";
 import ReviewForm from "@/components/ReviewForm";
 import ShelfButtons from "@/components/ShelfButtons";
 import WishlistButton from "@/components/WishlistButton";
-import BookFreeCopies from "@/components/BookFreeCopies";
-import { coverSourceLabel } from "@/lib/covers";
 import ConfirmAction from "@/components/ConfirmAction";
 import { deleteReview } from "@/actions/reviews";
-import { readerSource } from "@/lib/wikisource/reader";
+import ScrollAnchor from "./scroll-anchor";
 
+// The book page below its header (the header -- cover, title, first line,
+// free copies -- is ./layout.tsx): what depends on who is looking, the shelf
+// and wishlist buttons and the review form, and the reviews.
 export default async function BookPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   const book = await loadBook(params.id);
@@ -24,18 +23,7 @@ export default async function BookPage(props: { params: Promise<{ id: string }> 
   if (!book) notFound();
 
   const userId = await getSessionUserId();
-
-  const reviewCount = book.reviews.length;
-  const averageRating =
-    reviewCount > 0 ? book.reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount : 0;
-
-  const myReview = userId ? book.reviews.find((r) => r.userId === userId) ?? null : null;
-  // As in the library: no free copy offered -- PDF or link -- unless the book
-  // passes the public-domain rule today, whatever its stored flag says.
-  const free = book.isPublicDomain && canBePublicDomain(book.authorDeathYear);
-  const freeFile = free ? book.files.find((f) => f.publicId) ?? null : null;
-  const freeSources = free ? book.sources : [];
-  const readHref = readerSource(book) ? `/books/${encodeURIComponent(book.id)}/read` : null;
+  const myReview = userId ? (book.reviews.find((r) => r.userId === userId) ?? null) : null;
 
   let shelfStatus: "WANT" | "READING" | "FINISHED" | null = null;
   let wishlisted = false;
@@ -54,69 +42,11 @@ export default async function BookPage(props: { params: Promise<{ id: string }> 
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10">
-      <div className="grid grid-cols-1 gap-8 sm:grid-cols-[200px_1fr]">
-        <div className="w-full max-w-[200px]">
-          <BookCover
-            bookId={book.id}
-            categorySlug={book.category.slug}
-            title={book.title}
-            titleBangla={book.titleBangla}
-            coverPublicId={book.coverPublicId}
-            context="detail"
-            priority
-            author={book.author}
-            colorKey={book.category.colorKey}
-          />
-          {book.coverPublicId && book.coverSourceUrl && (
-            <p className="mt-2 font-body text-xs leading-snug text-ink/55" data-cover-credit>
-              প্রচ্ছদের উৎস:{" "}
-              <a href={book.coverSourceUrl} target="_blank" rel="noopener noreferrer" className="underline hover:text-cloth">
-                {coverSourceLabel(book.coverSourceUrl)}
-              </a>
-              {book.coverRightsBasis && <span className="mt-0.5 block text-ink/45">{book.coverRightsBasis}</span>}
-            </p>
-          )}
-        </div>
-
-        <div>
-          <Link
-            href={`/categories/${book.category.slug}`}
-            className="font-body text-sm font-semibold text-cloth hover:underline"
-          >
-            {book.category.nameBangla}
-          </Link>
-          <h1 className="mt-1 font-display text-3xl text-ink">{book.titleBangla || book.title}</h1>
-          {book.titleBangla && <p className="font-body text-ink/50">{book.title}</p>}
-          <p className="mt-1 font-body text-ink/70">{book.author}</p>
-          {book.translator && <p className="font-body text-sm text-ink/60">অনুবাদ: {book.translator}</p>}
-
-          <div className="mt-3 flex items-center gap-2">
-            <StarRating value={averageRating} readOnly />
-            <span className="font-body text-sm text-ink/60">
-              {reviewCount > 0
-                ? `${bnFixed(averageRating)} (${bn(reviewCount)}টি পর্যালোচনা)`
-                : "এখনো কোনো পর্যালোচনা নেই"}
-            </span>
-          </div>
-
-          <p className="mt-4 max-w-prose font-body text-ink/80">{book.description}</p>
-
-          <BookFreeCopies
-            file={freeFile && freeFile.publicId ? { ...freeFile, publicId: freeFile.publicId } : null}
-            sources={freeSources}
-            readHref={readHref}
-          />
-
-          <div className="mt-5 flex flex-col items-start gap-3">
-            {userId && <ShelfButtons bookId={book.id} initialStatus={shelfStatus} />}
-            <WishlistButton
-              bookId={book.id}
-              initialWishlisted={wishlisted}
-              isLoggedIn={Boolean(userId)}
-            />
-          </div>
-        </div>
+    <>
+      <ScrollAnchor />
+      <div className="mt-5 flex flex-col items-start gap-3">
+        {userId && <ShelfButtons bookId={book.id} initialStatus={shelfStatus} />}
+        <WishlistButton bookId={book.id} initialWishlisted={wishlisted} isLoggedIn={Boolean(userId)} />
       </div>
 
       <div className="mt-10 border-t-2 border-ink/10 pt-8">
@@ -152,12 +82,9 @@ export default async function BookPage(props: { params: Promise<{ id: string }> 
             )}
           </>
         ) : (
-          <div className="rounded-book border-2 border-dashed border-ink/15 px-4 py-5 text-center font-body text-ink/60">
+          <div className="rounded-book border-2 border-dashed border-ink/15 px-4 py-5 text-center font-body text-ink/70">
             পর্যালোচনা লিখতে হলে{" "}
-            <Link
-              href={withCallbackUrl("/login", `/books/${book.id}`)}
-              className="font-semibold text-cloth hover:underline"
-            >
+            <Link href={withCallbackUrl("/login", `/books/${book.id}`)} className="font-semibold text-cloth hover:underline">
               লগইন
             </Link>{" "}
             করুন।
@@ -168,7 +95,7 @@ export default async function BookPage(props: { params: Promise<{ id: string }> 
       <div className="mt-10">
         <h2 className="mb-4 font-display text-xl text-ink">পর্যালোচনাসমূহ</h2>
         {book.reviews.length === 0 ? (
-          <p className="font-body text-ink/50">এখনো কেউ পর্যালোচনা লেখেননি।</p>
+          <p className="font-body text-ink/70">এখনো কেউ পর্যালোচনা লেখেননি।</p>
         ) : (
           <ul className="flex flex-col gap-4">
             {book.reviews.map((review) => {
@@ -184,16 +111,14 @@ export default async function BookPage(props: { params: Promise<{ id: string }> 
                     <span className="font-body font-semibold text-ink">{review.user.name}</span>
                     <StarRating value={review.rating} readOnly size="sm" />
                   </div>
-                  {aspects.length > 0 && (
-                    <p className="mt-1 font-body text-xs text-ink/50">{aspects.join(" · ")}</p>
-                  )}
-                  {review.text && <p className="mt-2 font-body text-ink/70">{review.text}</p>}
+                  {aspects.length > 0 && <p className="mt-1 font-body text-xs text-ink/70">{aspects.join(" · ")}</p>}
+                  {review.text && <p className="mt-2 font-body text-ink/80">{review.text}</p>}
                 </li>
               );
             })}
           </ul>
         )}
       </div>
-    </div>
+    </>
   );
 }

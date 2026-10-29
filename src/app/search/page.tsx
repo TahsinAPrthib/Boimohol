@@ -67,7 +67,7 @@ export default async function SearchPage(props: { searchParams: Promise<{ q?: st
       <div className="mx-auto max-w-5xl px-4 py-10">
         <h1 className="mb-6 font-display text-3xl text-ink">খুঁজুন</h1>
         {box}
-        <p className="max-w-prose font-body text-ink/60">
+        <p className="max-w-prose font-body text-ink/70">
           বইয়ের নাম (বাংলা বা ইংরেজি), লেখকের নাম, কিংবা বিনিময়ের বইয়ের এলাকা লিখে খুঁজুন। বই, বিনিময়ের তালিকা আর খোলা
           অনুরোধ — সব একসাথে দেখাবে।
         </p>
@@ -150,7 +150,7 @@ export default async function SearchPage(props: { searchParams: Promise<{ q?: st
                 ))}
               </div>
               {found.more && (
-                <p className="mt-4 font-body text-sm text-ink/60">আরও বই মিলেছে — আরেকটু নির্দিষ্ট করে লিখলে সেগুলো আগে আসবে।</p>
+                <p className="mt-4 font-body text-sm text-ink/70">আরও বই মিলেছে — আরেকটু নির্দিষ্ট করে লিখলে সেগুলো আগে আসবে।</p>
               )}
             </section>
           )}

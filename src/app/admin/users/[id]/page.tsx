@@ -33,7 +33,7 @@ function Section({ title, count, children }: { title: string; count?: number; ch
     <section className="mt-10">
       <h2 className="mb-3 font-display text-xl text-ink">
         {title}
-        {count !== undefined && <span className="ml-2 font-body text-base text-ink/50">({bn(count)})</span>}
+        {count !== undefined && <span className="ml-2 font-body text-base text-ink/70">({bn(count)})</span>}
       </h2>
       {children}
     </section>
@@ -41,7 +41,7 @@ function Section({ title, count, children }: { title: string; count?: number; ch
 }
 
 function Empty({ children }: { children: React.ReactNode }) {
-  return <p className="font-body text-sm text-ink/50">{children}</p>;
+  return <p className="font-body text-sm text-ink/70">{children}</p>;
 }
 
 const ROW = "flex flex-col gap-3 rounded-book border-2 border-ink/10 bg-paper-dark p-4 sm:flex-row sm:items-start sm:justify-between";
@@ -137,14 +137,14 @@ export default async function AdminUserPage(props: { params: Promise<{ id: strin
           )}
         </h1>
         <p className="mt-1 font-body text-ink/70">{user.name}</p>
-        <p className="font-body text-sm text-ink/60">
+        <p className="font-body text-sm text-ink/70">
           {user.email}
           {user.emailVerified ? " · যাচাই করা ইমেইল" : ""}
           {user.googleId ? " · Google যুক্ত" : ""}
         </p>
-        <p className="font-body text-xs text-ink/50">যোগ দিয়েছেন {bnDate(user.createdAt)}</p>
+        <p className="font-body text-xs text-ink/70">যোগ দিয়েছেন {bnDate(user.createdAt)}</p>
         {user.needsUsername && (
-          <p className="mt-1 font-body text-xs text-ink/60">
+          <p className="mt-1 font-body text-xs text-ink/70">
             Google দিয়ে খোলা নতুন অ্যাকাউন্ট — এখনো ইউজারনেম বেছে নেননি, তাই সাইটে কিছু করতে পারেন না।
           </p>
         )}
@@ -159,7 +159,7 @@ export default async function AdminUserPage(props: { params: Promise<{ id: strin
 
         <div className="mt-4 flex flex-wrap items-start gap-3 border-t-2 border-ink/10 pt-4">
           {isSelf ? (
-            <p className="font-body text-sm text-ink/60">এটি আপনার নিজের অ্যাকাউন্ট — নিজেকে স্থগিত বা মুছে ফেলা যায় না।</p>
+            <p className="font-body text-sm text-ink/70">এটি আপনার নিজের অ্যাকাউন্ট — নিজেকে স্থগিত বা মুছে ফেলা যায় না।</p>
           ) : (
             <>
               {user.suspendedAt ? (
@@ -204,8 +204,8 @@ export default async function AdminUserPage(props: { params: Promise<{ id: strin
                   <Link href={`/marketplace/${listing.id}`} className="font-display text-lg text-ink hover:text-cloth">
                     {listing.title}
                   </Link>
-                  <p className="font-body text-sm text-ink/60">{listing.author}</p>
-                  <p className="font-body text-xs text-ink/50">
+                  <p className="font-body text-sm text-ink/70">{listing.author}</p>
+                  <p className="font-body text-xs text-ink/70">
                     {LISTING_STATUS_LABEL[listing.status]} · {bn(listing._count.photos)}টি ছবি · {bnDate(listing.createdAt)}
                   </p>
                 </div>
@@ -240,7 +240,7 @@ export default async function AdminUserPage(props: { params: Promise<{ id: strin
                   <Link href={`/books/${review.book.id}`} className="font-display text-lg text-ink hover:text-cloth">
                     {review.book.titleBangla || review.book.title}
                   </Link>
-                  <p className="font-body text-xs text-ink/50">
+                  <p className="font-body text-xs text-ink/70">
                     রেটিং {bn(review.rating)}/৫ · {bnDate(review.createdAt)}
                   </p>
                   {review.text && <p className="mt-1 max-w-prose font-body text-sm text-ink/70">{review.text}</p>}
@@ -269,8 +269,8 @@ export default async function AdminUserPage(props: { params: Promise<{ id: strin
                   <Link href={`/requests/${request.id}`} className="font-display text-lg text-ink hover:text-cloth">
                     {request.title}
                   </Link>
-                  <p className="font-body text-sm text-ink/60">{request.author}</p>
-                  <p className="font-body text-xs text-ink/50">
+                  <p className="font-body text-sm text-ink/70">{request.author}</p>
+                  <p className="font-body text-xs text-ink/70">
                     {REQUEST_STATUS_LABEL[request.status]} · {bn(request._count.responses)}টি সাড়া ·{" "}
                     {bnDate(request.createdAt)}
                   </p>
@@ -297,7 +297,7 @@ export default async function AdminUserPage(props: { params: Promise<{ id: strin
               <li key={entry.id} className="font-body text-sm text-ink/80 [overflow-wrap:anywhere]">
                 <span className="font-semibold text-ink">{MODERATION_ACTION_LABEL[entry.action]}</span>
                 {entry.summary && ` — ${entry.summary}`}
-                <span className="block text-xs text-ink/50">
+                <span className="block text-xs text-ink/70">
                   {entry.admin ? `@${entry.admin.username}` : "মুছে ফেলা অ্যাডমিন"}, {bnDateTime(entry.createdAt)}
                 </span>
               </li>

@@ -144,7 +144,7 @@ export default function AdminBookForm({
               type="checkbox"
               name="isPublicDomain"
               defaultChecked={initial?.isPublicDomain ?? false}
-              className="mt-1 h-4 w-4 accent-[#5F7355]"
+              className="mt-1 h-4 w-4 accent-sage"
             />
             পাবলিক ডোমেইন (বিনামূল্যে পিডিএফ বা বাইরের সাইটের লিংক দেওয়া যাবে)
           </label>
@@ -195,7 +195,7 @@ function Field({
         {label}
       </label>
       {children}
-      {hint && !error && <p className="mt-1 font-body text-xs text-ink/50">{hint}</p>}
+      {hint && !error && <p className="mt-1 font-body text-xs text-ink/70">{hint}</p>}
       {error && <p className="field-error">{error}</p>}
     </div>
   );

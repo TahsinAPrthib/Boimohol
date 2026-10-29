@@ -91,7 +91,7 @@ export default function BlockButton({
       <button
         type="button"
         onClick={() => setConfirming(true)}
-        className="font-body text-xs text-ink/40 underline underline-offset-2 hover:text-oxblood"
+        className="font-body text-xs text-ink/70 underline underline-offset-2 hover:text-oxblood"
       >
         ব্লক করুন
       </button>

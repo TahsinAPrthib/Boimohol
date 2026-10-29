@@ -42,7 +42,7 @@ export default function BookFreeCopies({
               <Link href={readHref} className="btn-primary" data-read-here>
                 এখানেই পড়ুন
               </Link>
-              <span className="font-body text-sm text-ink/60">বই মহলেই, উইকিসংকলনের লেখা থেকে</span>
+              <span className="font-body text-sm text-ink/70">বই মহলেই, উইকিসংকলনের লেখা থেকে</span>
             </div>
           </li>
         )}
@@ -80,7 +80,7 @@ export default function BookFreeCopies({
                 </svg>
                 <span className="sr-only">(নতুন ট্যাবে খুলবে)</span>
               </a>
-              <span className="font-body text-sm text-ink/60">{new URL(s.url).hostname} · নতুন ট্যাবে খুলবে</span>
+              <span className="font-body text-sm text-ink/70">{new URL(s.url).hostname} · নতুন ট্যাবে খুলবে</span>
             </div>
             {!sharedNote && <WhyFree note={s.rightsBasis} />}
           </li>
@@ -88,7 +88,7 @@ export default function BookFreeCopies({
       </ul>
       {sharedNote && <WhyFree note={sharedNote} />}
       {sources.length > 0 && (
-        <p className="mt-2 max-w-prose font-body text-xs text-ink/50">
+        <p className="mt-2 max-w-prose font-body text-xs text-ink/70">
           বাইরের সাইটগুলো বই মহলের নয়; সেখানে তাদের নিজস্ব নিয়ম ও গোপনীয়তা নীতি প্রযোজ্য।
         </p>
       )}
@@ -100,7 +100,7 @@ export default function BookFreeCopies({
 // but present rather than buried.
 function WhyFree({ note }: { note: string }) {
   return (
-    <p className="mt-3 max-w-prose font-body text-xs text-ink/60">
+    <p className="mt-3 max-w-prose font-body text-xs text-ink/70">
       <span className="font-semibold text-ink/70">কেন বিনামূল্যে:</span> {note}
     </p>
   );

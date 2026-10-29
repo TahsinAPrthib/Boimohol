@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getAdminUserId } from "@/lib/authz";
 import { canBePublicDomain, publicDomainCutoffYear } from "@/lib/public-domain";
+import { revalidateShelves } from "@/lib/todays-book";
 import { rightsBasisSchema } from "@/lib/rights";
 import { serverCloudinary } from "@/lib/cloudinary-server";
 import { checkUploaded, COVER_FOLDER, COVER_FORMATS, isAllowedCoverSourceUrl, parseCoverUrl, type UploadedCover } from "@/lib/covers";
@@ -24,6 +25,7 @@ const NOT_FREE = "এই বইটি পাবলিক ডোমেইনে �
 const eligibleWhere = () => ({ isPublicDomain: true, authorDeathYear: { lte: publicDomainCutoffYear() } });
 
 function revalidateCover(bookId: string) {
+  revalidateShelves();
   revalidatePath(`/books/${bookId}`);
   revalidatePath("/admin/books");
   revalidatePath("/library");
@@ -191,6 +193,7 @@ export async function importCovers(jobs: CoverJob[]): Promise<{ ok: boolean; mes
     }
   }
   if (results.some((r) => r.ok)) {
+    revalidateShelves();
     revalidatePath("/library");
     revalidatePath("/admin/books");
   }

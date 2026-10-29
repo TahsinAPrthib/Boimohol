@@ -21,7 +21,7 @@ export default async function EditBookPage(props: { params: Promise<{ id: string
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
       <h1 className="mb-1 font-display text-3xl text-ink">বই সম্পাদনা</h1>
-      <p className="mb-6 border-b-2 border-ink/10 pb-6 font-body text-ink/60">{book.titleBangla || book.title}</p>
+      <p className="mb-6 border-b-2 border-ink/10 pb-6 font-body text-ink/70">{book.titleBangla || book.title}</p>
       <AdminBookForm
         action={updateBook.bind(null, book.id)}
         mode="edit"

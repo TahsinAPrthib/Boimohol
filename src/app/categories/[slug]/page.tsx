@@ -94,7 +94,7 @@ export default async function CategoryPage(props: {
           {showPick && page === 1 && (
             <div className="mb-12 overflow-hidden rounded-book border-2 border-turmeric shadow-shelf">
               <div className="bg-turmeric px-5 py-2">
-                <span className="font-display text-sm font-semibold text-ink/80">
+                <span className="font-display text-sm font-semibold text-on-accent">
                   শুরু করুন এখান থেকে
                 </span>
               </div>
@@ -114,7 +114,7 @@ export default async function CategoryPage(props: {
                   <Link href={`/books/${pick.book.id}`} className="font-display text-2xl text-ink hover:text-cloth">
                     {pick.book.titleBangla || pick.book.title}
                   </Link>
-                  <p className="mt-1 font-body text-ink/60">{pick.book.author}</p>
+                  <p className="mt-1 font-body text-ink/70">{pick.book.author}</p>
                   {pick.book.reviews.length > 0 && (
                     <div className="mt-2">
                       <StarRating value={averageOf(pick.book.reviews)} readOnly size="sm" />
@@ -129,7 +129,7 @@ export default async function CategoryPage(props: {
           <h2 className="mb-5 font-display text-xl text-ink">{showPick ? "আরও বই" : "সব বই"}</h2>
 
           {books.length === 0 ? (
-            <p className="font-body text-ink/50">
+            <p className="font-body text-ink/70">
               {lang !== "all"
                 ? `এই বিভাগে ${languagePhrase(lang)} ${showPick ? "আর কোনো " : "কোনো "}বই এখনো নেই।`
                 : showPick

@@ -102,7 +102,7 @@ export default async function LibraryPage(props: {
       {books.length === 0 && search ? (
         <NoResults query={q} where={selectedSlug ? "এই বিভাগে" : "লাইব্রেরিতে"} />
       ) : books.length === 0 ? (
-        <p className="rounded-book border-2 border-dashed border-ink/15 px-4 py-6 text-center font-body text-ink/60">
+        <p className="rounded-book border-2 border-dashed border-ink/15 px-4 py-6 text-center font-body text-ink/70">
           {lang !== "all"
             ? `${languagePhrase(lang)} কোনো বিনামূল্যের বই ${selectedSlug ? "এই বিভাগে " : ""}এখনো নেই।`
             : selectedSlug
@@ -112,7 +112,7 @@ export default async function LibraryPage(props: {
       ) : (
         <>
           {/* No count here: with a small library, a low number makes it look empty. */}
-          <p className="mb-4 font-body text-sm text-ink/50">
+          <p className="mb-4 font-body text-sm text-ink/70">
             পছন্দের বইটি খুলে বিনামূল্যে পড়ুন — এখানে রাখা পিডিএফ নামিয়ে, অথবা বাইরের সাইটে গিয়ে।
           </p>
           <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4">

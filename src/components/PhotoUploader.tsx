@@ -128,7 +128,7 @@ export default function PhotoUploader({
       <label className="field-label" htmlFor="photo-input">
         ছবি (ঐচ্ছিক)
       </label>
-      <p className="mb-2 font-body text-xs text-ink/50">
+      <p className="mb-2 font-body text-xs text-ink/70">
         বইটির নিজের তোলা ছবি দিন — সর্বোচ্চ {bn(MAX_PHOTOS)}টি, প্রতিটি ৫ মেগাবাইটের কম। JPG, PNG বা
         WEBP।
       </p>
@@ -144,7 +144,7 @@ export default function PhotoUploader({
         className="field-input text-sm file:mr-3 file:rounded-book file:border-0 file:bg-cloth file:px-3 file:py-1.5 file:font-body file:text-sm file:font-semibold file:text-paper disabled:opacity-60"
       />
 
-      <p className="mt-1 font-body text-xs text-ink/50">
+      <p className="mt-1 font-body text-xs text-ink/70">
         {bn(used)} / {bn(MAX_PHOTOS)} টি ছবি ব্যবহার করা হয়েছে।
       </p>
 

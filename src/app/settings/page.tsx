@@ -11,6 +11,9 @@ import SettingsPasswordForm from "@/components/SettingsPasswordForm";
 import DeleteAccountForm from "@/components/DeleteAccountForm";
 import GoogleConnection from "@/components/GoogleConnection";
 import FormMessage from "@/components/FormMessage";
+import { ThemeChooser } from "@/components/ThemeSwitch";
+import { parseThemeChoice, THEME_COOKIE } from "@/lib/theme";
+import { cookies } from "next/headers";
 
 export const metadata: Metadata = { title: "অ্যাকাউন্ট সেটিংস — বই মহল" };
 
@@ -80,30 +83,30 @@ export default async function SettingsPage(props: { searchParams: Promise<{ goog
           </h2>
           <dl className="flex flex-col gap-3 font-body text-sm [overflow-wrap:anywhere]">
             <div>
-              <dt className="text-ink/60">ইউজারনেম</dt>
+              <dt className="text-ink/70">ইউজারনেম</dt>
               <dd className="font-semibold text-ink">@{user.username}</dd>
-              <dd className="mt-1 text-xs text-ink/50">
+              <dd className="mt-1 text-xs text-ink/70">
                 ইউজারনেম বদলানো যায় না — আলাপে, তালিকায় আর অনুরোধে সবাই আপনাকে এই নামেই চেনেন।
               </dd>
             </div>
             <div>
-              <dt className="text-ink/60">ইমেইল</dt>
+              <dt className="text-ink/70">ইমেইল</dt>
               <dd className="flex flex-wrap items-center gap-2 font-semibold text-ink">
                 {user.email}
                 {user.emailVerified ? (
-                  <span className="rounded-book bg-sage/15 px-2 py-0.5 text-xs font-semibold text-sage">যাচাই করা</span>
+                  <span className="rounded-book bg-sage/20 px-2 py-0.5 text-xs font-semibold text-ink">যাচাই করা</span>
                 ) : (
-                  <span className="rounded-book bg-ink/10 px-2 py-0.5 text-xs font-semibold text-ink/60">
+                  <span className="rounded-book bg-ink/10 px-2 py-0.5 text-xs font-semibold text-ink">
                     যাচাই করা হয়নি
                   </span>
                 )}
               </dd>
               {!user.emailVerified && (
-                <dd className="mt-1 text-xs text-ink/50">
+                <dd className="mt-1 text-xs text-ink/70">
                   একই ইমেইলের Google অ্যাকাউন্ট যুক্ত করলে আপনার ইমেইল যাচাই হয়ে যাবে।
                 </dd>
               )}
-              <dd className="mt-1 text-xs text-ink/50">
+              <dd className="mt-1 text-xs text-ink/70">
                 ইমেইল বদলানোর ব্যবস্থা এখনো সাইটে নেই; দরকার হলে{" "}
                 <a href="mailto:tahsinaparthib1@gmail.com" className="font-semibold text-cloth hover:underline">
                   আমাদের ইমেইল করুন
@@ -119,6 +122,14 @@ export default async function SettingsPage(props: { searchParams: Promise<{ goog
             নাম
           </h2>
           <SettingsNameForm currentName={user.name} />
+        </section>
+
+        <section className={CARD} aria-labelledby="settings-theme-heading">
+          <h2 id="settings-theme-heading" className="mb-1 font-display text-xl text-ink">
+            পাতার রং
+          </h2>
+          <p className="mb-4 font-body text-sm text-ink/70">এই ব্রাউজারে বই মহলের রং। পড়ার পাতাতেও বদলানো যায়।</p>
+          <ThemeChooser initial={parseThemeChoice((await cookies()).get(THEME_COOKIE)?.value)} />
         </section>
 
         <section className={CARD} aria-labelledby="settings-google-heading">
@@ -137,7 +148,7 @@ export default async function SettingsPage(props: { searchParams: Promise<{ goog
           <h2 id="settings-password-heading" className="mb-1 font-display text-xl text-ink">
             {hasPassword ? "পাসওয়ার্ড" : "পাসওয়ার্ড ঠিক করুন"}
           </h2>
-          <p className="mb-4 font-body text-sm text-ink/60">
+          <p className="mb-4 font-body text-sm text-ink/70">
             {hasPassword
               ? "পাসওয়ার্ড বদলালে অন্য সব ডিভাইস ও ব্রাউজার থেকে আপনাকে লগ আউট করা হবে।"
               : "আপনার অ্যাকাউন্ট Google দিয়ে খোলা, এতে এখনো কোনো পাসওয়ার্ড নেই। পাসওয়ার্ড ঠিক করলে ইমেইল ও পাসওয়ার্ড দিয়েও লগইন করতে পারবেন।"}

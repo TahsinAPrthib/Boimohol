@@ -1,4 +1,5 @@
 import CoverPlaceholder from "@/components/CoverPlaceholder";
+import PriorityImage from "@/components/PriorityImage";
 import { COVER_SIZES, coverSrcSet, coverUrl, type CoverContext } from "@/lib/covers";
 
 // A book's cover: its real cover when it has one (a public-domain scan,
@@ -45,22 +46,39 @@ export default function BookCover({
   if (!coverPublicId) return <CoverPlaceholder {...generated} className={className} />;
 
   const { sizes, widths } = COVER_SIZES[context];
+  // The home page's book of the day is its largest paint: from the site's own
+  // address (src/lib/covers.ts).
+  const sameSite = context === "today";
+  const image = {
+    src: coverUrl(coverPublicId, widths[1], sameSite),
+    srcSet: coverSrcSet(coverPublicId, widths, sameSite),
+    sizes,
+    alt: "",
+    loading: priority ? ("eager" as const) : ("lazy" as const),
+    fetchPriority: priority ? ("high" as const) : ("auto" as const),
+    // The page's main image is decoded with the page, so it is painted in the
+    // first frame it can be; async decoding would let that frame go without it.
+    decoding: priority ? ("auto" as const) : ("async" as const),
+    className: "absolute inset-0 h-full w-full object-cover",
+  };
   return (
-    <div className={`cover relative aspect-[2/3] w-full overflow-hidden rounded-book bg-paper-dark shadow-shelf ${className}`} data-real-cover>
-      <div className="absolute inset-0">
-        <CoverPlaceholder {...generated} ornament={false} />
-      </div>
-      {/* eslint-disable-next-line @next/next/no-img-element -- Cloudinary sizes and formats it (src/lib/covers.ts); the image optimizer is off */}
-      <img
-        src={coverUrl(coverPublicId, widths[1])}
-        srcSet={coverSrcSet(coverPublicId, widths)}
-        sizes={sizes}
-        alt=""
-        loading={priority ? "eager" : "lazy"}
-        fetchPriority={priority ? "high" : "auto"}
-        decoding="async"
-        className="absolute inset-0 h-full w-full object-cover"
-      />
+    <div className={`cover relative aspect-[2/3] w-full overflow-hidden rounded-book bg-paper-dark shadow-shelf ${className}`} data-real-cover data-cover>
+      {/* The page's main image comes first and at once, so it goes without
+          the drawn cover underneath: laying out its title text (a container
+          query, balanced and clamped lines) again when the fonts arrive held
+          up the first paint. If it ever failed, the frame shows, and the
+          title is written beside it. */}
+      {!priority && (
+        <div className="absolute inset-0">
+          <CoverPlaceholder {...generated} ornament={false} />
+        </div>
+      )}
+      {priority ? (
+        <PriorityImage {...image} />
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text -- Cloudinary sizes and formats it (src/lib/covers.ts); the image optimizer is off; alt is in `image`
+        <img {...image} />
+      )}
       {/* The spine edge, as on the generated covers. */}
       <div
         className="cover-spine pointer-events-none absolute inset-y-0 left-0 shadow-spine"

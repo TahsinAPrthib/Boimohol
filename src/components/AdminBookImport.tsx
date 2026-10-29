@@ -85,12 +85,12 @@ export default function AdminBookImport({ categoryNames }: { categoryNames: Reco
           onChange={(e) => onFile(e.target.files?.[0])}
           className="field-input text-sm file:mr-3 file:rounded-book file:border-0 file:bg-cloth file:px-3 file:py-1.5 file:font-body file:text-sm file:font-semibold file:text-paper disabled:opacity-60"
         />
-        <p className="mt-1 font-body text-xs text-ink/50">
+        <p className="mt-1 font-body text-xs text-ink/70">
           একটি ফাইলে সর্বোচ্চ ৫০০টি বই। কিছু সংরক্ষণের আগে পুরো ফাইলটি যাচাই করে দেখানো হবে।
         </p>
       </div>
 
-      {previewing && !shown && <p className="font-body text-sm text-ink/60">যাচাই করা হচ্ছে…</p>}
+      {previewing && !shown && <p className="font-body text-sm text-ink/70">যাচাই করা হচ্ছে…</p>}
       {error && <p className="field-error">{error}</p>}
 
       {shown && !shown.ok && shown.total === 0 && (
@@ -155,7 +155,7 @@ export default function AdminBookImport({ categoryNames }: { categoryNames: Reco
                   <span>
                     সারি {bn(r.row)}: <span className="font-semibold text-ink">{r.title}</span> — {r.author}
                   </span>
-                  <ul className="mt-1 list-disc pl-5 text-ink/60">
+                  <ul className="mt-1 list-disc pl-5 text-ink/70">
                     {r.changes.map((c) => (
                       <li key={c}>{c}</li>
                     ))}
@@ -172,7 +172,7 @@ export default function AdminBookImport({ categoryNames }: { categoryNames: Reco
                   <span>
                     সারি {bn(r.row)}: <span className="font-semibold text-ink">{r.title}</span> — {r.author}
                   </span>
-                  <span className="text-ink/60">{r.change === "replace" ? "আগের প্রচ্ছদ বদলাবে" : "নতুন"}</span>
+                  <span className="text-ink/70">{r.change === "replace" ? "আগের প্রচ্ছদ বদলাবে" : "নতুন"}</span>
                 </li>
               ))}
             </ReportList>
@@ -185,7 +185,7 @@ export default function AdminBookImport({ categoryNames }: { categoryNames: Reco
                   <span>
                     সারি {bn(r.row)}: <span className="font-semibold text-ink">{r.title}</span> — {r.author}
                   </span>
-                  <span className="text-ink/60">লিংক যোগ: {r.sources.map((k) => SOURCE_LABEL[k]).join(", ")}</span>
+                  <span className="text-ink/70">লিংক যোগ: {r.sources.map((k) => SOURCE_LABEL[k]).join(", ")}</span>
                 </li>
               ))}
             </ReportList>
@@ -208,7 +208,7 @@ export default function AdminBookImport({ categoryNames }: { categoryNames: Reco
                   <span>
                     সারি {bn(r.row)}: <span className="font-semibold text-ink">{r.titleBangla || r.title}</span> — {r.author}
                   </span>
-                  <span className="text-ink/60">
+                  <span className="text-ink/70">
                     {categoryNames[r.category] ?? r.category}
                     {r.isPublicDomain ? " · পাবলিক ডোমেইন" : ""}
                     {r.sources.map((k) => ` · ${SOURCE_LABEL[k]}`).join("")}

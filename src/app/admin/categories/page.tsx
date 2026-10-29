@@ -52,7 +52,7 @@ export default async function AdminCategoriesPage() {
             >
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <h2 className="font-display text-xl text-ink">{category.nameBangla}</h2>
-                <p className="font-body text-xs text-ink/50">
+                <p className="font-body text-xs text-ink/70">
                   {category.slug} · {bn(category.books.length)}টি বই ·{" "}
                   <Link href={`/categories/${category.slug}`} className="font-semibold text-cloth hover:underline">
                     বিভাগের পাতা
@@ -80,7 +80,7 @@ export default async function AdminCategoriesPage() {
                     )}
                   </>
                 ) : (
-                  <p className="font-body text-sm text-ink/50">এখনো কোনো শুরুর বই বাছাই করা হয়নি।</p>
+                  <p className="font-body text-sm text-ink/70">এখনো কোনো শুরুর বই বাছাই করা হয়নি।</p>
                 )}
                 <div className="mt-3">
                   <StarterPickEditor

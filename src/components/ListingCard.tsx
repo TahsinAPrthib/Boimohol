@@ -10,7 +10,7 @@ const TYPE_LABEL: Record<string, string> = {
 };
 
 const TYPE_BADGE_CLASS: Record<string, string> = {
-  SELL: "bg-turmeric text-ink",
+  SELL: "bg-turmeric text-on-accent",
   EXCHANGE: "bg-cloth text-paper",
   DONATE: "bg-sage text-paper",
 };
@@ -63,8 +63,8 @@ export default function ListingCard({
         </span>
       </div>
       <p className="mt-2 font-display text-base leading-snug text-ink group-hover:text-cloth [overflow-wrap:anywhere]">{title}</p>
-      <p className="font-body text-xs text-ink/50 [overflow-wrap:anywhere]">{author}</p>
-      <p className="mt-1 font-body text-xs text-ink/60">{location}</p>
+      <p className="font-body text-xs text-ink/70 [overflow-wrap:anywhere]">{author}</p>
+      <p className="mt-1 font-body text-xs text-ink/70">{location}</p>
     </Link>
   );
 }

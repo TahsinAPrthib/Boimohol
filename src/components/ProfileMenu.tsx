@@ -17,7 +17,7 @@ function MenuLink({ href, label, Icon }: { href: string; label: string; Icon: ty
       <Link href={href} className={row}>
         <Icon className="h-6 w-6 shrink-0 text-cloth" />
         <span className="flex-1">{label}</span>
-        <ChevronIcon className="h-5 w-5 shrink-0 text-ink/40" />
+        <ChevronIcon className="h-5 w-5 shrink-0 text-ink/70" />
       </Link>
     </li>
   );

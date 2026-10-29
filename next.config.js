@@ -20,15 +20,25 @@ const nextConfig = {
       },
     ],
   },
-  // Files under /public are otherwise revalidated on every visit. The hero
-  // poster/video and the cursor carry a version in their names (-v1), so they
-  // can be cached for a year: to change one, add a new -v2 file and point the
-  // code at it, never overwrite the old name.
+  // Files under /public are otherwise revalidated on every visit. The cursor
+  // carries a version in its name (-v1), so it can be cached for a year: to
+  // change it, add a new -v2 file and point the code at it, never overwrite
+  // the old name.
   async headers() {
     const immutable = [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }];
+    return [{ source: "/cursors/:path*", headers: immutable }];
+  },
+  // The home page's book of the day, its largest paint, is fetched through
+  // the site's own address (src/lib/covers.ts), so a phone needn't open a
+  // second connection, to Cloudinary, before it can draw it. Only cover
+  // images, with the transformation the covers use; Cloudinary still sizes,
+  // formats and caches them.
+  async rewrites() {
     return [
-      { source: "/media/:path*", headers: immutable },
-      { source: "/cursors/:path*", headers: immutable },
+      {
+        source: "/cover-image/:transform(f_auto,q_auto,c_lfill,ar_2:3,g_center,w_\\d+)/covers/:file",
+        destination: `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/:transform/covers/:file`,
+      },
     ];
   },
 };

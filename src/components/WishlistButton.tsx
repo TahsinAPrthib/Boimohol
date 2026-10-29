@@ -59,7 +59,7 @@ export default function WishlistButton({
         aria-pressed={wishlisted}
         className={`transition-colors duration-300 ${
           wishlisted
-            ? "inline-flex items-center gap-2 rounded-book bg-turmeric px-4 py-2 font-body text-sm font-semibold text-ink shadow-shelf disabled:opacity-60"
+            ? "inline-flex items-center gap-2 rounded-book bg-turmeric px-4 py-2 font-body text-sm font-semibold text-on-accent shadow-shelf disabled:opacity-60"
             : "inline-flex items-center gap-2 rounded-book border-2 border-ink/20 px-4 py-2 font-body text-sm font-semibold text-ink hover:border-ink/40 disabled:opacity-60"
         }`}
       >

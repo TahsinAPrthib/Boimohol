@@ -45,7 +45,7 @@ export default function SettingsNameForm({ currentName }: { currentName: string 
           aria-describedby="settings-name-help"
           className="field-input"
         />
-        <p id="settings-name-help" className="mt-1 font-body text-xs text-ink/50">
+        <p id="settings-name-help" className="mt-1 font-body text-xs text-ink/70">
           বইয়ের পাতায় আপনার পর্যালোচনার সাথে এই নাম দেখা যায়।
         </p>
       </div>

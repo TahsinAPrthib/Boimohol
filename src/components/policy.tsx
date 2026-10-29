@@ -19,7 +19,7 @@ export function PolicyPage({
       <h1 className="font-display text-3xl text-ink">{title}</h1>
       {intro && <p className="mt-3 max-w-prose font-body text-ink/70">{intro}</p>}
       {updated && (
-        <p className="mt-2 font-body text-xs text-ink/40">সর্বশেষ হালনাগাদ: {updated}</p>
+        <p className="mt-2 font-body text-xs text-ink/70">সর্বশেষ হালনাগাদ: {updated}</p>
       )}
       <div className="mt-10 flex flex-col gap-9">{children}</div>
     </div>

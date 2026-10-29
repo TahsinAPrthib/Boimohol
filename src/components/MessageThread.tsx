@@ -120,7 +120,7 @@ export default function MessageThread({
     <div className="flex flex-col gap-4">
       <div className="flex max-h-[60vh] min-h-[240px] flex-col gap-3 overflow-y-auto rounded-book border-2 border-ink/10 bg-paper p-4">
         {messages.length === 0 ? (
-          <p className="my-auto text-center font-body text-sm text-ink/50">
+          <p className="my-auto text-center font-body text-sm text-ink/70">
             এখনো কোনো বার্তা নেই। প্রথম বার্তাটি আপনিই লিখুন।
           </p>
         ) : (
@@ -140,10 +140,10 @@ export default function MessageThread({
                   }`}
                 >
                   {fromDeleted && (
-                    <p className="mb-1 text-xs font-semibold text-ink/50">{DELETED_USER_LABEL}</p>
+                    <p className="mb-1 text-xs font-semibold text-ink/70">{DELETED_USER_LABEL}</p>
                   )}
                   <p className="whitespace-pre-wrap break-words">{m.text}</p>
-                  <p className={`mt-1 text-xs ${mine ? "text-paper/60" : "text-ink/40"}`}>
+                  <p className={`mt-1 text-xs ${mine ? "text-paper/80" : "text-ink/70"}`}>
                     {formatTime(m.createdAt)}
                   </p>
                 </div>
@@ -188,7 +188,7 @@ export default function MessageThread({
           </button>
         </form>
       ) : (
-        <p className="rounded-book border-2 border-dashed border-ink/15 px-4 py-3 text-center font-body text-sm text-ink/60">
+        <p className="rounded-book border-2 border-dashed border-ink/15 px-4 py-3 text-center font-body text-sm text-ink/70">
           {blockedNotice ?? "এই আলাপে নতুন বার্তা পাঠানো যাবে না।"}
         </p>
       )}

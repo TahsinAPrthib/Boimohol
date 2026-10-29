@@ -3,6 +3,83 @@
 @tailwind utilities;
 
 @layer base {
+  /* The palette (tailwind.config.ts reads these as RGB channels). Day is the
+     default; night follows the phone's dark mode unless the reader has chosen
+     day or night in settings or the reader, which the inline script in
+     layout.tsx puts on <html data-theme> before the first paint. The night
+     values are repeated for the two ways night is chosen. */
+  :root {
+    --c-paper: 234 227 211;
+    --c-paper-dark: 222 212 188;
+    --c-ink: 42 36 32;
+    --c-cloth: 37 63 84;
+    --c-cloth-light: 58 93 120;
+    --c-oxblood: 124 45 45;
+    --c-turmeric: 198 138 31;
+    /* Deeper than the original #5F7355, which was under 4.5:1 as text. */
+    --c-sage: 70 90 62;
+    --c-on-accent: 42 36 32;
+    --c-shadow: 42 36 32;
+    --c-board: 58 47 38;
+    --c-board-edge: 91 74 59;
+    /* Google's sign-in button: its light theme by day, its dark one at night. */
+    --google-bg: 255 255 255;
+    --google-border: 116 119 117;
+    --google-text: 31 31 31;
+    /* White scans are dimmed at night, like a page under a lamp. */
+    --scan-filter: none;
+    /* For labels that name the other palette (ThemeToggle). */
+    --when-day: inline-flex;
+    --when-night: none;
+    color-scheme: light;
+  }
+
+  :root[data-theme="dark"] {
+    --c-paper: 26 21 17;
+    --c-paper-dark: 36 29 23;
+    --c-ink: 237 227 207;
+    --c-cloth: 169 196 220;
+    --c-cloth-light: 195 214 231;
+    --c-oxblood: 227 144 127;
+    --c-turmeric: 221 169 74;
+    --c-sage: 169 195 155;
+    --c-on-accent: 26 21 17;
+    --c-shadow: 0 0 0;
+    --c-board: 14 11 9;
+    --c-board-edge: 58 47 38;
+    --google-bg: 19 19 20;
+    --google-border: 142 145 143;
+    --google-text: 227 227 227;
+    --scan-filter: brightness(0.86) sepia(0.12);
+    --when-day: none;
+    --when-night: inline-flex;
+    color-scheme: dark;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --c-paper: 26 21 17;
+      --c-paper-dark: 36 29 23;
+      --c-ink: 237 227 207;
+      --c-cloth: 169 196 220;
+      --c-cloth-light: 195 214 231;
+      --c-oxblood: 227 144 127;
+      --c-turmeric: 221 169 74;
+      --c-sage: 169 195 155;
+      --c-on-accent: 26 21 17;
+      --c-shadow: 0 0 0;
+      --c-board: 14 11 9;
+      --c-board-edge: 58 47 38;
+      --google-bg: 19 19 20;
+      --google-border: 142 145 143;
+      --google-text: 227 227 227;
+      --scan-filter: brightness(0.86) sepia(0.12);
+      --when-day: none;
+      --when-night: inline-flex;
+      color-scheme: dark;
+    }
+  }
+
   body {
     @apply bg-paper text-ink font-body;
     /* The dot grid, plus a faint paper grain: a ~300-byte inline SVG noise
@@ -10,7 +87,7 @@
        and it scrolls with the page (never background-attachment: fixed,
        which repaints on every scroll on phones). */
     background-image:
-      radial-gradient(circle at 1px 1px, rgba(42, 36, 32, 0.05) 1px, transparent 0),
+      radial-gradient(circle at 1px 1px, rgb(var(--c-ink) / 0.05) 1px, transparent 0),
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.07'/%3E%3C/svg%3E");
     background-size: 22px 22px, 180px 180px;
   }
@@ -23,7 +100,7 @@
   }
 
   ::selection {
-    @apply bg-turmeric text-ink;
+    @apply bg-turmeric text-on-accent;
   }
 }
 
@@ -42,46 +119,13 @@
       focus-visible:ring-offset-paper;
   }
 
-  /* For the dark hero image: turmeric reads clearly on ink, and the focus
-     ring offsets against ink rather than paper. */
-  .btn-hero-primary {
+  /* The home page's one call to action: turmeric, with the dark text that
+     stays dark on it in both palettes. */
+  .btn-accent {
     @apply inline-flex items-center justify-center gap-2 rounded-book bg-turmeric px-5 py-2.5
-      font-body font-semibold text-ink shadow-shelf transition-colors hover:bg-[#D6A342]
-      focus:outline-none focus-visible:ring-2 focus-visible:ring-paper focus-visible:ring-offset-2
-      focus-visible:ring-offset-ink;
-  }
-
-  .btn-hero-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-book border-2 border-paper/60
-      px-5 py-2.5 font-body font-semibold text-paper transition-colors hover:border-paper
-      hover:bg-paper/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-turmeric
-      focus-visible:ring-offset-2 focus-visible:ring-offset-ink;
-  }
-
-  /* Darkens the hero image under its text: from the bottom on phones, from
-     the left from md up. The stops were set by measuring the rendered text
-     against the image (and against frames of the video) -- the tagline needs
-     4.5:1 on every pixel, and lighter stops let bright book spines through. */
-  .hero-scrim {
-    background: linear-gradient(
-      to top,
-      rgba(42, 36, 32, 0.95) 0%,
-      rgba(42, 36, 32, 0.84) 50%,
-      rgba(42, 36, 32, 0.6) 78%,
-      rgba(42, 36, 32, 0.35) 100%
-    );
-  }
-
-  @media (min-width: 768px) {
-    .hero-scrim {
-      background: linear-gradient(
-        to right,
-        rgba(42, 36, 32, 0.92) 0%,
-        rgba(42, 36, 32, 0.84) 52%,
-        rgba(42, 36, 32, 0.5) 74%,
-        rgba(42, 36, 32, 0.15) 100%
-      );
-    }
+      font-body font-semibold text-on-accent shadow-shelf transition-colors hover:brightness-105
+      focus:outline-none focus-visible:ring-2 focus-visible:ring-cloth focus-visible:ring-offset-2
+      focus-visible:ring-offset-paper;
   }
 
   .field-label {
@@ -90,7 +134,7 @@
 
   .field-input {
     @apply w-full rounded-book border-2 border-ink/15 bg-paper px-3 py-2 font-body text-ink
-      placeholder:text-ink/40 focus:border-cloth focus:outline-none;
+      placeholder:text-ink/70 focus:border-cloth focus:outline-none;
   }
 
   .field-error {
@@ -420,7 +464,132 @@
     position: absolute;
     inset: 0;
     transform: translateX(-100%);
-    background: linear-gradient(90deg, transparent, rgba(234, 227, 211, 0.6), transparent);
+    background: linear-gradient(90deg, transparent, rgb(var(--c-paper) / 0.6), transparent);
+  }
+
+  /* A real cover is a scan of white paper: dimmed a little at night. */
+  [data-real-cover] > img {
+    filter: var(--scan-filter);
+  }
+
+  /* The shelf (ShelfStage): the home page's first screen and the top of the
+     book page. A row of covers on a board, with one book standing in front.
+     On the home page the row drifts slowly back and forth (see the motion
+     rules at the end); everywhere it is decoration, hidden from screen
+     readers. */
+  .shelf-stage {
+    position: relative;
+    height: 318px;
+    overflow: hidden;
+  }
+
+  .shelf-stage[data-size="book"] {
+    height: 360px;
+  }
+
+  .shelf-row {
+    position: absolute;
+    inset: auto 0 34px 0;
+    height: 180px;
+  }
+
+  .shelf-track {
+    display: flex;
+    align-items: flex-end;
+    gap: 14px;
+    width: max-content;
+    height: 170px;
+    padding-inline: 14px;
+  }
+
+  .shelf-book {
+    width: 104px;
+    flex: none;
+    opacity: 0.92;
+  }
+
+  .shelf-book:nth-child(3n + 2) {
+    width: 96px;
+    transform: translateY(6px);
+  }
+
+  .shelf-board {
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 14px;
+    background: linear-gradient(rgb(var(--c-board-edge)), rgb(var(--c-board)) 40%);
+    box-shadow: 0 10px 18px -8px rgb(var(--c-shadow) / 0.55);
+  }
+
+  .shelf-front {
+    position: absolute;
+    left: 50%;
+    bottom: 20px;
+    width: 168px;
+    transform: translateX(-50%);
+  }
+
+  /* Lifted off the shelf. A box-shadow on the cover rather than a drop-shadow
+     filter on the whole front: the same look, far cheaper to paint. */
+  .shelf-front > [data-cover],
+  .shelf-front > * > [data-cover] {
+    box-shadow:
+      0 18px 26px -6px rgb(var(--c-shadow) / 0.42),
+      0 2px 3px rgb(var(--c-shadow) / 0.3);
+  }
+
+  .shelf-stage[data-size="book"] .shelf-front {
+    width: 200px;
+    bottom: 22px;
+  }
+
+  .shelf-tag {
+    position: absolute;
+    left: 50%;
+    top: 6px;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    border: 1px solid rgb(var(--c-ink) / 0.14);
+    border-radius: 999px;
+    background-color: rgb(var(--c-paper));
+    padding: 4px 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  @media (min-width: 1024px) {
+    .shelf-stage {
+      height: 400px;
+    }
+
+    .shelf-stage[data-size="book"] {
+      height: 460px;
+    }
+
+    .shelf-row {
+      height: 230px;
+    }
+
+    .shelf-track {
+      height: 220px;
+    }
+
+    .shelf-book {
+      width: 132px;
+    }
+
+    .shelf-book:nth-child(3n + 2) {
+      width: 122px;
+    }
+
+    .shelf-front {
+      width: 220px;
+      bottom: 26px;
+    }
+
+    .shelf-stage[data-size="book"] .shelf-front {
+      width: 250px;
+    }
   }
 
   /* Set by <Reveal> on sections that start below the fold; see Reveal.tsx. */
@@ -476,6 +645,7 @@
     display: inline-block;
     max-width: 100%;
     height: auto;
+    filter: var(--scan-filter);
   }
   /* Wide tables scroll sideways inside the text instead of widening the
      page on a phone. */
@@ -495,7 +665,7 @@
     width: 4em;
     margin: 1.6em auto;
     border: 0;
-    border-top: 1px solid rgba(42, 36, 32, 0.35);
+    border-top: 1px solid rgb(var(--c-ink) / 0.35);
   }
   .reader-text blockquote {
     margin: 1em 0 1em 1.5em;
@@ -594,14 +764,64 @@
   .group:focus-visible .book-lift {
     transform: perspective(900px) translateY(-6px) rotateX(6deg) rotate(-0.8deg);
     box-shadow:
-      0 14px 18px -10px rgba(42, 36, 32, 0.45),
-      0 3px 0 0 rgba(42, 36, 32, 0.12);
+      0 14px 18px -10px rgb(var(--c-shadow) / 0.45),
+      0 3px 0 0 rgb(var(--c-shadow) / 0.12);
   }
 }
 
 @keyframes shimmer {
   to {
     transform: translateX(100%);
+  }
+}
+
+/* The home page's shelf drifts to its far end and back, two and a half
+   minutes each way: enough to be alive, too slow to pull at the eye. The row
+   is drawn once; it never loops. With reduced motion it stands still. */
+@media (prefers-reduced-motion: no-preference) {
+  .shelf-stage[data-drifting] .shelf-track {
+    animation: shelf-drift 150s ease-in-out infinite alternate;
+  }
+
+  /* The shelf's books arrive after the page has loaded (ShelfBooks). */
+  .shelf-arrive {
+    animation: shelf-arrive 700ms ease-out both;
+  }
+}
+
+@keyframes shelf-arrive {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes shelf-drift {
+  to {
+    transform: translateX(min(0px, calc(100vw - 100%)));
+  }
+}
+
+/* A cover moving from a list to its book page (CoverTransition.tsx); the rest
+   of the page fades across. */
+::view-transition-group(book-cover) {
+  animation-duration: 460ms;
+  animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 260ms;
+}
+
+::view-transition {
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 }
 

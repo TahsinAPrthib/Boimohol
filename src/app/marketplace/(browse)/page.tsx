@@ -86,7 +86,7 @@ export default async function MarketplacePage(props: {
       {listings.length === 0 && search ? (
         <NoResults query={q} where={selectedSlug ? "এই বিভাগে" : undefined} />
       ) : listings.length === 0 ? (
-        <p className="font-body text-ink/50">
+        <p className="font-body text-ink/70">
           {selectedSlug ? "এই বিভাগে এখন কোনো তালিকা নেই।" : "এখনো কোনো তালিকা যোগ করা হয়নি।"}
         </p>
       ) : (

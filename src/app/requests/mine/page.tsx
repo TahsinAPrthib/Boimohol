@@ -17,7 +17,7 @@ const STATUS_LABEL: Record<string, string> = {
 const STATUS_CLASS: Record<string, string> = {
   OPEN: "bg-sage text-paper",
   FULFILLED: "bg-cloth text-paper",
-  CLOSED: "bg-ink/20 text-ink/70",
+  CLOSED: "bg-ink/20 text-ink",
 };
 
 export default async function MyRequestsPage() {
@@ -43,7 +43,7 @@ export default async function MyRequestsPage() {
       </div>
 
       {requests.length === 0 ? (
-        <p className="font-body text-ink/50">আপনি এখনো কোনো অনুরোধ করেননি।</p>
+        <p className="font-body text-ink/70">আপনি এখনো কোনো অনুরোধ করেননি।</p>
       ) : (
         <div className="flex flex-col gap-4">
           {requests.map((request) => (
@@ -59,7 +59,7 @@ export default async function MyRequestsPage() {
                   >
                     {request.title}
                   </Link>
-                  <p className="font-body text-sm text-ink/50">{request.author}</p>
+                  <p className="font-body text-sm text-ink/70">{request.author}</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   {request.category && (
@@ -77,7 +77,7 @@ export default async function MyRequestsPage() {
                 </div>
               </div>
 
-              <p className="mt-2 font-body text-sm text-ink/60">
+              <p className="mt-2 font-body text-sm text-ink/70">
                 {request._count.responses > 0
                   ? `${bn(request._count.responses)} জন সাড়া দিয়েছেন`
                   : "এখনো কেউ সাড়া দেননি"}

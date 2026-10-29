@@ -74,7 +74,7 @@ export default function ReportStatusControls({
             className="field-input text-sm"
           />
           {currentNote && (
-            <p className="mt-1 font-body text-xs text-ink/50">
+            <p className="mt-1 font-body text-xs text-ink/70">
               ঘরটি খালি রেখে সংরক্ষণ করলে নোটটি মুছে যাবে।
             </p>
           )}

@@ -42,7 +42,7 @@ export default function ChooseUsernameForm({
   }, [alreadyDone, callbackUrl]);
 
   if (alreadyDone) {
-    return <p className="mx-auto max-w-md px-4 py-16 text-center font-body text-ink/60">এগিয়ে নিয়ে যাওয়া হচ্ছে...</p>;
+    return <p className="mx-auto max-w-md px-4 py-16 text-center font-body text-ink/70">এগিয়ে নিয়ে যাওয়া হচ্ছে...</p>;
   }
 
   function submit(event: FormEvent) {
@@ -78,14 +78,14 @@ export default function ChooseUsernameForm({
           placeholder="যেমন: rahim_reads"
           className="field-input"
         />
-        <p id="welcome-username-help" className="mt-1 font-body text-xs text-ink/50">
+        <p id="welcome-username-help" className="mt-1 font-body text-xs text-ink/70">
           ৩ থেকে ৩০ অক্ষর: ইংরেজি অক্ষর, সংখ্যা ও আন্ডারস্কোর (_)।
         </p>
       </div>
       <FormMessage result={result} />
       {/* Every new Google account passes through here, so this stands in for
           the sign-up form's consent line. */}
-      <p className="font-body text-xs leading-relaxed text-ink/60">
+      <p className="font-body text-xs leading-relaxed text-ink/70">
         চালিয়ে গেলে আপনি আমাদের{" "}
         <Link href="/terms" className="font-semibold text-cloth hover:underline">
           ব্যবহারের শর্তাবলী
@@ -102,7 +102,7 @@ export default function ChooseUsernameForm({
       <button
         type="button"
         onClick={() => signOut({ callbackUrl: "/" })}
-        className="self-center font-body text-sm font-semibold text-ink/60 hover:text-cloth hover:underline"
+        className="self-center font-body text-sm font-semibold text-ink/70 hover:text-cloth hover:underline"
       >
         এখন নয় — লগ আউট করুন
       </button>

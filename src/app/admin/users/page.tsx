@@ -57,14 +57,14 @@ export default async function AdminUsersPage(props: { searchParams: Promise<{ q?
 
       <div className="mb-6 flex flex-col gap-3 border-b-2 border-ink/10 pb-6">
         <SearchBox label="ব্যবহারকারী খুঁজুন" placeholder="ইউজারনেম বা ইমেইল" />
-        <p className="font-body text-sm text-ink/60">
+        <p className="font-body text-sm text-ink/70">
           {q ? `“${q}” মেলে এমন ${bn(total)} জন` : `মোট ${bn(total)} জন`}
           {total > users.length && ` — প্রথম ${bn(users.length)} জন দেখানো হচ্ছে`}
         </p>
       </div>
 
       {users.length === 0 ? (
-        <p className="rounded-book border-2 border-dashed border-ink/15 px-4 py-8 text-center font-body text-ink/60 [overflow-wrap:anywhere]">
+        <p className="rounded-book border-2 border-dashed border-ink/15 px-4 py-8 text-center font-body text-ink/70 [overflow-wrap:anywhere]">
           {q ? `“${q}” নামে বা ইমেইলে কোনো ব্যবহারকারী পাওয়া যায়নি।` : "এখনো কোনো ব্যবহারকারী নেই।"}
         </p>
       ) : (
@@ -85,27 +85,27 @@ export default async function AdminUsersPage(props: { searchParams: Promise<{ q?
                       <span className="rounded-book bg-oxblood/10 px-2 py-0.5 text-xs text-oxblood">স্থগিত</span>
                     )}
                     {user.googleId && (
-                      <span className="rounded-book bg-ink/10 px-2 py-0.5 text-xs text-ink/70">Google</span>
+                      <span className="rounded-book bg-ink/10 px-2 py-0.5 text-xs text-ink">Google</span>
                     )}
                     {user.needsUsername && (
-                      <span className="rounded-book bg-turmeric/20 px-2 py-0.5 text-xs text-ink/70">ইউজারনেম বাকি</span>
+                      <span className="rounded-book bg-turmeric/20 px-2 py-0.5 text-xs text-ink">ইউজারনেম বাকি</span>
                     )}
-                    {user.id === adminId && <span className="text-xs font-normal text-ink/50">(আপনি)</span>}
+                    {user.id === adminId && <span className="text-xs font-normal text-ink/70">(আপনি)</span>}
                   </p>
-                  <p className="font-body text-sm text-ink/60">{user.email}</p>
-                  <p className="font-body text-xs text-ink/50">যোগ দিয়েছেন {bnDate(user.createdAt)}</p>
+                  <p className="font-body text-sm text-ink/70">{user.email}</p>
+                  <p className="font-body text-xs text-ink/70">যোগ দিয়েছেন {bnDate(user.createdAt)}</p>
                 </div>
                 <dl className="flex shrink-0 gap-4 font-body text-sm text-ink/70">
                   <div>
-                    <dt className="text-xs text-ink/50">তালিকা</dt>
+                    <dt className="text-xs text-ink/70">তালিকা</dt>
                     <dd className="font-semibold text-ink">{bn(user._count.listings)}</dd>
                   </div>
                   <div>
-                    <dt className="text-xs text-ink/50">পর্যালোচনা</dt>
+                    <dt className="text-xs text-ink/70">পর্যালোচনা</dt>
                     <dd className="font-semibold text-ink">{bn(user._count.reviews)}</dd>
                   </div>
                   <div>
-                    <dt className="text-xs text-ink/50">অনুরোধ</dt>
+                    <dt className="text-xs text-ink/70">অনুরোধ</dt>
                     <dd className="font-semibold text-ink">{bn(user._count.bookRequests)}</dd>
                   </div>
                 </dl>

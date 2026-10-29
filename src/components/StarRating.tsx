@@ -50,7 +50,7 @@ export default function StarRating({
             style={{ width: px, height: px, animationDelay: popping ? `${(star - 1) * 45}ms` : undefined }}
           >
             <svg viewBox="0 0 24 24" width={px} height={px} className="absolute inset-0">
-              <path d={STAR_PATH} fill="none" stroke="#2A2420" strokeOpacity="0.25" strokeWidth="1.5" />
+              <path d={STAR_PATH} fill="none" className="stroke-ink" strokeOpacity="0.3" strokeWidth="1.5" />
             </svg>
             <svg viewBox="0 0 24 24" width={px} height={px} className="absolute inset-0">
               <defs>
@@ -58,7 +58,7 @@ export default function StarRating({
                   <rect x="0" y="0" width={24 * (fillPercent / 100)} height="24" />
                 </clipPath>
               </defs>
-              <path d={STAR_PATH} fill="#C68A1F" clipPath={`url(#${clipId})`} />
+              <path d={STAR_PATH} className="fill-turmeric" clipPath={`url(#${clipId})`} />
             </svg>
           </span>
         );

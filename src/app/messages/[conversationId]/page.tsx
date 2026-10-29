@@ -60,12 +60,12 @@ export default async function ConversationPage(props: {
               <Link href={`/marketplace/${listing.id}`} className="font-display text-lg text-ink hover:text-cloth">
                 {listing.title}
               </Link>
-              <p className="font-body text-sm text-ink/50">{listing.author}</p>
+              <p className="font-body text-sm text-ink/70">{listing.author}</p>
             </>
           ) : (
-            <p className="font-display text-lg text-ink/60">তালিকাটি আর নেই</p>
+            <p className="font-display text-lg text-ink/70">তালিকাটি আর নেই</p>
           )}
-          <p className="mt-1 font-body text-sm text-ink/60">
+          <p className="mt-1 font-body text-sm text-ink/70">
             {otherParty ? `@${otherParty.username} এর সাথে আলাপ` : `${DELETED_USER_LABEL}র সাথে আলাপ`}
           </p>
 

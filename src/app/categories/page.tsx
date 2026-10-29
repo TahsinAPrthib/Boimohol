@@ -26,7 +26,7 @@ export default async function CategoriesPage() {
       {categories.length > 0 ? (
         <CategoryGrid categories={categories} headingLevel="h2" />
       ) : (
-        <p className="font-body text-ink/60">এখনো কোনো বিভাগ যোগ করা হয়নি।</p>
+        <p className="font-body text-ink/70">এখনো কোনো বিভাগ যোগ করা হয়নি।</p>
       )}
     </div>
   );

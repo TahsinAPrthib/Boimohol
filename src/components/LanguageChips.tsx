@@ -18,7 +18,7 @@ export default function LanguageChips({
 }) {
   return (
     <ChipRow as="nav" label="ভাষা" activeKey={active} className={className}>
-      <span className="font-body text-sm text-ink/60 max-lg:shrink-0 max-lg:whitespace-nowrap">ভাষা:</span>
+      <span className="font-body text-sm text-ink/70 max-lg:shrink-0 max-lg:whitespace-nowrap">ভাষা:</span>
       {LANGUAGE_FILTERS.map((option) => {
         const current = option.value === active;
         return (

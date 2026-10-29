@@ -92,7 +92,7 @@ export default function Navbar() {
               </button>
             </>
           ) : status === "loading" ? (
-            <span className="text-ink/40">...</span>
+            <span className="text-ink/70">...</span>
           ) : (
             <>
               <Link href="/login" className="hover:text-cloth">

@@ -27,7 +27,7 @@ export default async function WelcomePage(props: { searchParams: Promise<{ callb
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center px-4 py-10">
       <h1 className="mb-1 font-display text-3xl text-ink">স্বাগতম{user?.name ? `, ${user.name}` : ""}!</h1>
-      <p className="mb-6 font-body text-sm text-ink/60 [overflow-wrap:anywhere]">
+      <p className="mb-6 font-body text-sm text-ink/70 [overflow-wrap:anywhere]">
         Google দিয়ে আপনার অ্যাকাউন্ট খোলা হয়েছে ({user?.email})। শুরু করার আগে একটি ইউজারনেম বেছে নিন — আলাপে,
         তালিকায় আর অনুরোধে সবাই আপনাকে এই নামেই চিনবেন, আর পরে এটি বদলানো যাবে না।
       </p>

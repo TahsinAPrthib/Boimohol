@@ -283,7 +283,7 @@ function CoverForm({
             aria-describedby={error ? errorId : `${idPrefix}-hint`}
             className="field-input text-sm"
           />
-          <p id={`${idPrefix}-hint`} className="mt-1 font-body text-xs text-ink/50">
+          <p id={`${idPrefix}-hint`} className="mt-1 font-body text-xs text-ink/70">
             {source?.ok
               ? `উৎস: ${coverSourceLabel(source.sourceUrl)}`
               : "কমন্সের ফাইলের পাতা (পিডিএফ বা ডিজেভিইউ হলে ?page= দিয়ে পাতা), upload.wikimedia.org-এর ছবি, বা gutenberg.org-এর প্রচ্ছদের ছবি।"}
@@ -303,7 +303,7 @@ function CoverForm({
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
               className="field-input text-sm file:mr-3 file:rounded-book file:border-0 file:bg-cloth file:px-3 file:py-1.5 file:font-body file:text-sm file:font-semibold file:text-paper disabled:opacity-60"
             />
-            <p className="mt-1 font-body text-xs text-ink/50">JPG, PNG বা WebP, সর্বোচ্চ {bn(10)} মেগাবাইট; খাড়া, বইয়ের মতো।</p>
+            <p className="mt-1 font-body text-xs text-ink/70">JPG, PNG বা WebP, সর্বোচ্চ {bn(10)} মেগাবাইট; খাড়া, বইয়ের মতো।</p>
           </div>
           <div>
             <label htmlFor={`${idPrefix}-src`} className="field-label">
@@ -340,7 +340,7 @@ function CoverForm({
           placeholder={BASIS_PLACEHOLDER}
           className="field-input text-sm"
         />
-        <p className="mt-1 font-body text-xs text-ink/50">
+        <p className="mt-1 font-body text-xs text-ink/70">
           শুধু পাবলিক ডোমেইনের বইয়ের নিজের স্ক্যানের প্রচ্ছদ বা নামপত্র; আধুনিক প্রকাশকের প্রচ্ছদ বা দোকানের ছবি নয়।
         </p>
       </div>

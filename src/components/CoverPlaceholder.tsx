@@ -53,6 +53,7 @@ export default function CoverPlaceholder({
       data-variant={design.variant}
       data-plate={design.plate || undefined}
       data-paper={design.paper || undefined}
+      data-cover
       aria-hidden="true"
     >
       {ornament && <CoverArt design={design} />}

@@ -152,7 +152,7 @@ export default async function ReaderPage(props: Props) {
         <>
           {page.stale && <StaleNote />}
           <ReaderFrame initialStep={sizeStep}>
-            {group && <p className="text-center font-body text-sm text-ink/60">{group}</p>}
+            {group && <p className="text-center font-body text-sm text-ink/70">{group}</p>}
             <h1 className="mb-6 text-center font-display text-[1.6em] leading-snug text-ink">{heading}</h1>
             <ReaderText html={page.value.html} />
           </ReaderFrame>
@@ -207,7 +207,7 @@ function Shell({
           <p className="mt-1 font-body text-ink/70">{byline}</p>
         </header>
       ) : (
-        <p className="mt-3 font-body text-sm text-ink/60">
+        <p className="mt-3 font-body text-sm text-ink/70">
           {name} · {byline}
         </p>
       )}
@@ -224,7 +224,7 @@ function ReaderText({ html }: { html: string }) {
 
 function StaleNote() {
   return (
-    <p className="mt-4 rounded-book bg-turmeric/15 px-3 py-2 font-body text-sm text-ink/70">
+    <p className="mt-4 rounded-book bg-turmeric/15 px-3 py-2 font-body text-sm text-ink">
       উইকিসংকলনের সঙ্গে এখন যোগাযোগ করা যাচ্ছে না; কিছুদিন আগে আনা কপিটি দেখানো হচ্ছে।
     </p>
   );

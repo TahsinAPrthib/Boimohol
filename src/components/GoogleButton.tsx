@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 
-// Follows Google's sign-in branding guidelines (the "light" button): the
-// standard four-colour G, unaltered, on white, with a #747775 outline,
-// #1F1F1F text, 40px tall, 12px between the mark and the label, a 4px corner.
+// Follows Google's sign-in branding guidelines: the "light" button by day
+// (the standard four-colour G, unaltered, on white, with a #747775 outline,
+// #1F1F1F text) and its "dark" one at night (#131314, #8E918F, #E3E3E3; the
+// --google-* colours in globals.css), 40px tall, 12px between the mark and
+// the label, a 4px corner.
 // Only the label is ours: Google's guidelines allow a localised one.
 export function GoogleMark({ className = "h-5 w-5" }: { className?: string }) {
   return (
@@ -31,8 +33,8 @@ export function GoogleMark({ className = "h-5 w-5" }: { className?: string }) {
 }
 
 export const GOOGLE_BUTTON_CLASS =
-  "inline-flex h-10 w-full items-center justify-center gap-3 rounded border border-[#747775] bg-white px-3 " +
-  "font-body text-sm font-medium tracking-[0.25px] text-[#1F1F1F] transition-shadow " +
+  "inline-flex h-10 w-full items-center justify-center gap-3 rounded border border-[rgb(var(--google-border))] bg-[rgb(var(--google-bg))] px-3 " +
+  "font-body text-sm font-medium tracking-[0.25px] text-[rgb(var(--google-text))] transition-shadow " +
   "hover:shadow-[0_1px_2px_0_rgba(60,64,67,0.30),0_1px_3px_1px_rgba(60,64,67,0.15)] " +
   "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cloth " +
   "disabled:cursor-default disabled:opacity-60 disabled:shadow-none";
@@ -40,7 +42,7 @@ export const GOOGLE_BUTTON_CLASS =
 // Between the Google button and the email form.
 export function OrDivider({ label }: { label: string }) {
   return (
-    <div className="my-5 flex items-center gap-3 font-body text-xs text-ink/50" role="separator">
+    <div className="my-5 flex items-center gap-3 font-body text-xs text-ink/70" role="separator">
       <span className="h-0.5 flex-1 bg-ink/10" />
       {label}
       <span className="h-0.5 flex-1 bg-ink/10" />

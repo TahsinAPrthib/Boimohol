@@ -7,7 +7,7 @@ export default function NoResults({ query, where }: { query: string; where?: str
       <p className="font-display text-lg text-ink [overflow-wrap:anywhere]">
         {where ? `${where} ` : ""}“{query}” খুঁজে কিছু পাওয়া যায়নি।
       </p>
-      <p className="mx-auto mt-2 max-w-prose font-body text-sm text-ink/60">
+      <p className="mx-auto mt-2 max-w-prose font-body text-sm text-ink/70">
         বানানটা আরেকবার দেখে নিন, অথবা বইয়ের ইংরেজি নাম (যেমন Pather Panchali) বা লেখকের নাম লিখে খুঁজুন।
       </p>
     </div>

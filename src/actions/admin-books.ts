@@ -14,6 +14,7 @@ import type { CoverJob } from "@/actions/covers";
 import { bookSearchText, escapeLike, normalizeForSearch } from "@/lib/search";
 import { bookSortTitle } from "@/lib/book-language";
 import { revalidateBookCounts } from "@/lib/book-listing";
+import { revalidateShelves } from "@/lib/todays-book";
 import { parseSourceUrl, SOURCE_LABEL, type SourceKind } from "@/lib/book-sources";
 import { canBePublicDomain, publicDomainCutoffYear } from "@/lib/public-domain";
 
@@ -75,6 +76,7 @@ async function takenIdsFor(bases: string[]): Promise<Set<string>> {
 
 function revalidateBookPages(bookId?: string) {
   revalidateBookCounts();
+  revalidateShelves();
   revalidatePath("/admin/books");
   revalidatePath("/library");
   if (bookId) revalidatePath(`/books/${bookId}`);

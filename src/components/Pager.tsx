@@ -28,7 +28,7 @@ export default function Pager({
           ← আগের পাতা
         </span>
       )}
-      <span className="font-body text-sm text-ink/60" aria-current="page">
+      <span className="font-body text-sm text-ink/70" aria-current="page">
         পাতা {bn(page)} / {bn(pages)}
       </span>
       {page < pages ? (

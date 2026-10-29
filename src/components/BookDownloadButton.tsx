@@ -45,7 +45,7 @@ export default function BookDownloadButton({
         </svg>
         বিনামূল্যে পড়ুন
       </a>
-      <span className="font-body text-sm text-ink/60">
+      <span className="font-body text-sm text-ink/70">
         পিডিএফ · {formatFileSize(fileSizeBytes)}
       </span>
     </div>

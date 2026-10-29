@@ -40,7 +40,7 @@ export default function CategoryGrid({
         >
           <div>
             <Heading className="font-display text-xl text-ink group-hover:text-cloth">{category.nameBangla}</Heading>
-            {category.description && <p className="mt-2 font-body text-sm text-ink/60">{category.description}</p>}
+            {category.description && <p className="mt-2 font-body text-sm text-ink/70">{category.description}</p>}
           </div>
           <span className="mt-4 font-body text-xs font-semibold text-cloth">বইগুলো দেখুন →</span>
         </Link>

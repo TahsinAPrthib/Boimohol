@@ -74,7 +74,7 @@ export default function StarterPickEditor({
   }
 
   if (books.length === 0) {
-    return <p className="font-body text-sm text-ink/50">এই বিভাগে এখনো কোনো বই নেই, তাই শুরুর বই বাছাই করা যাবে না।</p>;
+    return <p className="font-body text-sm text-ink/70">এই বিভাগে এখনো কোনো বই নেই, তাই শুরুর বই বাছাই করা যাবে না।</p>;
   }
 
   if (!editing) {
@@ -161,7 +161,7 @@ export default function StarterPickEditor({
           aria-describedby={error ? ids.error : undefined}
           className="field-input text-sm"
         />
-        <p className="mt-1 font-body text-xs text-ink/50">
+        <p className="mt-1 font-body text-xs text-ink/70">
           {bn(note.length)}/{bn(MAX_STARTER_NOTE)} অক্ষর · বিভাগের পাতায় বইটির পাশে দেখানো হবে।
         </p>
       </div>

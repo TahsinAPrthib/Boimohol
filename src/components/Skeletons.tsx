@@ -81,6 +81,23 @@ export function BookDetailSkeleton() {
   );
 }
 
+// The book page below its header (which arrives with the page's layout): the
+// shelf buttons, then the reviews.
+export function BookPageRestSkeleton() {
+  return (
+    <Loading className="mt-5">
+      <div className="flex flex-col items-start gap-3">
+        <div className="skeleton h-10 w-72 max-w-full rounded-book" />
+        <div className="skeleton h-10 w-40 rounded-book" />
+      </div>
+      <div className="mt-10 border-t-2 border-ink/10 pt-8">
+        <Line className="w-48" />
+        <div className="skeleton mt-4 h-24 w-full rounded-book" />
+      </div>
+    </Loading>
+  );
+}
+
 // The in-site reader: a title, then a page of text.
 export function ReaderSkeleton() {
   return (

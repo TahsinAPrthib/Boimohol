@@ -80,7 +80,7 @@ export default function SettingsPasswordForm({ email, hasPassword }: { email: st
           className="field-input"
           {...field("next")}
         />
-        <p id="settings-new-help" className="mt-1 font-body text-xs text-ink/50">
+        <p id="settings-new-help" className="mt-1 font-body text-xs text-ink/70">
           কমপক্ষে ৬ অক্ষর।
         </p>
       </div>

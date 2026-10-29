@@ -34,7 +34,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
               হোম পাতা
             </a>
           </div>
-          {error.digest && <p className="mt-8 font-body text-xs text-ink/40">সমস্যার নম্বর: {error.digest}</p>}
+          {error.digest && <p className="mt-8 font-body text-xs text-ink/70">সমস্যার নম্বর: {error.digest}</p>}
         </main>
       </body>
     </html>

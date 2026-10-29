@@ -40,7 +40,7 @@ export default async function MyListingsPage() {
       </div>
 
       {listings.length === 0 ? (
-        <p className="font-body text-ink/50">আপনি এখনো কোনো তালিকা যোগ করেননি।</p>
+        <p className="font-body text-ink/70">আপনি এখনো কোনো তালিকা যোগ করেননি।</p>
       ) : (
         <div className="flex flex-col gap-4">
           {listings.map((listing) => (
@@ -63,7 +63,7 @@ export default async function MyListingsPage() {
                     >
                       {listing.title}
                     </Link>
-                    <p className="font-body text-sm text-ink/50">{listing.author}</p>
+                    <p className="font-body text-sm text-ink/70">{listing.author}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="rounded-book bg-paper px-2 py-1 font-body text-xs font-semibold text-ink/70">

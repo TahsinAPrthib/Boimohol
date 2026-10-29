@@ -104,7 +104,7 @@ export default function BookFileUploader({
 
   if (blocked) {
     return (
-      <p className="rounded-book border-2 border-dashed border-ink/15 px-3 py-2 font-body text-xs text-ink/60">
+      <p className="rounded-book border-2 border-dashed border-ink/15 px-3 py-2 font-body text-xs text-ink/70">
         এই বইটি পাবলিক ডোমেইনে নেই, তাই এর ফাইল বা বাইরের সাইটের বিনামূল্যের কপির লিংক যোগ করা যাবে না।
       </p>
     );
@@ -125,7 +125,7 @@ export default function BookFileUploader({
           onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           className="field-input text-sm file:mr-3 file:rounded-book file:border-0 file:bg-cloth file:px-3 file:py-1.5 file:font-body file:text-sm file:font-semibold file:text-paper disabled:opacity-60"
         />
-        <p className="mt-1 font-body text-xs text-ink/50">
+        <p className="mt-1 font-body text-xs text-ink/70">
           সর্বোচ্চ {bn(50)} মেগাবাইট।
         </p>
       </div>
@@ -173,7 +173,7 @@ export default function BookFileUploader({
         {busy ? "আপলোড হচ্ছে..." : "ফাইল যোগ করুন"}
       </button>
       {!busy && file && !rightsBasis.trim() && (
-        <p className="font-body text-xs text-ink/50">
+        <p className="font-body text-xs text-ink/70">
           ভিত্তি না লেখা পর্যন্ত ফাইলটি যোগ করা যাবে না।
         </p>
       )}

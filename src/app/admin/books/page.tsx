@@ -108,7 +108,7 @@ export default async function AdminBooksPage(props: {
         উইকিসংকলন, প্রজেক্ট গুটেনবার্গ বা ইন্টারনেট আর্কাইভে থাকা বিনামূল্যের কপির লিংক। প্রতিটির সাথে কেন সেটি
         বিনামূল্যে দেওয়া যাচ্ছে তার ব্যাখ্যা লেখা বাধ্যতামূলক।
       </p>
-      <p className="mb-6 border-b-2 border-ink/10 pb-6 font-body text-sm text-ink/50">
+      <p className="mb-6 border-b-2 border-ink/10 pb-6 font-body text-sm text-ink/70">
         মোট {bn(total)}টি বই · পাবলিক ডোমেইন {bn(markedPublicDomain)}টি · ফাইল আছে {bn(withFile)}টিতে · বাইরের কপির
         লিংক আছে {bn(withSource)}টিতে · আসল প্রচ্ছদ আছে {bn(withCover)}টিতে ·{" "}
         <Link href="/admin/categories" className="font-semibold text-cloth hover:underline">
@@ -225,7 +225,7 @@ export default async function AdminBooksPage(props: {
               </Link>
             );
           })}
-          {narrowed && <span className="font-body text-sm text-ink/60">{bn(matching)}টি বই মিলেছে</span>}
+          {narrowed && <span className="font-body text-sm text-ink/70">{bn(matching)}টি বই মিলেছে</span>}
         </div>
       </div>
 
@@ -235,7 +235,7 @@ export default async function AdminBooksPage(props: {
           where={needsPdf ? "পিডিএফ ছাড়া পাবলিক ডোমেইনের বইয়ে" : needsCover ? "আসল প্রচ্ছদ ছাড়া পাবলিক ডোমেইনের বইয়ে" : undefined}
         />
       ) : books.length === 0 ? (
-        <p className="font-body text-ink/50">
+        <p className="font-body text-ink/70">
           {needsPdf ? "পাবলিক ডোমেইনের সব বইয়েই পিডিএফ আছে।" : needsCover ? "পাবলিক ডোমেইনের সব বইয়েই আসল প্রচ্ছদ আছে।" : "কোনো বই নেই।"}
         </p>
       ) : (
@@ -256,7 +256,7 @@ export default async function AdminBooksPage(props: {
                     <Link href={`/books/${book.id}`} className="font-display text-lg text-ink hover:text-cloth">
                       {book.titleBangla || book.title}
                     </Link>
-                    <p className="font-body text-sm text-ink/50">
+                    <p className="font-body text-sm text-ink/70">
                       {book.author} ·{" "}
                       {book.authorDeathYear === null ? "মৃত্যুর বছর নেই" : `মৃত্যু ${bnYear(book.authorDeathYear)}`}
                     </p>
@@ -270,12 +270,12 @@ export default async function AdminBooksPage(props: {
                         পাবলিক ডোমেইন
                       </span>
                     ) : (
-                      <span className="rounded-book bg-ink/20 px-2 py-1 font-body text-xs font-semibold text-ink/70">
+                      <span className="rounded-book bg-ink/20 px-2 py-1 font-body text-xs font-semibold text-ink">
                         কপিরাইটযুক্ত
                       </span>
                     )}
                     {!book.curated && (
-                      <span className="rounded-book border border-ink/20 px-2 py-1 font-body text-xs font-semibold text-ink/60">
+                      <span className="rounded-book border border-ink/20 px-2 py-1 font-body text-xs font-semibold text-ink/70">
                         বড় ফাইল থেকে আমদানি
                       </span>
                     )}
@@ -332,7 +332,7 @@ export default async function AdminBooksPage(props: {
                       </p>
                       <BookFileRightsEditor fileId={file.id} rightsBasis={file.rightsBasis} />
                       {file.sourceUrl && (
-                        <p className="break-words font-body text-xs text-ink/50">
+                        <p className="break-words font-body text-xs text-ink/70">
                           উৎস: {file.sourceUrl}
                         </p>
                       )}

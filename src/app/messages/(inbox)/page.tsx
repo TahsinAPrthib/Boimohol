@@ -47,7 +47,7 @@ export default async function MessagesPage() {
       <h1 className="mb-8 border-b-2 border-ink/10 pb-6 font-display text-3xl text-ink">বার্তা</h1>
 
       {sorted.length === 0 ? (
-        <p className="font-body text-ink/50">
+        <p className="font-body text-ink/70">
           এখনো কোনো আলাপ শুরু হয়নি। বিনিময় পাতা থেকে কোনো বই সম্পর্কে বিক্রেতাকে বার্তা পাঠান।
         </p>
       ) : (
@@ -70,10 +70,10 @@ export default async function MessagesPage() {
                     <p className="font-body font-semibold text-ink">
                       {otherParty ? `@${otherParty.username}` : DELETED_USER_LABEL}
                     </p>
-                    <p className="font-body text-sm text-ink/60 [overflow-wrap:anywhere]">
+                    <p className="font-body text-sm text-ink/70 [overflow-wrap:anywhere]">
                       {conversation.listing?.title ?? "তালিকাটি আর নেই"}
                     </p>
-                    <p className="mt-1 truncate font-body text-sm text-ink/50">
+                    <p className="mt-1 truncate font-body text-sm text-ink/70">
                       {lastMessage ? lastMessage.text : "এখনো কোনো বার্তা নেই"}
                     </p>
                   </div>

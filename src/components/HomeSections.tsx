@@ -83,8 +83,11 @@ export default async function HomeSections({ viewerId }: { viewerId: string | nu
   }
   const [listings, shelvedBooks, reviews, categories] = data;
 
+  // content-visibility: these sections start below the first screen, so the
+  // browser lays them out when they come near it rather than before the first
+  // paint (the size is a placeholder until then; `auto` keeps the real one).
   return (
-    <div className="mx-auto flex max-w-5xl flex-col gap-14 px-4 py-12">
+    <div className="mx-auto flex max-w-5xl flex-col gap-14 px-4 py-12 [contain-intrinsic-size:auto_1800px] [content-visibility:auto]">
       {listings.length > 0 && (
         <Reveal>
           <SectionHeading
@@ -159,7 +162,7 @@ export default async function HomeSections({ viewerId }: { viewerId: string | nu
                   <blockquote className="mt-3 flex-1 font-body text-sm leading-relaxed text-ink/75">
                     &ldquo;{snippet(review.text ?? "")}&rdquo;
                   </blockquote>
-                  <figcaption className="mt-3 font-body text-xs font-semibold text-ink/50">
+                  <figcaption className="mt-3 font-body text-xs font-semibold text-ink/70">
                     — @{review.user.username}
                   </figcaption>
                 </figure>
@@ -194,7 +197,7 @@ function SectionHeading({
     <div className="mb-5 flex flex-wrap items-end justify-between gap-x-6 gap-y-2 border-b-2 border-ink/10 pb-3">
       <div>
         <h2 className="font-display text-2xl text-ink">{title}</h2>
-        {note && <p className="mt-1 font-body text-sm text-ink/60">{note}</p>}
+        {note && <p className="mt-1 font-body text-sm text-ink/70">{note}</p>}
       </div>
       {href && linkLabel && (
         <Link href={href} className="font-body text-sm font-semibold text-cloth hover:underline">

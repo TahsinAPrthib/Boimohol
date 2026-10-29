@@ -1,6 +1,6 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
-import { activeTab, fullScreenBack } from "./app-shell";
+import { activeTab, bookPageId, fullScreenBack } from "./app-shell";
 
 describe("phone tab bar", () => {
   test("each section lights its tab, including the pages under it", () => {
@@ -36,5 +36,15 @@ describe("phone tab bar", () => {
     assert.equal(fullScreenBack("/books/uponnash-gora"), null);
     assert.equal(fullScreenBack("/"), null);
     assert.equal(fullScreenBack("/marketplace/abc"), null);
+  });
+
+  test("a cover flies only to a book page, never to the reader or elsewhere", () => {
+    assert.equal(bookPageId("/books/uponnash-gora"), "uponnash-gora");
+    assert.equal(bookPageId("/books/uponnash-gora/"), "uponnash-gora");
+    assert.equal(bookPageId("/books/%E0%A6%97"), "গ");
+    assert.equal(bookPageId("/books/uponnash-gora/read"), null);
+    assert.equal(bookPageId("/books"), null);
+    assert.equal(bookPageId("/library"), null);
+    assert.equal(bookPageId("/books/%E0%A6"), null);
   });
 });

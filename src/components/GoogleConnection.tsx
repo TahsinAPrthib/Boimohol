@@ -35,7 +35,7 @@ export default function GoogleConnection({
             tone="neutral"
           />
         ) : (
-          <p className="rounded-book border-2 border-dashed border-ink/15 px-3 py-2 font-body text-xs text-ink/60">
+          <p className="rounded-book border-2 border-dashed border-ink/15 px-3 py-2 font-body text-xs text-ink/70">
             আপনার অ্যাকাউন্টে কোনো পাসওয়ার্ড নেই, তাই Google সরানো যাবে না — সরালে আর লগইন করতে পারবেন না। আগে নিচে
             একটি পাসওয়ার্ড ঠিক করুন।
           </p>

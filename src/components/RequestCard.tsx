@@ -10,7 +10,7 @@ const STATUS_LABEL: Record<string, string> = {
 const STATUS_CLASS: Record<string, string> = {
   OPEN: "bg-sage text-paper",
   FULFILLED: "bg-cloth text-paper",
-  CLOSED: "bg-ink/20 text-ink/70",
+  CLOSED: "bg-ink/20 text-ink",
 };
 
 export default function RequestCard({
@@ -42,7 +42,7 @@ export default function RequestCard({
           <p className="font-display text-lg leading-snug text-ink group-hover:text-cloth">
             {title}
           </p>
-          <p className="font-body text-sm text-ink/60">{author}</p>
+          <p className="font-body text-sm text-ink/70">{author}</p>
         </div>
         <span
           className={`shrink-0 rounded-book px-2 py-1 font-body text-xs font-semibold ${STATUS_CLASS[status]}`}
@@ -51,7 +51,7 @@ export default function RequestCard({
         </span>
       </div>
 
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-body text-xs text-ink/50">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-body text-xs text-ink/70">
         {categoryName && (
           <span className="rounded-book bg-paper px-2 py-1 font-semibold text-ink/70">
             {categoryName}

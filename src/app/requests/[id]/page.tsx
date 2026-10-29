@@ -20,7 +20,7 @@ const STATUS_LABEL: Record<string, string> = {
 const STATUS_CLASS: Record<string, string> = {
   OPEN: "bg-sage text-paper",
   FULFILLED: "bg-cloth text-paper",
-  CLOSED: "bg-ink/20 text-ink/70",
+  CLOSED: "bg-ink/20 text-ink",
 };
 
 export default async function RequestDetailPage(props: { params: Promise<{ id: string }> }) {
@@ -61,7 +61,7 @@ export default async function RequestDetailPage(props: { params: Promise<{ id: s
           </span>
         </div>
 
-        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 font-body text-sm text-ink/60">
+        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 font-body text-sm text-ink/70">
           {request.category && (
             <Link
               href={`/requests?category=${request.category.slug}`}
@@ -114,7 +114,7 @@ export default async function RequestDetailPage(props: { params: Promise<{ id: s
       {!isRequester && (
         <div className="mt-8">
           {!viewerId ? (
-            <div className="rounded-book border-2 border-dashed border-ink/15 px-4 py-5 text-center font-body text-ink/60">
+            <div className="rounded-book border-2 border-dashed border-ink/15 px-4 py-5 text-center font-body text-ink/70">
               সাড়া দিতে হলে{" "}
               <Link
                 href={withCallbackUrl("/login", `/requests/${request.id}`)}
@@ -125,7 +125,7 @@ export default async function RequestDetailPage(props: { params: Promise<{ id: s
               করুন।
             </div>
           ) : request.status !== "OPEN" ? (
-            <p className="rounded-book border-2 border-dashed border-ink/15 px-4 py-5 text-center font-body text-ink/60">
+            <p className="rounded-book border-2 border-dashed border-ink/15 px-4 py-5 text-center font-body text-ink/70">
               এই অনুরোধটি আর খোলা নেই, তাই নতুন করে সাড়া দেওয়া যাচ্ছে না।
             </p>
           ) : (
@@ -143,7 +143,7 @@ export default async function RequestDetailPage(props: { params: Promise<{ id: s
         </h2>
 
         {visibleResponses.length === 0 ? (
-          <p className="font-body text-ink/50">এখনো কেউ সাড়া দেননি।</p>
+          <p className="font-body text-ink/70">এখনো কেউ সাড়া দেননি।</p>
         ) : (
           <ul className="flex flex-col gap-4">
             {visibleResponses.map((response) => (
@@ -155,7 +155,7 @@ export default async function RequestDetailPage(props: { params: Promise<{ id: s
                   <span className="font-body font-semibold text-ink">
                     @{response.responder.username}
                     {response.responderId === viewerId && (
-                      <span className="ml-2 font-normal text-ink/40">(আপনি)</span>
+                      <span className="ml-2 font-normal text-ink/70">(আপনি)</span>
                     )}
                   </span>
                   {viewerId && response.responderId !== viewerId && (

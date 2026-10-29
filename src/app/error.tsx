@@ -25,7 +25,7 @@ export default function ErrorPage({ error, reset }: { error: Error & { digest?: 
           হোম পাতা
         </Link>
       </div>
-      {error.digest && <p className="mt-8 font-body text-xs text-ink/40">সমস্যার নম্বর: {error.digest}</p>}
+      {error.digest && <p className="mt-8 font-body text-xs text-ink/70">সমস্যার নম্বর: {error.digest}</p>}
     </div>
   );
 }

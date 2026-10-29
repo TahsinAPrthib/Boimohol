@@ -175,7 +175,7 @@ export default function AdminBulkImport() {
           onChange={(e) => onFile(e.target.files?.[0])}
           className="field-input text-sm file:mr-3 file:rounded-book file:border-0 file:bg-cloth file:px-3 file:py-1.5 file:font-body file:text-sm file:font-semibold file:text-paper disabled:opacity-60"
         />
-        <p className="mt-1 font-body text-xs text-ink/50">
+        <p className="mt-1 font-body text-xs text-ink/70">
           সর্বোচ্চ {bn(80)} মেগাবাইট। {bn(BATCH)}টি করে সারি পাঠানো হয়; পুরো সময় পাতাটি খোলা রাখুন।
         </p>
       </div>

@@ -108,7 +108,7 @@ function SourceItem({ source, editable }: { source: EditableSource; editable: bo
       <p className="max-w-prose font-body text-sm text-ink/70">
         <span className="font-semibold text-ink">ভিত্তি:</span> {source.rightsBasis}
       </p>
-      {source.addedBy && <p className="font-body text-xs text-ink/50">যোগ করেছেন: @{source.addedBy}</p>}
+      {source.addedBy && <p className="font-body text-xs text-ink/70">যোগ করেছেন: @{source.addedBy}</p>}
       <div className="mt-1 flex flex-wrap items-center gap-2">
         {editable && !confirming && (
           <button
@@ -221,7 +221,7 @@ function SourceForm({
           aria-describedby={error ? errorId : `${idPrefix}-hint`}
           className="field-input text-sm"
         />
-        <p id={`${idPrefix}-hint`} className="mt-1 font-body text-xs text-ink/50">
+        <p id={`${idPrefix}-hint`} className="mt-1 font-body text-xs text-ink/70">
           {link?.ok
             ? `সাইট: ${SOURCE_LABEL[link.kind]}`
             : "শুধু উইকিসংকলন (যেকোনো ভাষার), প্রজেক্ট গুটেনবার্গ বা ইন্টারনেট আর্কাইভ।"}

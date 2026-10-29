@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { READER_SIZE_COOKIE, READER_SIZES } from "@/lib/wikisource/reader-prefs";
+import { ThemeToggle } from "@/components/ThemeSwitch";
 
 // The text-size control and the text it sizes. The choice is kept in a
 // cookie, so the next page is rendered at that size from the start.
@@ -20,18 +21,22 @@ export default function ReaderFrame({ initialStep, children }: { initialStep: nu
 
   return (
     <div>
-      <div className="flex items-center justify-end gap-2" role="group" aria-label="লেখার আকার">
-        <span className="mr-1 font-body text-sm text-ink/60">লেখার আকার</span>
-        <button type="button" className={button} onClick={() => change(step - 1)} disabled={step === 0} aria-label="লেখা ছোট করুন">
-          <span className="text-sm" aria-hidden="true">
-            অ−
-          </span>
-        </button>
-        <button type="button" className={button} onClick={() => change(step + 1)} disabled={step === last} aria-label="লেখা বড় করুন">
-          <span className="text-lg" aria-hidden="true">
-            অ+
-          </span>
-        </button>
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        {/* Day or night colours for the whole site, remembered (src/lib/theme.ts). */}
+        <ThemeToggle className="mr-auto inline-flex h-11 items-center rounded-book border-2 border-ink/20 px-3 font-body text-sm font-semibold text-ink transition-colors hover:border-ink/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-turmeric" />
+        <div className="flex items-center gap-2" role="group" aria-label="লেখার আকার">
+          <span className="mr-1 font-body text-sm text-ink/70">লেখার আকার</span>
+          <button type="button" className={button} onClick={() => change(step - 1)} disabled={step === 0} aria-label="লেখা ছোট করুন">
+            <span className="text-sm" aria-hidden="true">
+              অ−
+            </span>
+          </button>
+          <button type="button" className={button} onClick={() => change(step + 1)} disabled={step === last} aria-label="লেখা বড় করুন">
+            <span className="text-lg" aria-hidden="true">
+              অ+
+            </span>
+          </button>
+        </div>
       </div>
       <div className="mt-4" style={{ fontSize: `${READER_SIZES[step]}px` }} data-reader-size={step}>
         {children}

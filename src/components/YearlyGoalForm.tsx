@@ -29,7 +29,7 @@ export default function YearlyGoalForm() {
       className="rounded-book border-2 border-ink/10 bg-paper-dark p-5"
     >
       <h3 className="mb-1 font-display text-lg text-ink">বার্ষিক পড়ার লক্ষ্য</h3>
-      <p className="mb-3 font-body text-sm text-ink/60">এই বছর কতগুলো বই পড়তে চান তা ঠিক করুন।</p>
+      <p className="mb-3 font-body text-sm text-ink/70">এই বছর কতগুলো বই পড়তে চান তা ঠিক করুন।</p>
       <div className="flex items-center gap-2">
         <input
           type="number"

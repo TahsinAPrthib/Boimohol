@@ -113,7 +113,7 @@ export default function CoverImportProgress({ cover }: { cover: ReturnType<typeo
           style={{ width: `${(tried / total) * 100}%` }}
         />
       </div>
-      <p className="font-body text-xs text-ink/60">
+      <p className="font-body text-xs text-ink/70">
         সফল {bn(succeeded)}টি · ব্যর্থ {bn(failed.length)}টি
         {left > 0 && <> · বাকি {bn(left)}টি</>}
         {running && <> · শেষ না হওয়া পর্যন্ত পাতাটি খোলা রাখুন</>}

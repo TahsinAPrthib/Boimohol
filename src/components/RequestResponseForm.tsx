@@ -48,7 +48,7 @@ export default function RequestResponseForm({
       <h3 className="font-display text-lg text-ink">
         {existingResponse ? "আপনার সাড়া সম্পাদনা করুন" : "এই বইটি আপনার কাছে আছে?"}
       </h3>
-      <p className="font-body text-sm text-ink/60">
+      <p className="font-body text-sm text-ink/70">
         বইটি থাকলে বা কোথায় পাওয়া যেতে পারে জানলে দু-এক লাইন লিখে জানান। আপনার সাড়া অনুরোধকারী
         দেখতে পাবেন।
       </p>

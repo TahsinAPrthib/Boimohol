@@ -5,6 +5,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { UnreadCountProvider } from "@/components/UnreadBadge";
 import { HideWhenFullScreen, PhoneTabBar, PhoneTopBar } from "@/components/PhoneShell";
+import CoverTransition from "@/components/CoverTransition";
+import { THEME_COLOR, THEME_SCRIPT } from "@/lib/theme";
 import "./globals.css";
 
 const tiroBangla = Tiro_Bangla({
@@ -43,7 +45,12 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#253F54",
+  // The browser's bar follows the device's palette; a palette chosen on the
+  // site overrides both tags (src/lib/theme.ts).
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: THEME_COLOR.light },
+    { media: "(prefers-color-scheme: dark)", color: THEME_COLOR.dark },
+  ],
   // The page runs under the notch and the home indicator; the phone bars pad
   // themselves with env(safe-area-inset-*).
   viewportFit: "cover",
@@ -55,10 +62,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="bn" className={`${tiroBangla.variable} ${hindSiliguri.variable}`}>
+    // suppressHydrationWarning: THEME_SCRIPT sets data-theme on <html> before
+    // React hydrates, on purpose.
+    <html lang="bn" className={`${tiroBangla.variable} ${hindSiliguri.variable}`} suppressHydrationWarning>
+      <head>
+        {/* A day or night palette chosen on the site, applied before the
+            first paint so the page never flashes the other one. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       {/* Column layout so the footer settles at the bottom on short pages
           instead of floating up under the content. */}
       <body className="flex min-h-screen flex-col font-body">
+        <CoverTransition />
         <SessionProvider>
           <UnreadCountProvider>
             {/* Phones and small tablets get the app layout (PhoneShell);

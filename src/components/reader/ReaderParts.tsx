@@ -68,7 +68,7 @@ export function ReaderNav({
       <div>
         {prev && (
           <Link href={prev === "contents" ? readerHref(bookId, "") : readerHref(bookId, prev.path)} className="btn-secondary h-full w-full flex-col items-start text-left" rel="prev">
-            <span className="text-xs font-normal text-ink/60">← আগের</span>
+            <span className="text-xs font-normal text-ink/70">← আগের</span>
             <span className="line-clamp-2">{prev === "contents" ? "সূচি ও প্রথম পাতা" : prev.label}</span>
           </Link>
         )}
@@ -96,7 +96,7 @@ export function ScanLinks({ scans }: { scans: ScanFile[] }) {
           <a href={s.url} {...external} className="btn-secondary">
             মূল স্ক্যান (পিডিএফ){scans.length > 1 ? ` ${i + 1}` : ""}
           </a>
-          <span className="font-body text-sm text-ink/60">
+          <span className="font-body text-sm text-ink/70">
             {formatFileSize(s.bytes)} · উইকিমিডিয়া কমন্স · নতুন ট্যাবে খুলবে
           </span>
         </li>

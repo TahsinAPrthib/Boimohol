@@ -1,20 +1,40 @@
 import type { Config } from "tailwindcss";
 
+// Each colour is a CSS variable (RGB channels) set in globals.css, once for
+// the day palette and once for night, so every utility follows the theme and
+// opacity modifiers (text-ink/70) keep working.
+const token = (name: string) => `rgb(var(--c-${name}) / <alpha-value>)`;
+
 const config: Config = {
   content: ["./src/**/*.{ts,tsx}"],
+  // The old text-opacity-*/bg-opacity-* utilities (unused here) make every
+  // coloured element set its own --tw-*-opacity variable, which costs style
+  // time on each page load now that the palette itself is variables.
+  // Colour/alpha modifiers (text-ink/70) don't need them.
+  corePlugins: {
+    textOpacity: false,
+    backgroundOpacity: false,
+    borderOpacity: false,
+    divideOpacity: false,
+    placeholderOpacity: false,
+    ringOpacity: false,
+  },
   theme: {
     extend: {
       colors: {
         // "ink and old paper" palette — a secondhand-bookshop reading room,
-        // not a generic SaaS palette.
-        paper: "#EAE3D3", // aged paper background
-        "paper-dark": "#DED4BC", // shelf / section divider tone
-        ink: "#2A2420", // warm near-black for text (not pure #0B0B0B)
-        cloth: "#253F54", // deep book-cloth blue — primary
-        "cloth-light": "#3A5D78",
-        oxblood: "#7C2D2D", // cloth-bound spine red — secondary
-        turmeric: "#C68A1F", // accent — ratings, CTAs, highlights
-        sage: "#5F7355", // available / success (exchange, in-stock)
+        // not a generic SaaS palette. Day values here; night in globals.css.
+        paper: token("paper"), // aged paper background, #EAE3D3
+        "paper-dark": token("paper-dark"), // shelf / section divider tone, #DED4BC
+        ink: token("ink"), // warm near-black for text (not pure #0B0B0B), #2A2420
+        cloth: token("cloth"), // deep book-cloth blue — primary, #253F54
+        "cloth-light": token("cloth-light"), // #3A5D78
+        oxblood: token("oxblood"), // cloth-bound spine red — secondary, #7C2D2D
+        turmeric: token("turmeric"), // accent — ratings, CTAs, highlights, #C68A1F
+        sage: token("sage"), // available / success (exchange, in-stock), #465A3E
+        // Text on a turmeric ground. Turmeric stays light at night while ink
+        // turns light, so this one stays dark in both palettes.
+        "on-accent": token("on-accent"),
       },
       fontFamily: {
         display: ["var(--font-tiro)", "serif"],
@@ -24,8 +44,8 @@ const config: Config = {
         book: "3px", // book covers/spines: barely rounded, not "SaaS card" rounded
       },
       boxShadow: {
-        shelf: "0 3px 0 0 rgba(42,36,32,0.15)", // a shelf-edge, not a soft ambient card shadow
-        spine: "2px 0 4px rgba(42,36,32,0.25) inset",
+        shelf: "0 3px 0 0 rgb(var(--c-shadow) / 0.15)", // a shelf-edge, not a soft ambient card shadow
+        spine: "2px 0 4px rgb(var(--c-shadow) / 0.25) inset",
       },
       maxWidth: {
         prose: "68ch",

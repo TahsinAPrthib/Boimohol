@@ -133,13 +133,17 @@ export function coverSourceLabel(sourceUrl: string): string {
 // format and quality, at the width the context needs -- never enlarged past
 // the image's own size (c_lfill); the frame's CSS crops any image too small to
 // be cropped here.
-export function coverUrl(publicId: string, width: number): string {
-  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-  return `https://res.cloudinary.com/${cloudName}/image/upload/f_auto,q_auto,c_lfill,ar_2:3,g_center,w_${width}/${publicId}`;
+// `sameSite`: through the site's own address (the /cover-image rewrite in
+// next.config.js), for the one image a page's first paint waits on, so the
+// browser needn't open a second connection for it.
+export function coverUrl(publicId: string, width: number, sameSite = false): string {
+  const path = `f_auto,q_auto,c_lfill,ar_2:3,g_center,w_${width}/${publicId}`;
+  if (sameSite) return `/cover-image/${path}`;
+  return `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/${path}`;
 }
 
-export function coverSrcSet(publicId: string, widths: readonly number[]): string {
-  return widths.map((w) => `${coverUrl(publicId, w)} ${w}w`).join(", ");
+export function coverSrcSet(publicId: string, widths: readonly number[], sameSite = false): string {
+  return widths.map((w) => `${coverUrl(publicId, w, sameSite)} ${w}w`).join(", ");
 }
 
 // Sizes per context: what the cover's box measures, and the widths offered
@@ -151,5 +155,13 @@ export const COVER_SIZES = {
   detail: { sizes: "200px", widths: [200, 400, 600] },
   // Small covers in lists (a profile's shelf, admin).
   small: { sizes: "80px", widths: [80, 160, 240] },
+  // The shelves on the home page and the book page: decorative, so the
+  // card's smaller widths are reused rather than adding new image sizes.
+  shelf: { sizes: "(min-width: 1024px) 132px, 104px", widths: [160, 240] },
+  // The book standing in front of the shelf. The home page's book of the day
+  // is the page's largest paint, so its widths fit a phone exactly (168px at
+  // 2x is 340) rather than rounding up to the book page's 400.
+  today: { sizes: "(min-width: 1024px) 220px, 168px", widths: [220, 340, 440] },
+  stage: { sizes: "(min-width: 1024px) 250px, 200px", widths: [200, 400, 600] },
 } as const;
 export type CoverContext = keyof typeof COVER_SIZES;

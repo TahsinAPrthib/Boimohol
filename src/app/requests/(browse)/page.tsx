@@ -86,7 +86,7 @@ export default async function RequestsPage(props: {
       {requests.length === 0 && search ? (
         <NoResults query={q} where={selectedSlug ? "এই বিভাগে" : undefined} />
       ) : requests.length === 0 ? (
-        <p className="font-body text-ink/50">
+        <p className="font-body text-ink/70">
           {selectedSlug
             ? "এই বিভাগে এখন কোনো খোলা অনুরোধ নেই।"
             : "এখনো কোনো অনুরোধ করা হয়নি। প্রথমটি আপনিই করুন।"}
