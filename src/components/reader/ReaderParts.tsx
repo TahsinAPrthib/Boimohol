@@ -5,55 +5,58 @@ import type { TocEntry } from "@/lib/wikisource/reader";
 import { readerHref, wikisourceUrl, WIKISOURCE_ORIGIN } from "@/lib/wikisource/titles";
 import { gutenbergLanding } from "@/lib/gutenberg/source";
 import { bnPlain } from "@/lib/bangla";
+import { tocRows } from "@/lib/reader/toc";
 
 const external = { target: "_blank", rel: "noopener noreferrer" } as const;
 
-// "প্রথম খণ্ড — এক" under the heading "প্রথম খণ্ড" reads as "এক"; an entry
-// named just like its heading is that part's opening.
-export const OPENING = "সূচনা";
-export function shortLabel(label: string, group: string | null): string {
-  if (!group || !label.startsWith(group)) return label;
-  if (label === group) return OPENING;
-  const rest = label.slice(group.length).replace(/^[\s—–\-:,।]+/, "");
-  return rest || label;
-}
-
-// A volume or part that has no page of its own ("প্রথম খণ্ড") appears as a
-// heading over its chapters; one that has a page is an entry like any other,
-// its chapters indented below it.
-// A Gutenberg book's parts come as each entry's `group` instead.
+// The grouping is in src/lib/reader/toc.ts (tocRows).
 export function ReaderToc({ bookId, entries, current }: { bookId: string; entries: TocEntry[]; current?: string }) {
-  const paths = new Set(entries.map((e) => e.path));
-  let lastGroup: string | null = null;
-  const items: React.ReactNode[] = [];
-  for (const e of entries) {
-    const segments = e.path.split("/");
-    const parent = segments.slice(0, -1).join("/");
-    const group = e.group !== undefined ? e.group : parent && !paths.has(parent) ? parent : null;
-    const groupName = e.group !== undefined ? e.group : (group?.split("/").pop() ?? null);
-    if (group && group !== lastGroup) {
-      items.push(
-        <li key={`g:${group}:${e.path}`} className="mt-4 font-display text-lg text-ink first:mt-0">
-          {groupName}
+  const items = tocRows(entries).map((row) => {
+    if (row.kind === "group") {
+      return (
+        <li key={row.key} className="mt-4 font-display text-lg text-ink first:mt-0">
+          {row.name}
         </li>
       );
     }
-    lastGroup = group;
-    // Indented once for each enclosing part that is an entry itself.
-    const depth = segments.slice(0, -1).filter((_, i) => paths.has(segments.slice(0, i + 1).join("/"))).length;
-    const isCurrent = e.path === current;
-    items.push(
-      <li key={e.path} style={{ paddingLeft: `${depth * 1.25}em` }}>
+    if (row.kind === "parts") {
+      // Each number is named in full for screen readers ("… — অংশ ৩").
+      return (
+        <li key={row.key} className="px-2 py-1.5">
+          {row.title && <p className="font-body text-ink">{row.title}</p>}
+          <ol className="mt-1 flex flex-wrap gap-1.5">
+            {row.parts.map(({ entry, number }) => {
+              const isCurrent = entry.path === current;
+              return (
+                <li key={entry.path}>
+                  <Link
+                    href={readerHref(bookId, entry.path)}
+                    aria-label={entry.label}
+                    aria-current={isCurrent ? "page" : undefined}
+                    className={`inline-flex h-11 min-w-11 items-center justify-center rounded-book border-2 px-2 font-body hover:bg-ink/5 ${isCurrent ? "border-ink/30 bg-ink/10 font-semibold text-ink" : "border-ink/10 text-cloth"}`}
+                  >
+                    {number}
+                  </Link>
+                </li>
+              );
+            })}
+          </ol>
+        </li>
+      );
+    }
+    const isCurrent = row.entry.path === current;
+    return (
+      <li key={row.entry.path} style={{ paddingLeft: `${row.depth * 1.25}em` }}>
         <Link
-          href={readerHref(bookId, e.path)}
+          href={readerHref(bookId, row.entry.path)}
           aria-current={isCurrent ? "page" : undefined}
           className={`block rounded-book px-2 py-1.5 font-body hover:bg-ink/5 ${isCurrent ? "bg-ink/10 font-semibold text-ink" : "text-cloth"}`}
         >
-          {shortLabel(e.label, groupName)}
+          {row.label}
         </Link>
       </li>
     );
-  }
+  });
   return (
     <nav aria-label="সূচি">
       <ol className="flex flex-col">{items}</ol>

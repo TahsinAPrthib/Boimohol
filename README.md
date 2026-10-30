@@ -213,7 +213,7 @@ The texts are also large. Measured from Gutenberg's file listing:
   Every page then carries our own credit, which names Project Gutenberg as the source and links to the book's Gutenberg page.
 - **Pages.** Books come in many shapes, so the parser splits:
   - at chapter blocks, or at the highest heading level used more than once;
-  - a long chapter at its next heading level down, or by size, at paragraph breaks, into parts of about 28 KB;
+  - a long chapter at its next heading level down, or by size, at paragraph breaks, into parts of about 28 KB (the contents shows such a chapter's title once, then its parts as one row of numbered links);
   - so that part titles ("BOOK ONE: 1805") head their chapters in the contents, and the title page goes on a front page of its own.
 
   The page also handles a few more details:
@@ -389,7 +389,7 @@ Environment variables (names only; `.env.example` explains each):
 
 ## Testing
 
-**Unit tests.** `npm test` runs 256 tests with Node's built-in test runner, through `tsx`. They cover the pure modules where the rules live:
+**Unit tests.** `npm test` runs 260 tests with Node's built-in test runner, through `tsx`. They cover the pure modules where the rules live:
 
 | Area | Tests |
 |---|---|
@@ -408,7 +408,7 @@ Environment variables (names only; `.env.example` explains each):
 | Grapheme-safe text snippets (never cutting a Bangla conjunct) | 4 |
 | The signed connect-Google cookie (forgery, expiry, junk) | 4 |
 | The phone layout: which tab a page lights, and which pages are full-screen with a way back | 5 |
-| The Gutenberg reader: removing the licence and every mention of Project Gutenberg, the four book shapes, footnote links, the front page, page numbers, text-only layout, the declared language, and which books are read here | 15 |
+| The Gutenberg reader: removing the licence and every mention of Project Gutenberg, the four book shapes, footnote links, the front page, page numbers, text-only layout, the declared language, the contents' numbered parts, and which books are read here | 19 |
 | Link previews: card text breaking, every cover family drawn, the 1200 × 630 JPEG, the preview tags | 9 |
 | Broken Bangla in catalog text: doubled or stranded signs, stray joiners, and only safe repairs | 6 |
 | The book of the day: the day turning at midnight in Dhaka, and no repeats before every book has had its day | 6 |

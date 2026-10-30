@@ -53,7 +53,7 @@ const GUTENBERG_LINK = /^(?:https?:)?\/\/(?:[a-z0-9-]+\.)*(?:gutenberg\.org|pgla
 const BOILERPLATE_IDS = new Set(["pg-header", "pg-footer", "pg-start-separator", "pg-end-separator"]);
 const SMALL_BLOCKS = new Set(["p", "li", "dd", "dt", "h1", "h2", "h3", "h4", "h5", "h6", "figcaption", "caption", "td", "th", "pre", "blockquote", "div", "table", "ul", "ol", "dl"]);
 const PAGE_NUMBER = /\b(page-?num(ber)?|pagenum|pageno|pgnum|pagenumber)\b/i;
-const CONTENTS_TITLE = /^(table\s+of\s+)?contents\.?$|^list\s+of\s+illustrations\.?$|^illustrations\.?$/i;
+const CONTENTS_TITLE = /^(the\s+)?(table\s+of\s+)?contents\.?$|^list\s+of\s+illustrations\.?$|^illustrations\.?$/i;
 const BYLINE = /^by\s/i;
 
 const textOf = (nodes: ChildNode | ChildNode[]) => DomUtils.textContent(nodes).replace(/\s+/g, " ").trim();
@@ -171,8 +171,12 @@ function topLevel(list: ChildNode[], below = 0): number | null {
   return levels[0] ?? null;
 }
 
-// A piece's units, looking inside a chapter box.
-const inside = (p: Piece) => (p.nodes.length === 1 && isChapterBox(p.nodes[0]) ? units((p.nodes[0] as Element).children) : p.nodes);
+// A piece's units, looking inside the chapter box it starts with; anything
+// after the box (after the book's last chapter, a transcriber's note) follows.
+const inside = (p: Piece) => {
+  const i = p.nodes.findIndex((n) => !filler(n));
+  return i >= 0 && isChapterBox(p.nodes[i]) ? [...units((p.nodes[i] as Element).children), ...p.nodes.slice(i + 1)] : p.nodes;
+};
 
 function labelled(p: Piece): Piece {
   return { ...p, label: leadingTitle(inside(p)).label ?? p.label };
@@ -498,9 +502,15 @@ export function parseGutenbergHtml(raw: string): GutenbergBook {
     return clean(render(body), css, images);
   });
   const declared = DomUtils.findOne((e) => e.name === "html", doc.children, false)?.attribs.lang ?? DomUtils.findOne((e) => e.name === "meta" && e.attribs.name?.toLowerCase() === "dc.language", doc.children, true)?.attribs.content;
+  // Untitled pages are numbered within each run of them: অংশ ১, অংশ ২…
+  let run = 0;
+  const labels = pieces.map((p, i) => {
+    run = p.label === null && i > 0 && pieces[i - 1].label === null && pieces[i - 1].group === p.group ? run + 1 : 1;
+    return p.label ?? `অংশ ${bnDigits(run)}`;
+  });
   return {
     front: clean(render(front), css, images),
-    pages: pieces.map((p, i) => ({ label: p.label ?? `অংশ ${bnDigits(i + 1)}`, group: p.group, html: html[i] })),
+    pages: pieces.map((p, i) => ({ label: labels[i], group: p.group, html: html[i] })),
     images: images.count,
     lang: declared && /^[a-z]{2,3}(-[a-z0-9]{2,8})*$/i.test(declared.trim()) ? declared.trim().toLowerCase() : null,
   };

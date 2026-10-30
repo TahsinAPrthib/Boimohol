@@ -4,7 +4,7 @@ import { BOOK_TOKEN, mentionsGutenberg, parseGutenbergHtml } from "./gutenberg/p
 import { gutenbergEbookId, readableHere } from "./gutenberg/source";
 import { readerSource } from "./reader/source";
 import lists from "./gutenberg/lists.json";
-import { OPENING, shortLabel } from "../components/reader/ReaderParts";
+import { OPENING, shortLabel, tocRows } from "./reader/toc";
 
 // A book as Project Gutenberg's generated HTML lays it out: the licence
 // header and the START line, the text, the END line and the licence footer.
@@ -107,6 +107,18 @@ describe("Gutenberg books: chapters", () => {
     assert.equal(shortLabel(b.pages[0].label, b.pages[0].group), OPENING);
   });
 
+  test("the last chapter keeps its title when a transcriber's note follows its block", () => {
+    const b = parseGutenbergHtml(
+      book(`<h1>A Test</h1>${chapter("BOOK I", paras(5))}${chapter("BOOK II", paras(180))}<div class="tnote"><b>Transcriber's Notes</b><p>A note.</p></div>`)
+    );
+    const last = b.pages.filter((p) => p.label.startsWith("BOOK II"));
+    assert.ok(last.length >= 2, b.pages.map((p) => p.label).join(" / "));
+    assert.equal(last[0].label, "BOOK II — অংশ ১");
+    assert.doesNotMatch(last[0].html, /BOOK II/);
+    assert.match(last[last.length - 1].html, /A note\./);
+    assert.ok(b.pages.every((p) => !/^অংশ/.test(p.label)));
+  });
+
   test("a long chapter without sub-headings is cut by size, at paragraph breaks only", () => {
     const b = parseGutenbergHtml(book(`<h1>A Test</h1>${chapter("BOOK I", paras(180))}${chapter("BOOK II", paras(5))}`));
     const parts = b.pages.filter((p) => p.label.startsWith("BOOK I —"));
@@ -193,6 +205,43 @@ ${chapter("CHAPTER XIX.", paras(3))}`)
     assert.equal(parseGutenbergHtml(book(body).replace("<html>", '<html lang="en"><!-- x" -->')).lang, "en");
     assert.equal(parseGutenbergHtml(book(body).replace("<html>", '<html lang="not a language">')).lang, null);
     assert.equal(parseGutenbergHtml(book(body)).lang, null);
+  });
+});
+
+describe("the contents", () => {
+  const entry = (path: number, label: string, group: string | null) => ({ path: String(path), label, group });
+  const shape = (rows: ReturnType<typeof tocRows>) =>
+    rows.map((r) => (r.kind === "group" ? `# ${r.name}` : r.kind === "entry" ? r.label : `${r.title ?? "-"}: ${r.parts.map((p) => p.number).join(" ")}`));
+
+  test("a section cut into parts by size: its heading once, then one row of numbers", () => {
+    const b = parseGutenbergHtml(book(`<h1>A Test</h1>${chapter("INTRODUCTION", paras(180))}${chapter("BOOK I", paras(5))}${chapter("BOOK II", paras(5))}`));
+    const rows = tocRows(b.pages.map((p, i) => entry(i + 1, p.label, p.group)));
+    const parts = b.pages.filter((p) => p.group === "INTRODUCTION").length;
+    assert.ok(parts >= 3, `${parts} parts`);
+    assert.deepEqual(shape(rows), ["# INTRODUCTION", `-: ${["১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"].slice(0, parts).join(" ")}`, "BOOK I", "BOOK II"]);
+    const row = rows[1];
+    assert.ok(row.kind === "parts" && row.parts[0].entry.label === "INTRODUCTION — অংশ ১" && row.parts[0].entry.path === "1");
+  });
+
+  test("a chapter cut into parts under a part's heading keeps its own title over the numbers", () => {
+    const rows = tocRows([
+      entry(1, "CHAPTER I", "PART I"),
+      entry(2, "CHAPTER II — অংশ ১", "PART I"),
+      entry(3, "CHAPTER II — অংশ ২", "PART I"),
+      entry(4, "CHAPTER III", "PART I"),
+      entry(5, "CHAPTER I — অংশ ১", "PART II"),
+      entry(6, "CHAPTER I — অংশ ২", "PART II"),
+    ]);
+    assert.deepEqual(shape(rows), ["# PART I", "CHAPTER I", "CHAPTER II: ১ ২", "CHAPTER III", "# PART II", "CHAPTER I: ১ ২"]);
+  });
+
+  test("a book without headings is one row of numbers; Wikisource's contents are left as they are", () => {
+    assert.deepEqual(shape(tocRows([1, 2, 3].map((n) => entry(n, `অংশ ${"০১২৩"[n]}`, null)))), ["-: ১ ২ ৩"]);
+    const wikisource = tocRows([
+      { path: "অংশ ১", label: "অংশ ১" },
+      { path: "অংশ ২", label: "অংশ ২" },
+    ]);
+    assert.deepEqual(shape(wikisource), ["অংশ ১", "অংশ ২"]);
   });
 });
 

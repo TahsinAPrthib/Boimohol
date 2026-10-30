@@ -4,6 +4,11 @@
 # Needs the repository secret TEXTS_DATABASE_URL: the texts project's
 # production connection string. Safe to run again: books already stored are
 # skipped.
+#
+# Started by hand only (workflow_dispatch), which only people with write
+# access can do. Never add pull_request or pull_request_target here: the
+# secret must never be within reach of code from a pull request. The job
+# also refuses any other event, in case a trigger is added by mistake.
 name: Seed Gutenberg texts
 
 on:
@@ -23,6 +28,7 @@ concurrency:
 
 jobs:
   seed:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 240
     steps:

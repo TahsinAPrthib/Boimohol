@@ -16,7 +16,8 @@ import ReaderFrame from "@/components/reader/ReaderFrame";
 import ReaderProgress from "@/components/reader/ReaderProgress";
 import ResumeReading from "@/components/reader/ResumeReading";
 import { ReaderShell as Shell, ReaderText, StaleNote } from "@/components/reader/ReaderShell";
-import { GutenbergAttribution, OPENING, ReaderAttribution, ReaderNav, ReaderToc, ReaderUnavailable, ScanLinks, shortLabel } from "@/components/reader/ReaderParts";
+import { GutenbergAttribution, ReaderAttribution, ReaderNav, ReaderToc, ReaderUnavailable, ScanLinks } from "@/components/reader/ReaderParts";
+import { OPENING, shortLabel } from "@/lib/reader/toc";
 
 type Props = {
   params: Promise<{ id: string; chapter?: string[] }>;
