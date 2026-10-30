@@ -75,6 +75,7 @@ All screenshots are of public pages on the live site, taken while signed out.
   Of 79,609 catalog entries, 35,134 new books pass, plus links for 2 books already in the catalog. They are in `data/gutenberg-all-1.json` to `-4.json`, with counts for every rule in `data/gutenberg-all-report.md`. Each has a neutral one-line description (author, original language, subject or form, translator; never the plot), Gutenberg's own English title, its author as Gutenberg names them, its translator credited, death years from Gutenberg (Wikidata's spelling and dates only when Wikidata's item is that person; Gutenberg links some people to the wrong Wikipedia page), and its Gutenberg link with a rights note. They are imported as not curated. A book that fits none of the categories goes to অন্যান্য, with a description that names its subject (medicine, education, law, music and so on). Another edition, volume or translation of a book already in the catalog is left out rather than linked to it, unless it is the whole book in the translation that book credits. A live check of 50 chosen at random, including each author against the book's own Gutenberg page, is in `data/gutenberg-all-spot-check.md`.
 - Corrections to books already in the catalog go through the same import as update rows: author, translator, Bangla title, search names, language and description, and link rights notes. `data/catalog-corrections.json` is one, with the evidence for each row in `data/catalog-corrections.md`.
 - Downloads are counted only in aggregate. Who downloaded what is never recorded, and clicks on external links aren't counted at all.
+- Visitor numbers come from Vercel Web Analytics, on every page, signed in or not, and in the installed app. It uses no cookies. Each page view is sent without its query string or fragment, so search terms (`?q=`) and `callbackUrl` never leave the browser, and the two paths that name a person or a private conversation (`/admin/users/[id]`, `/messages/[conversationId]`) go as their route (`src/lib/analytics.ts`). No user ID, email or username is ever sent.
 
 ### Search
 - Site-wide search at `/search`, grouping books, listings and requests. There are also search boxes on the category, library, marketplace and requests pages.
@@ -383,13 +384,14 @@ Environment variables (names only; `.env.example` explains each):
   - Set its pooled connection string as `TEXTS_DATABASE_URL` in Vercel, **Production only**.
   - Set the same string as the GitHub repository secret `TEXTS_DATABASE_URL`, then run Actions → "Seed Gutenberg texts" once to store the 1,000 most-read books. The run can be repeated safely, since stored books are skipped.
   - `TEXTS_CACHE_MAX_MB` (default 500) caps the books stored on demand.
-- **Third parties.** `/privacy` names Vercel, Neon, Cloudinary and Google as the only third parties. Adding analytics, ads or payments means updating that page in the same change.
+- **Third parties.** `/privacy` names Vercel (hosting and Web Analytics), Neon, Cloudinary and Google as the only third parties, and lists what Web Analytics records. Adding ads, payments or any other tracking means updating that page in the same change.
+- **Web Analytics.** Enable it in the Vercel project; the next deployment serves its script. The proxy leaves its routes alone (`NEXT_PUBLIC_VERCEL_OBSERVABILITY_BASEPATH`, set by Vercel at build time).
 
 ---
 
 ## Testing
 
-**Unit tests.** `npm test` runs 260 tests with Node's built-in test runner, through `tsx`. They cover the pure modules where the rules live:
+**Unit tests.** `npm test` runs 265 tests with Node's built-in test runner, through `tsx`. They cover the pure modules where the rules live:
 
 | Area | Tests |
 |---|---|
@@ -413,6 +415,7 @@ Environment variables (names only; `.env.example` explains each):
 | Broken Bangla in catalog text: doubled or stranded signs, stray joiners, and only safe repairs | 6 |
 | The book of the day: the day turning at midnight in Dhaka, and no repeats before every book has had its day | 6 |
 | Day and night colours: the remembered choice, and the palette set before the page is drawn | 4 |
+| What Web Analytics is sent: no query strings or fragments, no person or conversation in a path | 5 |
 | First-line epigraphs: one reviewed line per book | 3 |
 
 `npm run lint` and `npm run build`, which includes the TypeScript check, run before every merge.

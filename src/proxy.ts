@@ -11,8 +11,13 @@ import { getToken } from "next-auth/jwt";
 // someone else, and the site's policies.
 const OPEN = ["/welcome", "/login", "/register", "/privacy", "/terms", "/guidelines"];
 
+// Vercel Web Analytics' script and intake, under a path Vercel picks for each
+// build: not pages.
+const ANALYTICS = process.env.NEXT_PUBLIC_VERCEL_OBSERVABILITY_BASEPATH;
+
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
+  if (ANALYTICS && pathname.startsWith(`${ANALYTICS}/`)) return NextResponse.next();
   if (OPEN.some((path) => pathname === path || pathname.startsWith(`${path}/`))) return NextResponse.next();
 
   const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
@@ -26,6 +31,6 @@ export async function proxy(request: NextRequest) {
 export const config = {
   // Pages only: not NextAuth's own routes, Next's assets, public files, the
   // cover images fetched through the site (next.config.js rewrites), or the
-  // link-preview images (/share).
-  matcher: ["/((?!api/|_next/|cover-image/|share/|icons/|cursors/|manifest.json|favicon.ico|robots.txt|sitemap.xml).*)"],
+  // link-preview images (/share), or Vercel's own routes (/_vercel).
+  matcher: ["/((?!api/|_next/|_vercel/|cover-image/|share/|icons/|cursors/|manifest.json|favicon.ico|robots.txt|sitemap.xml).*)"],
 };

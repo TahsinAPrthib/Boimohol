@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import { UnreadCountProvider } from "@/components/UnreadBadge";
 import { HideWhenFullScreen, PhoneTabBar, PhoneTopBar } from "@/components/PhoneShell";
 import CoverTransition from "@/components/CoverTransition";
+import SiteAnalytics from "@/components/SiteAnalytics";
 import { THEME_COLOR, THEME_SCRIPT } from "@/lib/theme";
 import { siteShareMetadata, siteUrl } from "@/lib/share";
 import "./globals.css";
@@ -94,6 +95,7 @@ export default function RootLayout({
             <PhoneTabBar />
           </UnreadCountProvider>
         </SessionProvider>
+        <SiteAnalytics />
       </body>
     </html>
   );
