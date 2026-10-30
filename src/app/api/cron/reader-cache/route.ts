@@ -1,10 +1,12 @@
 import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { pruneReaderCache } from "@/lib/wikisource/cache";
+import { pruneTexts, textsConfigured, type TextsReport } from "@/lib/gutenberg/store";
 
 export const dynamic = "force-dynamic";
 
-// The reader cache's daily cleanup (src/lib/wikisource/cache.ts), called by
+// The reader caches' daily cleanup (src/lib/wikisource/cache.ts and
+// src/lib/gutenberg/store.ts), called by
 // Vercel cron (vercel.json). Vercel sends the project's CRON_SECRET as a
 // bearer token; without that variable set, the route refuses every call.
 // (The cleanup also runs after writes, so a missed day changes little.)
@@ -21,5 +23,16 @@ export async function GET(request: Request) {
   }
   const report = await pruneReaderCache();
   console.log(`[reader-cache] cleanup: ${JSON.stringify(report)}`);
-  return NextResponse.json({ ok: true, ...report });
+  // The Gutenberg books stored on demand, in the texts database (store.ts),
+  // when there is one.
+  let gutenberg: TextsReport | null = null;
+  if (textsConfigured()) {
+    try {
+      gutenberg = await pruneTexts();
+      console.log(`[gutenberg] cleanup: ${JSON.stringify(gutenberg)}`);
+    } catch (err) {
+      console.error(`[gutenberg] cleanup failed: ${err instanceof Error ? err.message : err}`);
+    }
+  }
+  return NextResponse.json({ ok: true, ...report, gutenberg });
 }

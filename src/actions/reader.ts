@@ -4,7 +4,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getSessionUserId } from "@/lib/authz";
 import { logReadingActivity } from "@/lib/streak";
-import { readerSource } from "@/lib/wikisource/reader";
+import { readerSource } from "@/lib/reader/source";
 import { isValidTitle } from "@/lib/wikisource/titles";
 
 const positionSchema = z.object({

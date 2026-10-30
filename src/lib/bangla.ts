@@ -20,6 +20,11 @@ export function bnYear(value: number): string {
   return value.toLocaleString("bn-BD", { useGrouping: false, maximumFractionDigits: 0 });
 }
 
+/** A number written as is, without grouping, e.g. an ebook's 1342 -> "১৩৪২". */
+export function bnPlain(value: number): string {
+  return bnYear(value);
+}
+
 /** Fixed decimals, e.g. bnFixed(4.5) -> "৪.৫". Used for ratings. */
 export function bnFixed(value: number, digits = 1): string {
   if (!Number.isFinite(value)) return bn(0);

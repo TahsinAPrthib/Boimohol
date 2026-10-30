@@ -2,7 +2,7 @@ import "server-only";
 import { revalidateTag, unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { publicDomainCutoffYear } from "@/lib/public-domain";
-import { readerSource } from "@/lib/wikisource/reader";
+import { readerSource } from "@/lib/reader/source";
 import { dayNumber, rotation, takeFrom } from "@/lib/daily";
 
 // The shelves on the home page and the book pages, and the home page's book

@@ -6,7 +6,7 @@ import { bookShareMetadata, previewText } from "@/lib/share";
 import { canBePublicDomain } from "@/lib/public-domain";
 import { bn, bnFixed, bnYear } from "@/lib/bangla";
 import { coverSourceLabel } from "@/lib/covers";
-import { readerSource } from "@/lib/wikisource/reader";
+import { readerSource } from "@/lib/reader/source";
 import { firstLineOf, quotedLine } from "@/lib/first-lines";
 import { dhakaDateKey } from "@/lib/daily";
 import { loadCategoryShelf, loadTodaysShelf, type ShelfBook } from "@/lib/todays-book";
@@ -51,7 +51,8 @@ export default async function BookHeaderLayout(props: { children: React.ReactNod
   const free = book.isPublicDomain && canBePublicDomain(book.authorDeathYear);
   const freeFile = free ? (book.files.find((f) => f.publicId) ?? null) : null;
   const freeSources = free ? book.sources : [];
-  const readHref = readerSource(book) ? `/books/${encodeURIComponent(book.id)}/read` : null;
+  const reader = readerSource(book);
+  const readHref = reader ? `/books/${encodeURIComponent(book.id)}/read` : null;
   const firstLine = free ? firstLineOf(book.id) : null;
   const name = book.titleBangla || book.title;
 
@@ -148,6 +149,7 @@ export default async function BookHeaderLayout(props: { children: React.ReactNod
           file={freeFile && freeFile.publicId ? { ...freeFile, publicId: freeFile.publicId } : null}
           sources={freeSources}
           readHref={readHref}
+          readFrom={reader?.kind}
         />
 
         {props.children}

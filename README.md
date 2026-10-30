@@ -62,7 +62,8 @@ All screenshots are of public pages on the live site, taken while signed out.
 - Public-domain books only, as a PDF hosted here or a link to a free copy on Wikisource (any language), Project Gutenberg or the Internet Archive. Links to any other site are refused. Each copy states publicly why it is free (for example, the author's death year and the source).
 - The library labels each book as hosted here or external. External links open in a new tab and send no referrer.
 - Books with a copy on Bangla Wikisource can be read here, at `/books/[id]/read`: a contents page, one chapter per page with previous/next and a shareable address, and an adjustable text size. The text is fetched live from the Wikisource API, cleaned on the server and cached, with a size cap (see below); nothing is hosted. Every page credits Wikisource under CC BY-SA 4.0, and when the text was transcribed from a PDF scan on Wikimedia Commons, that scan is linked with its size. The reader remembers where you stopped (on your account when signed in, in the browser otherwise), and reading counts toward the reading streak.
-- Project Gutenberg links go to the book's landing page, as Gutenberg's linking policy asks; nothing is fetched from Gutenberg.
+- Gutenberg books without a Bangla Wikisource copy can be read here too, in the same reader: contents, chapters, text size, night mode, the saved place and the streak. The text is Gutenberg's own HTML edition, fetched from Project Gutenberg's mirror (never from www.gutenberg.org), made into pages on the server and stored compressed in a separate database (see [Reading Gutenberg books here](#reading-gutenberg-books-here)). Only the text is shown, without pictures; the contents page says so and links to Gutenberg's edition. Gutenberg's licence sections and every mention of Project Gutenberg are removed from the text, and every page credits the book's Gutenberg page. 490 books stay link-only: those without an HTML edition, picture books, and very large books outside the 1,000 most read.
+- Every Project Gutenberg link goes to the book's landing page, as Gutenberg's linking policy asks.
 - The library, category pages and search filter by language (বাংলা / অন্যান্য ভাষা / সব). Long lists are paged, 48 books at a time. The home page, the library and the category pages list the curated books first, Bangla first, then the books imported in bulk from a whole catalog, by title. Search ranks every book by how well it matches.
 - The free catalogue is prepared offline by scripts that read Bangla Wikisource and Wikidata (complete, proofread texts whose authors died in 1965 or earlier) and Project Gutenberg's official catalog feed. They write files for the admin import plus a review report; nothing is written to the database. Real covers are prepared the same way by `scripts/covers-prepare.ts`. For a Wikisource work it takes the cover or title page of the scan the work was transcribed from, which Wikimedia renders from the PDF or DjVu as an image. For a Gutenberg book it takes the cover only when that is a scan of an original edition, and for other books it searches Commons. Every image is checked by eye and recorded in `scripts/covers/decisions.ts`, and the result is `data/covers-import-1.json` and `-2.json` plus `data/covers-report.md`. Of 1,434 public-domain books, 686 get a real cover. Most of the others have only Gutenberg's generated template, a producer's modern composite, or a scan whose title page is stamped over by a library.
 - Beyond the chosen books, `scripts/gutenberg-all.ts` prepares every book in Gutenberg's catalog that passes the same rules:
@@ -177,7 +178,7 @@ There is deliberately no code path for paid files. The PDFs themselves were prep
 ### Reading pages anyone can edit
 **Problem.** The in-site reader shows Wikisource pages inside Boi Mohol, and anyone can edit a Wikisource page. Its HTML can't be trusted.
 
-**What was done.** Every page goes through a strict allowlist on the server (`src/lib/wikisource/sanitize.ts`, built on `sanitize-html`) before it is cached or shown:
+**What was done.** Every page goes through a strict allowlist on the server (`src/lib/wikisource/sanitize.ts`, built on `sanitize-html`; the allowlist itself, in `src/lib/reader/html.ts`, is shared with the Gutenberg reader) before it is cached or shown:
 - Only text-formatting tags survive. Scripts, styles, frames, forms, SVG, MathML and media are removed with everything inside them.
 - No inline styles and no event handlers. Classes come only from a short list of our own; Wikisource's centring, indents and poem layout are translated into those.
 - Links within the work point at the reader, links to other Wikisource pages point at Wikisource, and every other link becomes plain text. Images are allowed only from `upload.wikimedia.org`. Ids are prefixed, so a page can't shadow ours.
@@ -188,6 +189,47 @@ The API client follows Wikimedia's etiquette: a User-Agent with a contact addres
 The cache lives in the site's own Postgres, and a full database would break every write on the site, so it is bounded (`src/lib/wikisource/cache.ts`). A row nobody has read for 30 days is deleted. Above a cap (50 MB of JSON by default, `READER_CACHE_MAX_MB`), the least recently read rows go first, and a single page over 3 MB is shown but never stored. The cleanup runs after writes (always after a large one) and daily from Vercel cron (`/api/cron/reader-cache`, authorised by `CRON_SECRET`). The older copy shown during an outage survives as long as someone reads it at least once in 30 days.
 
 **How it was checked.** 52 unit tests feed the sanitizer hostile markup (script and style elements, event handlers, `javascript:` and `data:` links in several spellings, mutation-XSS patterns, `noscript`/`textarea` breakouts, `srcset`, `base` and `meta` refresh, deep nesting). In a real browser, a stand-in Wikisource served a page full of such markup. Nothing ran, no dialog opened, nothing was requested from the attacker's host, and the page wasn't redirected or covered.
+
+### Reading Gutenberg books here
+**Problem.** Most of the library's 36,000 Gutenberg books could only be linked to. Reading them here means taking their text from Project Gutenberg, which has rules:
+- its site is for people, and robots must use its mirrors;
+- its licence and trademark go with any text that keeps its name.
+
+The texts are also large. Measured from Gutenberg's file listing:
+- 36,079 of our books have an HTML edition, 18.7 GB in all, median 418 KB per book;
+- Neon's free plan allows 1 GB per project;
+- Vercel's free plan allows 100 GB of transfer a month.
+
+**What was done.**
+- **Fetching.** Books come only from Project Gutenberg's own mirror, `gutenberg.pglaf.org`, with a User-Agent naming the site and a contact address, compressed, one request at a time (`src/lib/gutenberg/mirror.ts`). A book is fetched the first time someone opens it, then served from storage. A failure is remembered for 6 hours, so a broken book doesn't send a request on every visit.
+- **Storage.** Pages are stored brotli-compressed in a separate free Neon project (`TEXTS_DATABASE_URL`, `src/lib/gutenberg/store.ts`), about 27% of the HTML's size. If it fills up, only this reader stops; the book page still links to Gutenberg.
+  - The 1,000 most-read books (1.05 GB of HTML, about 280 MB stored) are copied ahead of time by rsync from the same mirror. This runs in a GitHub Actions workflow started by hand (`.github/workflows/gutenberg-seed.yml`, `scripts/gutenberg-seed.ts`), and those books are kept for good.
+  - Books stored on demand are capped at 500 MB (`TEXTS_CACHE_MAX_MB`). The ones read longest ago go first, as in the Wikisource cache, both after each new book and in the daily cron.
+- **Licence and credit.** Gutenberg's licence says a text with its licence and every reference to Project Gutenberg removed is no longer bound by the licence or the trademark. The parser (`src/lib/gutenberg/parse.ts`) removes:
+  - the header and footer and the START and END lines;
+  - every passage that names Project Gutenberg or its volunteers, as the smallest block around the mention, or a whole section if it is titled after them;
+  - links to its sites, keeping their words.
+
+  Every page then carries our own credit, which names Project Gutenberg as the source and links to the book's Gutenberg page.
+- **Pages.** Books come in many shapes, so the parser splits:
+  - at chapter blocks, or at the highest heading level used more than once;
+  - a long chapter at its next heading level down, or by size, at paragraph breaks, into parts of about 28 KB;
+  - so that part titles ("BOOK ONE: 1805") head their chapters in the contents, and the title page goes on a front page of its own.
+
+  The page also handles a few more details:
+  - footnote links are rewritten to reach the page their note is on;
+  - printed page numbers are dropped;
+  - the book's own stylesheet is read only to map centring, indents and small capitals to the reader's own classes, through the same allowlist as Wikisource;
+  - pictures are counted but not shown.
+- **Link-only books.** Some books stay links (`scripts/gutenberg-reader-lists.ts`, `src/lib/gutenberg/lists.json`):
+  - 105 have no HTML edition;
+  - 351 are mostly pictures;
+  - 34 are over 5 MB and not among the 1,000.
+
+**How it was checked.**
+- 28 sample books of every shape went through the parser, from the Gettysburg Address to War and Peace and Shakespeare's complete works. None had a mention of Project Gutenberg or licence text left. All but two had every page under 45 KB; the two exceptions are pages of large tables.
+- Unit tests cover the four shapes: clean chapters, chapters one heading level down, size-based pages and footnotes.
+- The whole path ran in a real browser against stand-ins for the mirror and the texts database. Every page of five books was checked for the credit and for any mention of Gutenberg; the mirror stand-in's log confirmed one request per book, with the site's User-Agent.
 
 ### Google-only sign-up and safe account linking
 **Problem.** Email/password sign-ups never verified their email address. Linking a Google sign-in to an existing account by matching emails would therefore be unsafe in both directions. If the address had been registered by someone else, the Google user would be handed that stranger's account. If the address was really the Google user's, whoever registered it first would keep password access to an account that is now linked to the real owner's Google identity.
@@ -299,6 +341,8 @@ The live site's own "Waiting for server response" is 35–78 ms, but that isn't 
 - **No Banglish search.** Search matches the script you type in. A romanised query such as "rabindranath" won't find text stored only in Bangla, unless the book also has an English title. A transliteration index is on the roadmap.
 - **No email verification for older password accounts.** Their email is only verified if they connect a Google account with the same address. The site sends no email at all yet, which also means there is no "forgot password" reset.
 - **No payments.** The marketplace introduces buyers and sellers. Payment and handover happen in person.
+- **No ads.** The site stays on Vercel's Hobby plan, which is for non-commercial use only and doesn't allow ads. Showing ads would first need a paid plan, and `/privacy` would have to name the ad network.
+- **The Gutenberg reader shows text only.** Pictures in Gutenberg books aren't shown; the contents page links to Gutenberg's edition for them. Showing them would mean storing or proxying images, which the free plans' storage and transfer can't carry.
 - **Policy pages are drafts.** `/terms`, `/privacy` and `/guidelines` haven't been reviewed by a lawyer, and `/terms` still has a TODO for the governing-law clause.
 - **`sanitize-html` is pinned to exactly 2.17.7.** It is the library the reader's sanitizer is built on. Version 2.18.0 added re-sanitising the fallback markup of a discarded `<iframe>`, which could recurse without limit on crafted input and throw (GHSA-c9rx-x947-fp3h). The reader discards every `<iframe>`, so it would be exposed. 2.18.1 fixes this, but was only days old when the reader was written. Revisit once 2.18.1 or a later release has been out for a while. 2.18.0 also brought three security fixes (`meta` refresh URLs, `noscript` in `nonTextTags`, prefixed SVG animation elements) that don't touch this configuration: the reader allows no `meta` or SVG, and skips `noscript` whole. Run `npm test` after upgrading: 52 tests feed the sanitizer hostile HTML. The 2.17 line requires Node 22.12+, but Next bundles it into the server code, so the runtime's Node version doesn't matter.
 
@@ -324,6 +368,7 @@ Environment variables (names only; `.env.example` explains each):
 - **Google sign-in.** New accounts can only be created through Google, so local sign-up needs a Google OAuth client (type "Web application") with the authorised redirect URI `http://localhost:3000/api/auth/callback/google`. Without one, the seeded demo account (`demo@boimohol.test` / `demo1234`) still logs in. The demo account and the hint on the login page exist only outside production.
 - **Neon connections.** `prisma/schema.prisma` uses the pooled `DATABASE_URL` at runtime and the unpooled `DIRECT_URL` for migrations. Neon's pooler runs PgBouncer in transaction mode, which can't run Prisma Migrate. Neon also suspends idle compute, so the first connection after a quiet spell can be slow. Add `connect_timeout=15&pool_timeout=20` to `DATABASE_URL` and `connect_timeout=15` to `DIRECT_URL`, and retry once if a migration reports `P1001`.
 - **Becoming an admin.** The admin pages need the `ADMIN` role. The end of `prisma/seed.ts` has a commented block for promoting your own account.
+- **The Gutenberg reader (optional).** It is on only when `TEXTS_DATABASE_URL` is set. For local work, use a development branch of the texts project, never the production texts database. The tables are created on first use; there are no migrations for this database. Without the variable, Gutenberg books show their link as before.
 
 ## Deployment (Vercel)
 
@@ -333,14 +378,18 @@ Environment variables (names only; `.env.example` explains each):
 - **Must differ from development.** Production needs its own `NEXTAUTH_SECRET`, because anyone holding the secret can forge a session. `NEXTAUTH_URL` must be the production origin, or redirects break. The production Google client needs the redirect URI `<NEXTAUTH_URL>/api/auth/callback/google`.
 - **Never public.** Anything prefixed `NEXT_PUBLIC_` is compiled into the JavaScript every visitor downloads. Only `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` is safe to expose, since a cloud name already appears in every image URL. Never add the prefix to `CLOUDINARY_API_SECRET`, `CLOUDINARY_API_KEY`, `NEXTAUTH_SECRET`, `GOOGLE_CLIENT_SECRET`, `DATABASE_URL` or `DIRECT_URL`.
 - **Seeding production.** `npm run seed` skips the demo account when `NODE_ENV=production`.
-- **Cron.** `vercel.json` schedules the reader cache's daily cleanup (21:30 UTC). Set `CRON_SECRET` (any long random value) in the Vercel project; Vercel sends it to the route as a bearer token, and without it the route refuses the call. The cleanup also runs after writes, so a missing secret only loses the daily pass.
+- **Cron.** `vercel.json` schedules the reader caches' daily cleanup (21:30 UTC), for Wikisource and for the Gutenberg texts. Set `CRON_SECRET` (any long random value) in the Vercel project; Vercel sends it to the route as a bearer token, and without it the route refuses the call. The cleanup also runs after writes, so a missing secret only loses the daily pass.
+- **The Gutenberg reader.** It needs its own free Neon project, separate from the site's database.
+  - Set its pooled connection string as `TEXTS_DATABASE_URL` in Vercel, **Production only**.
+  - Set the same string as the GitHub repository secret `TEXTS_DATABASE_URL`, then run Actions → "Seed Gutenberg texts" once to store the 1,000 most-read books. The run can be repeated safely, since stored books are skipped.
+  - `TEXTS_CACHE_MAX_MB` (default 500) caps the books stored on demand.
 - **Third parties.** `/privacy` names Vercel, Neon, Cloudinary and Google as the only third parties. Adding analytics, ads or payments means updating that page in the same change.
 
 ---
 
 ## Testing
 
-**Unit tests.** `npm test` runs 210 tests with Node's built-in test runner, through `tsx`. They cover the pure modules where the rules live:
+**Unit tests.** `npm test` runs 256 tests with Node's built-in test runner, through `tsx`. They cover the pure modules where the rules live:
 
 | Area | Tests |
 |---|---|
@@ -350,7 +399,7 @@ Environment variables (names only; `.env.example` explains each):
 | Wishlist ↔ listing matching | 15 |
 | Account rules: sign-up validation, the password stamp, the last-admin rule, Google names and emails | 9 |
 | Book import rows (including links to free copies and covers), update rows and the admin book form | 22 |
-| Real covers: the allowed sources, lookalike hosts, credits, delivery sizes and the checks on an uploaded image | 12 |
+| Real covers: the allowed sources, lookalike hosts, credits, delivery sizes and the checks on an uploaded image | 14 |
 | Generated covers: the same design for the same book, variety along a shelf, palette-only night sky, title sizing for Bangla vowel signs | 11 |
 | Duplicate detection, matching an import row to an existing book, and book IDs | 12 |
 | The public-domain rule, including the year boundary | 6 |
@@ -358,7 +407,13 @@ Environment variables (names only; `.env.example` explains each):
 | Language filter, Bangla-first ordering and paging, with curated books before bulk ones and the bulk sort key | 13 |
 | Grapheme-safe text snippets (never cutting a Bangla conjunct) | 4 |
 | The signed connect-Google cookie (forgery, expiry, junk) | 4 |
-| The phone layout: which tab a page lights, and which pages are full-screen with a way back | 4 |
+| The phone layout: which tab a page lights, and which pages are full-screen with a way back | 5 |
+| The Gutenberg reader: removing the licence and every mention of Project Gutenberg, the four book shapes, footnote links, the front page, page numbers, text-only layout, the declared language, and which books are read here | 15 |
+| Link previews: card text breaking, every cover family drawn, the 1200 × 630 JPEG, the preview tags | 9 |
+| Broken Bangla in catalog text: doubled or stranded signs, stray joiners, and only safe repairs | 6 |
+| The book of the day: the day turning at midnight in Dhaka, and no repeats before every book has had its day | 6 |
+| Day and night colours: the remembered choice, and the palette set before the page is drawn | 4 |
+| First-line epigraphs: one reviewed line per book | 3 |
 
 `npm run lint` and `npm run build`, which includes the TypeScript check, run before every merge.
 
@@ -377,4 +432,5 @@ These scripts were run during development and aren't part of the repository.
 
 - `BookFile.rightsVerified` is set only by the upload path, after every check has passed. There is no code path for paid files.
 - Real covers come only from a public-domain book's own scan (Commons, Wikisource) or a Gutenberg scan of an original edition, never from a bookshop, a modern publisher or Gutenberg's generated covers. Pictorial cover art is a separate work: it is used only when its artist died in 1965 or earlier, or when it is unsigned on an edition published by then. Images are copied into Cloudinary, never hotlinked.
+- Gutenberg texts shown in the reader have Gutenberg's licence sections and every mention of Project Gutenberg removed, as its licence provides for, and every page credits the book's Gutenberg page. They are fetched only from Gutenberg's mirror, never from www.gutenberg.org.
 - Before adding a title or a reading link to the library, check the author's death year against the rule above. Be especially careful with authors who died within about the last 60 years.

@@ -1,0 +1,51 @@
+# Stores the 1,000 most-read Gutenberg books in the texts database ahead of
+# time (scripts/gutenberg-seed.ts), so they open at once in the in-site
+# reader. Started by hand: Actions -> "Seed Gutenberg texts" -> Run workflow.
+# Needs the repository secret TEXTS_DATABASE_URL: the texts project's
+# production connection string. Safe to run again: books already stored are
+# skipped.
+name: Seed Gutenberg texts
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "How many books from the seed list (1-1000)"
+        required: true
+        default: "1000"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gutenberg-seed
+  cancel-in-progress: false
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: List the books' files
+        env:
+          LIMIT: ${{ inputs.limit }}
+        run: node -e "const l=require('./src/lib/gutenberg/lists.json'); const n=Number(process.env.LIMIT); if(!Number.isInteger(n)||n<1||n>l.seed.length) throw new Error('limit must be 1..'+l.seed.length); console.log(l.seed.slice(0,n).map(id=>id+'/pg'+id+'-images.html').join('\n'))" > files.txt
+      # Project Gutenberg's own mirror, as its mirroring guide asks
+      # (gutenberg.org/help/mirroring.html): one rsync connection, at a
+      # limited rate. Whatever this misses, the next step fetches over HTTPS.
+      - name: Copy the books from Project Gutenberg's mirror (rsync)
+        continue-on-error: true
+        run: |
+          sudo apt-get install -y rsync >/dev/null 2>&1 || true
+          rsync -rt --timeout=600 --bwlimit=4000 --files-from=files.txt gutenberg.pglaf.org::gutenberg-epub pg/
+      - name: Store them in the texts database
+        env:
+          TEXTS_DATABASE_URL: ${{ secrets.TEXTS_DATABASE_URL }}
+          LIMIT: ${{ inputs.limit }}
+        run: npx tsx scripts/gutenberg-seed.ts --dir pg --limit "$LIMIT"

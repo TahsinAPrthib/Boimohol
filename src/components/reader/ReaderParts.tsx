@@ -3,12 +3,17 @@ import { formatFileSize } from "@/lib/cloudinary-url";
 import type { ScanFile } from "@/lib/wikisource/api";
 import type { TocEntry } from "@/lib/wikisource/reader";
 import { readerHref, wikisourceUrl, WIKISOURCE_ORIGIN } from "@/lib/wikisource/titles";
+import { gutenbergLanding } from "@/lib/gutenberg/source";
+import { bnPlain } from "@/lib/bangla";
 
 const external = { target: "_blank", rel: "noopener noreferrer" } as const;
 
-// "প্রথম খণ্ড — এক" under the heading "প্রথম খণ্ড" reads as "এক".
+// "প্রথম খণ্ড — এক" under the heading "প্রথম খণ্ড" reads as "এক"; an entry
+// named just like its heading is that part's opening.
+export const OPENING = "সূচনা";
 export function shortLabel(label: string, group: string | null): string {
   if (!group || !label.startsWith(group)) return label;
+  if (label === group) return OPENING;
   const rest = label.slice(group.length).replace(/^[\s—–\-:,।]+/, "");
   return rest || label;
 }
@@ -16,6 +21,7 @@ export function shortLabel(label: string, group: string | null): string {
 // A volume or part that has no page of its own ("প্রথম খণ্ড") appears as a
 // heading over its chapters; one that has a page is an entry like any other,
 // its chapters indented below it.
+// A Gutenberg book's parts come as each entry's `group` instead.
 export function ReaderToc({ bookId, entries, current }: { bookId: string; entries: TocEntry[]; current?: string }) {
   const paths = new Set(entries.map((e) => e.path));
   let lastGroup: string | null = null;
@@ -23,11 +29,12 @@ export function ReaderToc({ bookId, entries, current }: { bookId: string; entrie
   for (const e of entries) {
     const segments = e.path.split("/");
     const parent = segments.slice(0, -1).join("/");
-    const group = parent && !paths.has(parent) ? parent : null;
+    const group = e.group !== undefined ? e.group : parent && !paths.has(parent) ? parent : null;
+    const groupName = e.group !== undefined ? e.group : (group?.split("/").pop() ?? null);
     if (group && group !== lastGroup) {
       items.push(
         <li key={`g:${group}:${e.path}`} className="mt-4 font-display text-lg text-ink first:mt-0">
-          {group.split("/").pop()}
+          {groupName}
         </li>
       );
     }
@@ -42,7 +49,7 @@ export function ReaderToc({ bookId, entries, current }: { bookId: string; entrie
           aria-current={isCurrent ? "page" : undefined}
           className={`block rounded-book px-2 py-1.5 font-body hover:bg-ink/5 ${isCurrent ? "bg-ink/10 font-semibold text-ink" : "text-cloth"}`}
         >
-          {shortLabel(e.label, group ? group.split("/").pop()! : null)}
+          {shortLabel(e.label, groupName)}
         </Link>
       </li>
     );
@@ -130,16 +137,45 @@ export function ReaderAttribution({ title }: { title: string }) {
   );
 }
 
-export function ReaderUnavailable({ href, missing = false }: { href: string; missing?: boolean }) {
+// Project Gutenberg's terms: with their licence sections left out, a credit
+// with a link in a colophon is not use of their trademark
+// (gutenberg.org/policy/license.html), and crediting them needs no
+// permission (gutenberg.org/policy/permission.html).
+export function GutenbergAttribution({ ebookId, images }: { ebookId: number; images: boolean }) {
+  return (
+    <footer className="mt-10 rounded-book border-2 border-ink/10 bg-paper-dark/40 p-4 font-body text-sm text-ink/70" data-attribution data-gutenberg-credit>
+      <p>
+        উৎস: প্রজেক্ট গুটেনবার্গ —{" "}
+        <a href={gutenbergLanding(ebookId)} {...external} className="text-cloth underline">
+          ইবুক #{bnPlain(ebookId)}, প্রজেক্ট গুটেনবার্গে
+        </a>
+        । মূল বইটির কপিরাইটের মেয়াদ শেষ। বই মহলে পড়ার সুবিধার জন্য বিন্যাস বদলানো হয়েছে, আর প্রজেক্ট গুটেনবার্গের লাইসেন্সের
+        অংশটুকু বাদ দেওয়া হয়েছে{images ? "; বইয়ের ছবিগুলো এখানে দেখানো হয় না" : ""}।
+      </p>
+    </footer>
+  );
+}
+
+const UNAVAILABLE = {
+  wikisource: {
+    missing: "এই অংশটি উইকিসংকলনে এখন আর পাওয়া যাচ্ছে না। হয়তো পাতাটির নাম বদলেছে।",
+    down: "উইকিসংকলন থেকে এই অংশটি এখন আনা যাচ্ছে না। একটু পরে আবার চেষ্টা করুন, অথবা সরাসরি উইকিসংকলনে পড়ুন।",
+    button: "উইকিসংকলনে পড়ুন",
+  },
+  gutenberg: {
+    missing: "এই বইয়ের লেখা প্রজেক্ট গুটেনবার্গ থেকে এখানে আনা যায় না। বইটি সেখানেই পড়ুন।",
+    down: "বইটি প্রজেক্ট গুটেনবার্গ থেকে এখন আনা যাচ্ছে না। একটু পরে আবার চেষ্টা করুন, অথবা সরাসরি গুটেনবার্গে পড়ুন।",
+    button: "প্রজেক্ট গুটেনবার্গে পড়ুন",
+  },
+};
+
+export function ReaderUnavailable({ href, missing = false, source = "wikisource" }: { href: string; missing?: boolean; source?: "wikisource" | "gutenberg" }) {
+  const text = UNAVAILABLE[source];
   return (
     <div className="mt-8 rounded-book border-2 border-oxblood/40 bg-oxblood/5 p-5" role="status" data-reader-unavailable>
-      <p className="font-body text-ink">
-        {missing
-          ? "এই অংশটি উইকিসংকলনে এখন আর পাওয়া যাচ্ছে না। হয়তো পাতাটির নাম বদলেছে।"
-          : "উইকিসংকলন থেকে এই অংশটি এখন আনা যাচ্ছে না। একটু পরে আবার চেষ্টা করুন, অথবা সরাসরি উইকিসংকলনে পড়ুন।"}
-      </p>
+      <p className="font-body text-ink">{missing ? text.missing : text.down}</p>
       <a href={href} {...external} className="btn-primary mt-4">
-        উইকিসংকলনে পড়ুন
+        {text.button}
       </a>
     </div>
   );

@@ -1,10 +1,9 @@
 import "server-only";
 import { cache } from "react";
-import { canBePublicDomain } from "@/lib/public-domain";
 import { readCache, readCacheMany, writeCache } from "./cache";
 import { fetchPage, fetchScanInfo, fetchSubpages, WikisourceMissing, WikisourceUnavailable, type ScanFile } from "./api";
 import { linksBelow, sanitizeWikisourceHtml, SANITIZER_VERSION, scanFiles } from "./sanitize";
-import { pathInWork, titleInWork, workRootFromUrl } from "./titles";
+import { pathInWork, titleInWork } from "./titles";
 
 // The in-site reader's data: a work's contents and its pages, fetched live
 // from the Wikisource API, cleaned (sanitize.ts) and cached (cache.ts):
@@ -16,7 +15,9 @@ const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const MAX_SECTION_FETCHES = 12;
 const MAX_PAGE_CHARS = 4_000_000;
 
-export type TocEntry = { path: string; label: string };
+// `group`: the part a chapter belongs to, when it isn't in the path (a
+// Gutenberg book's "PART II"); Wikisource's parts are in the path.
+export type TocEntry = { path: string; label: string; group?: string | null };
 export type Contents = {
   root: string; // the main page, after any redirect
   entries: TocEntry[]; // every page below it, in reading order
@@ -27,22 +28,7 @@ export type Contents = {
 export type ChapterPage = { path: string; html: string; scans: ScanFile[] };
 export type Loaded<T> = { ok: true; value: T; stale: boolean } | { ok: false; reason: "unavailable" | "missing" };
 
-// The book's Wikisource work, when it can be read here: a bn.wikisource.org
-// link on a book that passes the public-domain rule today (the same rule as
-// every free copy on the site).
-export function readerSource(book: {
-  isPublicDomain: boolean;
-  authorDeathYear: number | null;
-  sources: { kind: string; url: string }[];
-}): { root: string; url: string } | null {
-  if (!book.isPublicDomain || !canBePublicDomain(book.authorDeathYear)) return null;
-  for (const s of book.sources) {
-    if (s.kind !== "WIKISOURCE") continue;
-    const root = workRootFromUrl(s.url);
-    if (root) return { root, url: s.url };
-  }
-  return null;
-}
+// Which books it reads: src/lib/reader/source.ts.
 
 async function cached<T>(key: string, load: () => Promise<T>): Promise<Loaded<T>> {
   const row = await readCache(key);

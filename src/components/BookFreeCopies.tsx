@@ -12,19 +12,22 @@ type FreeSource = { id: string; kind: SourceKind; url: string; rightsBasis: stri
 // Each copy says why it is free. When they all say the same thing, the note
 // is shown once rather than repeated under every button.
 //
-// A Wikisource work can also be read here (`readHref`, the in-site reader),
-// which comes first. Gutenberg links stay on the ebook's landing page, not
-// its read-online HTML: Project Gutenberg asks sites to link there and
-// redirects direct links to its files (gutenberg.org/policy/linking.html,
-// checked 2026-10-17).
+// A Wikisource work or a Gutenberg book can also be read here (`readHref`,
+// the in-site reader; `readFrom`, where its text comes from), which comes
+// first. Gutenberg links stay on the ebook's landing page, not its
+// read-online HTML: Project Gutenberg asks sites to link there and redirects
+// direct links to its files (gutenberg.org/policy/linking.html, checked
+// 2026-10-17).
 export default function BookFreeCopies({
   file,
   sources,
   readHref = null,
+  readFrom = "wikisource",
 }: {
   file: FreeFile | null;
   sources: FreeSource[];
   readHref?: string | null;
+  readFrom?: "wikisource" | "gutenberg";
 }) {
   if (!file && sources.length === 0) return null;
 
@@ -42,7 +45,9 @@ export default function BookFreeCopies({
               <Link href={readHref} className="btn-primary" data-read-here>
                 এখানেই পড়ুন
               </Link>
-              <span className="font-body text-sm text-ink/70">বই মহলেই, উইকিসংকলনের লেখা থেকে</span>
+              <span className="font-body text-sm text-ink/70">
+                {readFrom === "gutenberg" ? "বই মহলেই, প্রজেক্ট গুটেনবার্গের লেখা থেকে" : "বই মহলেই, উইকিসংকলনের লেখা থেকে"}
+              </span>
             </div>
           </li>
         )}
