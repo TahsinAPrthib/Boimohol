@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { blockedIdsFor } from "@/lib/blocks";
 import { describeDbError } from "@/lib/db-errors";
 import { averageOf } from "@/lib/ratings";
+import { MIN_BOOKS, MIN_READERS, mostShelved } from "@/lib/home-shelved";
 import { snippet } from "@/lib/snippet";
 import BookCard from "@/components/BookCard";
 import CategoryGrid from "@/components/CategoryGrid";
@@ -33,25 +34,26 @@ export default async function HomeSections({ viewerId }: { viewerId: string | nu
     })
   );
 
-  // The most shelved books, curated ones first (books imported in bulk from a
-  // whole catalog come after them): the top twelve, six shown.
+  // The most shelved books (src/lib/home-shelved.ts): each shelf item is one
+  // reader's (one per reader and book), admins' don't count, nor do books an
+  // admin has kept off the home page. The top twelve, six shown.
   const shelvedPromise = prisma.shelfItem
     .groupBy({
       by: ["bookId"],
+      where: { user: { role: { not: "ADMIN" } }, book: { hideFromHome: false } },
       _count: { bookId: true },
+      having: { bookId: { _count: { gte: MIN_READERS } } },
       orderBy: [{ _count: { bookId: "desc" } }, { bookId: "asc" }],
       take: 12,
     })
     .then(async (groups) => {
-      if (groups.length === 0) return [];
+      if (groups.length < MIN_BOOKS) return [];
+      const ranked = groups.map((g) => g.bookId);
       const books = await prisma.book.findMany({
-        where: { id: { in: groups.map((g) => g.bookId) } },
+        where: { id: { in: ranked } },
         include: { category: { select: { colorKey: true, slug: true } }, reviews: { select: { rating: true } } },
       });
-      // findMany doesn't keep the popularity order, so restore it.
-      const byId = new Map(books.map((b) => [b.id, b]));
-      const popular = groups.map((g) => byId.get(g.bookId)).filter((b) => b !== undefined);
-      return [...popular.filter((b) => b.curated), ...popular.filter((b) => !b.curated)].slice(0, 6);
+      return mostShelved(ranked, books);
     });
 
   let data;
@@ -60,7 +62,7 @@ export default async function HomeSections({ viewerId }: { viewerId: string | nu
       listingsPromise,
       shelvedPromise,
       prisma.review.findMany({
-        where: { text: { not: null }, NOT: { text: "" } },
+        where: { text: { not: null }, NOT: { text: "" }, book: { hideFromHome: false } },
         include: {
           user: { select: { username: true } },
           book: { select: { id: true, title: true, titleBangla: true } },

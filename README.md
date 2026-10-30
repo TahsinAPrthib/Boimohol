@@ -46,7 +46,8 @@ All screenshots are of public pages on the live site, taken while signed out.
 ### Reading
 - A catalog organised by category. Each category has an editorial "শুরু করুন এখান থেকে" (start here) pick.
 - Book pages with an overall rating plus optional aspect ratings (plot, writing, pacing). Reviews can be edited or deleted by their authors.
-- A personal shelf (want to read / reading / finished), a reading streak and a yearly goal with progress.
+- A personal shelf (want to read / reading / finished), a reading streak and a yearly goal with progress. A book can be taken off the shelf again from its page ("তাক থেকে সরান").
+- The home page's "পাঠকদের তাকে সবচেয়ে বেশি" counts a book only once three different readers have shelved it (admins' shelves don't count), and the section appears only when four books qualify (`src/lib/home-shelved.ts`).
 - A wishlist that flags marketplace listings matching a wished-for book.
 - Real covers for public-domain books, taken only from the book's own public-domain scan: the cover or title page of its scan on Wikimedia Commons or Wikisource, or a Project Gutenberg cover that was scanned from an original edition. The book page credits the source ("প্রচ্ছদের উৎস: উইকিমিডিয়া কমন্স") with a rights note. Every other book has a generated cover in the same frame, designed as one series: each category has its own visual language, drawn in SVG and CSS (a ruled frame with corner flourishes for poetry, a proscenium for drama, plain paper for essays, bright shapes round a title card for children's books, and so on), varied by the book's id so neighbouring books differ while each book always looks the same. The title's size is chosen from its own length and its longest word, so Bangla titles wrap at spaces. No modern publisher's cover art is used, and nothing is hotlinked.
 - Link previews (Open Graph and X cards). A shared book link, or a link to a page of its reader, shows a 1200 × 630 card drawn on the server (`/share/books/[id]`): the book's real cover, or its generated cover drawn from the same design, standing on the shelf board beside its title and author. No SVG renderer shapes Bangla correctly on its own, so the text is shaped with HarfBuzz and drawn as outlines, rendered by resvg and sent as a JPEG, small enough for WhatsApp. The card's address carries a version of everything it draws, so it is cached for a year and a corrected title gets a new picture. Every other page shares a picture of the living shelf with the wordmark.
@@ -92,6 +93,7 @@ All screenshots are of public pages on the live site, taken while signed out.
 - **Books:** add, edit and delete books, plus bulk JSON import with validation and duplicate detection. Import rows can carry links to free copies elsewhere; a row matching a book already in the catalog adds its links to that book instead of creating a duplicate. The book list is paged, 50 at a time.
 - **Large-file import:** for a whole catalog of tens of thousands of rows. The file is read in the browser and sent to the server 250 rows at a time, so each request ends well inside Vercel's time limit. Each batch is saved whole or not at all. A progress bar shows the running totals, a dry run reports what would be added, and a failed request is retried twice. After a failure or a closed tab, choosing the same file again carries on from the last saved batch, and a batch sent twice only finds duplicates. The rows and their checks are the ordinary import's: the same fields, the same duplicate detection and a rights note on every link. Books imported this way are marked as not curated.
 - **Categories:** choose each category's "start here" book from its own books, with a note on why it's a good first read.
+- **Home page:** a book can be kept off the home page's automatic sections (most shelved, recent reviews, the book of the day and its shelf) from its edit form; it stays in search, the library, its category and on its own page. The admin list marks such books.
 - **Library files:** upload a PDF, or add, edit and remove links to free copies elsewhere, each with a required rights note. Books whose public-domain flag the rule no longer supports get a warning.
 - **Covers:** set, replace or remove a public-domain book's real cover, from an image address on Wikimedia or Gutenberg or by uploading an image along with the page it came from, always with a rights note. Import rows can name a cover too: once the rows are saved, the page fetches the images two per request with a progress bar, so each request stays well inside Vercel's time limit. A failure doesn't stop the rest and can be retried.
 - **Reports:** a queue where reported content can be removed, or its owner suspended, in one step.
@@ -391,7 +393,7 @@ Environment variables (names only; `.env.example` explains each):
 
 ## Testing
 
-**Unit tests.** `npm test` runs 265 tests with Node's built-in test runner, through `tsx`. They cover the pure modules where the rules live:
+**Unit tests.** `npm test` runs 269 tests with Node's built-in test runner, through `tsx`. They cover the pure modules where the rules live:
 
 | Area | Tests |
 |---|---|
@@ -400,7 +402,7 @@ Environment variables (names only; `.env.example` explains each):
 | Bangla numbers, prices and dates in Bangladesh time, with no Latin digits | 18 |
 | Wishlist ↔ listing matching | 15 |
 | Account rules: sign-up validation, the password stamp, the last-admin rule, Google names and emails | 9 |
-| Book import rows (including links to free copies and covers), update rows and the admin book form | 22 |
+| Book import rows (including links to free copies and covers), update rows and the admin book form | 23 |
 | Real covers: the allowed sources, lookalike hosts, credits, delivery sizes and the checks on an uploaded image | 14 |
 | Generated covers: the same design for the same book, variety along a shelf, palette-only night sky, title sizing for Bangla vowel signs | 11 |
 | Duplicate detection, matching an import row to an existing book, and book IDs | 12 |
@@ -416,6 +418,7 @@ Environment variables (names only; `.env.example` explains each):
 | The book of the day: the day turning at midnight in Dhaka, and no repeats before every book has had its day | 6 |
 | Day and night colours: the remembered choice, and the palette set before the page is drawn | 4 |
 | What Web Analytics is sent: no query strings or fragments, no person or conversation in a path | 5 |
+| The home page's most shelved books: three readers for a book, four books for the section, curated first | 3 |
 | First-line epigraphs: one reviewed line per book | 3 |
 
 `npm run lint` and `npm run build`, which includes the TypeScript check, run before every merge.

@@ -184,6 +184,10 @@ model Book {
   // rather than imported in bulk from a whole catalog: listed first on the
   // home page, the library and the category pages. Search covers every book.
   curated          Boolean           @default(true)
+  // Set by an admin: kept out of the home page's automatic sections (most
+  // shelved, recent reviews, the book of the day and its shelf). The book
+  // stays everywhere else: search, the library, its category, its own page.
+  hideFromHome     Boolean           @default(false)
   // The order of the books imported in bulk: always written through
   // bookSortTitle() in src/lib/book-language.ts.
   sortTitle        String            @default("")

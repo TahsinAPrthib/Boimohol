@@ -173,4 +173,11 @@ describe("book form", () => {
     assert.equal(bookFormSchema.safeParse({ ...form, authorDeathYear: "1990" }).success, false);
     assert.equal(bookFormSchema.safeParse({ ...form, authorDeathYear: "1990", isPublicDomain: undefined }).success, true);
   });
+
+  test("keeping a book off the home page: ticked is on, unticked (absent) is off", () => {
+    const on = bookFormSchema.safeParse({ ...form, hideFromHome: "on" });
+    const off = bookFormSchema.safeParse(form);
+    assert.ok(on.success && on.data.hideFromHome === true);
+    assert.ok(off.success && off.data.hideFromHome === false);
+  });
 });

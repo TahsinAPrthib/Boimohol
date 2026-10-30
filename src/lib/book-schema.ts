@@ -86,6 +86,7 @@ export const bookFormSchema = base
   .extend({
     categoryId: z.string({ required_error: "বিভাগ বেছে নিন।" }).trim().min(1, "বিভাগ বেছে নিন।"),
     isPublicDomain: z.preprocess((v) => v === "on" || v === "true" || v === true, z.boolean()),
+    hideFromHome: z.preprocess((v) => v === "on" || v === "true" || v === true, z.boolean()),
   })
   .superRefine(publicDomainRule);
 

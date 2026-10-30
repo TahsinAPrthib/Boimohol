@@ -19,6 +19,7 @@ export type BookFormValues = {
   publishYear: number | null;
   authorDeathYear: number | null;
   isPublicDomain: boolean;
+  hideFromHome: boolean;
   translator: string | null;
   searchAliases: string[];
 };
@@ -161,6 +162,22 @@ export default function AdminBookForm({
             </p>
           )}
           {errors.isPublicDomain && <p className="field-error">{errors.isPublicDomain}</p>}
+        </div>
+
+        <div className="rounded-book border-2 border-ink/10 bg-paper p-4 sm:col-span-2">
+          <label className="flex items-start gap-3 font-body text-sm font-semibold text-ink">
+            <input
+              type="checkbox"
+              name="hideFromHome"
+              defaultChecked={initial?.hideFromHome ?? false}
+              className="mt-1 h-4 w-4 accent-sage"
+            />
+            হোম পাতার স্বয়ংক্রিয় তালিকায় দেখাবেন না
+          </label>
+          <p className="mt-2 max-w-prose font-body text-xs leading-relaxed text-ink/70">
+            “পাঠকদের তাকে সবচেয়ে বেশি”, “সাম্প্রতিক পর্যালোচনা” আর আজকের বইয়ের তাকে বইটি আসবে না। খোঁজ,
+            লাইব্রেরি, বিভাগের পাতা আর বইয়ের নিজের পাতায় আগের মতোই থাকবে।
+          </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-4 sm:col-span-2">

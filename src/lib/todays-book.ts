@@ -1,5 +1,5 @@
 import "server-only";
-import { revalidateTag, unstable_cache } from "next/cache";
+import { revalidateTag, unstable_cache, updateTag } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { publicDomainCutoffYear } from "@/lib/public-domain";
 import { readerSource } from "@/lib/reader/source";
@@ -16,6 +16,13 @@ const HOURS = 3600;
 
 export function revalidateShelves() {
   revalidateTag(SHELVES_TAG, "max");
+}
+
+// After an admin's edit to a book (a server action only): the next visit
+// waits for the new choice instead of being served the old one, so a book
+// kept off the home page is gone from it at once.
+export function expireShelves() {
+  updateTag(SHELVES_TAG);
 }
 
 const shelfSelect = {
@@ -46,8 +53,9 @@ async function chooseForDay(dateKey: string) {
   // The day's book has a real scanned cover (covers are only ever scans of
   // the book's own public-domain edition). Bangla books first: the other
   // languages only if no Bangla book qualifies.
+  // (A book an admin has kept off the home page never comes up.)
   const scanned = await prisma.book.findMany({
-    where: { ...free(), curated: true, coverPublicId: { not: null } },
+    where: { ...free(), curated: true, hideFromHome: false, coverPublicId: { not: null } },
     select: { id: true, language: true },
   });
   const bangla = scanned.filter((b) => b.language === "bn");
@@ -61,7 +69,7 @@ async function chooseForDay(dateKey: string) {
   const drawn = rotation(
     (
       await prisma.book.findMany({
-        where: { ...free(), curated: true, language: "bn", coverPublicId: null },
+        where: { ...free(), curated: true, hideFromHome: false, language: "bn", coverPublicId: null },
         select: { id: true },
       })
     ).map((b) => b.id)

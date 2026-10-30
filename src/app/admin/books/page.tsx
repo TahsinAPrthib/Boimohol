@@ -280,6 +280,11 @@ export default async function AdminBooksPage(props: {
                         বড় ফাইল থেকে আমদানি
                       </span>
                     )}
+                    {book.hideFromHome && (
+                      <span className="rounded-book border border-oxblood/40 px-2 py-1 font-body text-xs font-semibold text-oxblood">
+                        হোম পাতায় লুকানো
+                      </span>
+                    )}
                     {file && (
                       <span className="rounded-book bg-cloth px-2 py-1 font-body text-xs font-semibold text-paper">
                         ফাইল আছে

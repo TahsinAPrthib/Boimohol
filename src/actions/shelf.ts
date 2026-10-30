@@ -58,3 +58,23 @@ export async function updateShelfStatus(
 
   return { success: true };
 }
+
+// Takes the book off the reader's own shelf (whatever its status). It no
+// longer counts toward their year's goal; their reading streak is untouched.
+export async function removeFromShelf(bookId: string): Promise<ShelfState> {
+  const userId = await getSessionUserId();
+  if (!userId) {
+    return { success: false, message: "বইতাক বদলাতে হলে আগে লগইন করুন।" };
+  }
+  const parsed = shelfSchema.shape.bookId.safeParse(bookId);
+  if (!parsed.success) {
+    return { success: false, message: "অনুরোধটি সঠিক নয়।" };
+  }
+
+  await prisma.shelfItem.deleteMany({ where: { userId, bookId: parsed.data } });
+
+  revalidatePath(`/books/${parsed.data}`);
+  revalidatePath("/profile");
+
+  return { success: true };
+}
